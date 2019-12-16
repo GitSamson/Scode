@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Coding</title>
+</head>
+
+<body>
+    <div id = 'tar'>aaa</div>
+    <script>
+        // Handle the message inside the webview
+        var con = docuemnt.getElementById('tar');
+        con.innerText = "asd";
+        window.addEventListener('message', event => {
+            
+            const message = event.data; // The JSON data our extension sent
+            con.innerText = message;
+        });
+    </script>
+</body>
+
+</html>
