@@ -8,44 +8,72 @@
 </head>
 
 <body>
-    <h1 id = 'hereisthecontent'>aaa</h1>
+    <h1 id='hereisthecontent'>aaa</h1>
 </body>
-    <script>
-        // Handle the message inside the webview
-        var _con = document.getElementById('hereisthecontent');
-        // con.innerText = "asd";
-        _con.textContent = 'fuck';
-        window.addEventListener('message', event => {
-            const message = event.data; // The JSON data our extension sent
-            initial(message);
-            // con.innerText = message;
+<script>
+    // Handle the message inside the webview
+    var _con = document.getElementById('hereisthecontent');
+    // con.innerText = "asd";
+    _con.textContent = 'fuck';
+    window.addEventListener('message', event => {
+        const message = event.data; // The JSON data our extension sent
+        initial(message); // initialize data, rebuild code structure
+    });
+
+    function initial(content) {
+        // analysis contetn text and generate a content node tree;
+        let sourceTree = contentStructure(content);
+
+        //render node tree;
+        diagramRender(sourceTree, container);
+
+        //when click on each element rendered on container, move cursor to where it is.
+        eventHandler.do_vscCursor();
+        // event include these:
+        // 1: mouse :   cilck on diagram move cursor to the position
+        // 2: zoom:     select and zoom in.
+        // 3: modify:   change diagram content (add/delete/modify)update to vscode
+        // 4: gesture:  move or drag update to vscode
+
+    }
+    function contentStructure(content) {
+        let _result = content; // : string
+        _result = codeAnalysis.block(_result); // return root block
+        //code block : function ... {} 
+        blockTraversal(
+            _result,
+            codeAnalysis.anno, // handle annotation in code
+            codeAnalysis.link,  // add link prop to block instances
+            codeAnalysis.prop,   // add props property into block instance
+            );
+        
+        return _result;// root block include all block instances
+    }
+
+    function blockTraversal(rootNode,...f){
+        //... here will be rootNode childrens Traversal
+        f.forEach(i => {
+            i(rootNode);
         });
+        // ... end of child Traversal
+    }
 
-        function initial (content){
-            // analysis contetn text and generate a content node tree;
-            let sourceTree = contentStructure(content);
+    var codeAnalysis = {
+        block: function (t) { },
+        anno: function (b) { },
+        prop: function (b){ },
+    }
+    function diagramRender(nodeTree, container) {
+        let _nodeT = nodeTree;
+        PositionGenerator(nodeTree); // add position prop to block
 
-            //render node tree;
-            diagramRender(sourceTree,container);
 
-            //when click on each element rendered on container, move cursor to where it is.
-            eventHandler.do_vscCursor(); 
-            // event include these:
-            // 1: mouse :   cilck on diagram move cursor to the position
-            // 2: zoom:     select and zoom in.
-            // 3: modify:   change diagram content (add/delete/modify)update to vscode
-            // 4: gesture:  move or drag update to vscode
-            
-        }
-        function contentStructure(content){
+    }
+    var eventHandler = {
+        do_vscCursor: function (param) { }
+    };
 
-        }
-        function diagramRender(nodeTree,container){
-            
-        }
-        var eventHandler = {
-            do_vscCursor : function(param){}
-        };
-    </script>
+
+</script>
 
 </html>
