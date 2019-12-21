@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Coding</title>
+    <div id = 'container'>
+
+        <br id = 'container_end'></div>
+    </div>
+
 </head>
 
 <body>
@@ -19,8 +24,14 @@
         const message = event.data; // The JSON data our extension sent
         initial(message); // initialize data, rebuild code structure
     });
-
+    /**
+     * Initial whole process
+     * @function
+     */
     function initial(content) {
+        let container = document.getElementById('container');
+        let container_ed = document.getElementById('container_end');
+
         // analysis contetn text and generate a content node tree;
         let sourceTree = contentStructure(content);
 
@@ -36,6 +47,12 @@
         // 4: gesture:  move or drag update to vscode
 
     }
+    /**
+     * generate code block instances
+     * @function
+     * @param {string} content text capture from editor. 
+     * @returns {CodeBlock} root CodeBlock instance.
+     */
     function contentStructure(content) {
         let _result = content; // : string
         _result = codeAnalysis.block(_result); // return root block
@@ -45,33 +62,95 @@
             codeAnalysis.anno, // handle annotation in code
             codeAnalysis.link,  // add link prop to block instances
             codeAnalysis.prop,   // add props property into block instance
-            );
-        
+        );
+
         return _result;// root block include all block instances
     }
 
-    function blockTraversal(rootNode,...f){
+
+
+    /**
+     * Create codeBlock instance for sub code block source text.
+     * @class
+     * @example
+     * CodeBlock ('...{}');
+     * @param {string} source source one to be handled block unit source text. 
+     * source text should be begin with last "{".index +1 , next "}"
+     * @returns {CodeBlock} return instance of CodeBlock
+     */
+    function CodeBlock(source) {
+
+        this.front; // content before first "{"
+        this.content; // array contain all content, traverse if have another {}
+        this.i_begin; // block beginning index of context
+        this.i_end; // block end index of context
+        this.head = null;
+        this.next = null;
+        this.last = null;
+    }
+
+
+    function blockTraversal(rootNode, ...f) {
         //... here will be rootNode childrens Traversal
         f.forEach(i => {
             i(rootNode);
         });
         // ... end of child Traversal
     }
-
+    /** 
+     * functions for handle content in code block
+     */
     var codeAnalysis = {
-        block: function (t) { },
+
+        /**
+         * Split source to sub code block's source text
+         * @function
+         * @prarm {string} t source text from editor.
+         * @retruns {object} sub code block's source text
+         */
+        block: function (t) { 
+            let _t = t;
+            t.match(/(?<=function)\S*(?={)/g);
+            var _root = new CodeBlock()
+
+        },
+
         anno: function (b) { },
-        prop: function (b){ },
+        prop: function (b) { },
     }
+
     function diagramRender(nodeTree, container) {
         let _nodeT = nodeTree;
         PositionGenerator(nodeTree); // add position prop to block
 
+        /** 
+         * Render source
+         * @param {string} content innerText of render element.
+        */
+        function renderElementGenerator(content){
+            var _result = document.createElement('div');
+            _result.innerText = content;
+            return _result;
+        }
+
+        do {
+            container.appendChild(renderElementGenerator(_nodeT.head));
+            _nodeT = _nodeT.next;
+        }while(_nodeT.next!=false)
 
     }
+
     var eventHandler = {
         do_vscCursor: function (param) { }
     };
+    /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
+    /**
+     * Text handler
+     * @function
+     */
+    var textHandle = {
+
+    }
 
 
 </script>
