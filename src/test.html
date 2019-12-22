@@ -20,15 +20,43 @@
     var _con = document.getElementById('hereisthecontent');
     // con.innerText = "asd";
     _con.textContent = 'fuck';
+
+
     window.addEventListener('message', event => {
         const message = event.data; // The JSON data our extension sent
         initial(message); // initialize data, rebuild code structure
     });
+
+    /** 
+     * functions for handle content in code block
+     */
+    var codeAnalysis = {
+        /**
+         * Split source to sub code block's source text
+         * @function
+         * @prarm {string} t source text from editor.
+         * @retruns {object} sub code block's source text
+         */
+        block: function (t) {
+            
+            let _t = t;
+            var _fx = _t.match(/(?<=function).*?(?={)/g);
+            
+            return _fx;
+            // var _root = new CodeBlock();
+
+        },
+
+        anno: function (b) { },
+        prop: function (b) { },
+    }
+
     /**
      * Initial whole process
      * @function
      */
     function initial(content) {
+        
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
 
@@ -47,6 +75,8 @@
         // 4: gesture:  move or drag update to vscode
 
     }
+
+
     /**
      * generate code block instances
      * @function
@@ -55,14 +85,17 @@
      */
     function contentStructure(content) {
         let _result = content; // : string
+        
         _result = codeAnalysis.block(_result); // return root block
         //code block : function ... {} 
+        /*
         blockTraversal(
             _result,
             codeAnalysis.anno, // handle annotation in code
             codeAnalysis.link,  // add link prop to block instances
             codeAnalysis.prop,   // add props property into block instance
         );
+        */
 
         return _result;// root block include all block instances
     }
@@ -97,31 +130,14 @@
         });
         // ... end of child Traversal
     }
-    /** 
-     * functions for handle content in code block
-     */
-    var codeAnalysis = {
 
-        /**
-         * Split source to sub code block's source text
-         * @function
-         * @prarm {string} t source text from editor.
-         * @retruns {object} sub code block's source text
-         */
-        block: function (t) { 
-            let _t = t;
-            t.match(/(?<=function)\S*(?={)/g);
-            var _root = new CodeBlock()
-
-        },
-
-        anno: function (b) { },
-        prop: function (b) { },
-    }
 
     function diagramRender(nodeTree, container) {
         let _nodeT = nodeTree;
-        PositionGenerator(nodeTree); // add position prop to block
+        if(nodeTree==null){
+            throw('code structure is empty')
+            return;   }     
+        // PositionGenerator(nodeTree); // add position prop to block
 
         /** 
          * Render source
@@ -130,13 +146,17 @@
         function renderElementGenerator(content){
             var _result = document.createElement('div');
             _result.innerText = content;
+            container.appendChild(_result);
             return _result;
         }
 
-        do {
-            container.appendChild(renderElementGenerator(_nodeT.head));
-            _nodeT = _nodeT.next;
-        }while(_nodeT.next!=false)
+        nodeTree.forEach(i=>{
+            renderElementGenerator(i);
+        });
+        // do {
+        //     container.appendChild(renderElementGenerator(_nodeT.head));
+        //     _nodeT = _nodeT.next;
+        // }while(_nodeT.next!=false);
 
     }
 
@@ -152,7 +172,16 @@
 
     }
 
-
+        initial(`
+    function this is sparta(){
+        asd
+    }
+    function HiBitch () {
+        asd
+    }
+    HiBitch();
+    
+    `);
 </script>
 
 </html>
