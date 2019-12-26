@@ -10,16 +10,16 @@
 </head>
 
 <body>
-        <div id='container'>
-        
-            <br id='container_end'></div>
-        </div>
+    <div id='container'>
+
+        <br id='container_end'></div>
+    </div>
 </body>
 <script>
 
-    function postMsg (line,character){
-    const vscode = acquireVsCodeApi();
-     vscode.postMessage({line,character});
+    function postMsg(line, character) {
+        const vscode = acquireVsCodeApi();
+        vscode.postMessage({ line, character });
     }
 
     // Handle the message inside the webview
@@ -41,7 +41,7 @@
          * @retruns {object} sub code block's source text
          */
         block: function (t) {
-            var _result = [];
+            var _result = []; // result for CodeBlock array;
 
 
             let _t = t;
@@ -49,19 +49,32 @@
             let _fxNameEdReg = /{/; // key for function name end
             // var _fxNameSt = _t.search(/(?<=function).*?(?={)/g);
 
+            //TODO: here should have some thing for line seperater...
+
 
             let _fxNameSt = _fxNameStReg.exec(_t);
-            while(_fxNameSt!=null){
             let _fxNameEd = _fxNameEdReg.exec(_t);
-            _result.push(new CodeBlock())
-            console.log(t.slice(_fx,_fx+5));
-            let _fxNameSt = _fxNameStReg.exec(_t);
-            
-            }
-            
-            
-            return _fx;
+            // while (_fxNameSt != null) {
+                // var _name = _t.slice(_fxNameSt,_fxNameEd);
+                // var _line = 
+                // var charater = _fxNameSt - line index;
+                // var _cb = new CodeBlock(_name,_line,_charater,source);
+                // _result.push(new CodeBlock(_t.splice(_fxNameSt,_fxNameEd),));
+                // _fxNameEd = _fxNameEdReg.exec(_t);
+                // _fxNameSt = _fxNameStReg.exec(_t);
+            // }
+
+
+            // return _fx;
             // var _root = new CodeBlock();
+
+        },
+        /**
+        * for seperate lines in vsc source. will get lines index array.
+        * @param {string} t source text.
+        * @returns {array} array for line objects.
+        */
+        line: function (t){
 
         },
 
@@ -74,7 +87,7 @@
      * @function
      */
     function initial(content) {
-        
+
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
 
@@ -103,7 +116,7 @@
      */
     function contentStructure(content) {
         let _result = content; // : string
-        
+
         _result = codeAnalysis.block(_result); // return root block
         //code block : function ... {} 
         /*
@@ -131,12 +144,12 @@
      * @param {CodeBlock} next next CodeBlock node
      * @param {CodeBlock} previous previous CodeBlock node
      */
-    function CodeBlock(name,line,character,source) {
+    function CodeBlock(name, line, character, source) {
         this.name = name;
         this.line = line;
         this.character = character;
         this.content = source;
-        this.previous = null; 
+        this.previous = null;
         this.next = null;
 
     }
@@ -153,23 +166,24 @@
 
     function diagramRender(nodeTree, container) {
         let _nodeT = nodeTree;
-        if(nodeTree==null){
-            throw('code structure is empty')
-            return;   }     
+        if (nodeTree == null) {
+            throw ('code structure is empty');
+            return;
+        }
         // PositionGenerator(nodeTree); // add position prop to block
 
         /** 
          * Render source
          * @param {string} content innerText of render element.
         */
-        function renderElementGenerator(content){
+        function renderElementGenerator(content) {
             var _result = document.createElement('div');
             _result.innerText = content;
             container.appendChild(_result);
             return _result;
         }
 
-        nodeTree.forEach(i=>{
+        nodeTree.forEach(i => {
             renderElementGenerator(i);
         });
         // do {
@@ -179,6 +193,7 @@
 
     }
 
+
     var eventHandler = {
         do_vscCursor: function (param) { }
     };
@@ -186,12 +201,42 @@
     /**
      * Text handler
      * @function
+     * RegExp extension
      */
-    var textHandle = {
+    var reg = {
+    /**
+    * search regExp in whole string, will return a list for all information
+    * @param {string} source source input text
+    * @param {RegExp} k searching keyword.
+    * @retrun {[]} list for all information in sourceText.
+    */
+        list: function (source, k){
+            let _key = new RegExp(k,'g');
+            //Attention: Here must be 'g' as attr, otherwise only output first result;
+            
+            let _s = source;
+            let _result = new Array;
+            let _item = _key.exec(_s);
+            let timesControl =100;
+            while(_item != null & timesControl>0){
+                console.log(_item);
+                
+                if(timesControl==1){
+                    throw ('infinite while!');
+                }
+                timesControl -=1 ;
+                _result.push(_item);
+                _item = _key.exec(_s);
+            }
+            return _result;
+        }
 
     }
 
-        initial(`
+
+        console.log(reg.list('asdasdasd','s'));
+
+    initial(`
     function one(){
         asd
     }
