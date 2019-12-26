@@ -5,21 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Coding</title>
-    <div id = 'container'>
 
-        <br id = 'container_end'></div>
-    </div>
 
 </head>
 
 <body>
-    <h1 id='hereisthecontent'>aaa</h1>
+        <div id='container'>
+        
+            <br id='container_end'></div>
+        </div>
 </body>
 <script>
+
+    function postMsg (line,character){
+    const vscode = acquireVsCodeApi();
+     vscode.postMessage({line,character});
+    }
+
     // Handle the message inside the webview
-    var _con = document.getElementById('hereisthecontent');
-    // con.innerText = "asd";
-    _con.textContent = 'fuck';
 
 
     window.addEventListener('message', event => {
@@ -38,9 +41,24 @@
          * @retruns {object} sub code block's source text
          */
         block: function (t) {
-            
+            var _result = [];
+
+
             let _t = t;
-            var _fx = _t.match(/(?<=function).*?(?={)/g);
+            let _fxNameStReg = /(?<=function)/; // key for function start
+            let _fxNameEdReg = /{/; // key for function name end
+            // var _fxNameSt = _t.search(/(?<=function).*?(?={)/g);
+
+
+            let _fxNameSt = _fxNameStReg.exec(_t);
+            while(_fxNameSt!=null){
+            let _fxNameEd = _fxNameEdReg.exec(_t);
+            _result.push(new CodeBlock())
+            console.log(t.slice(_fx,_fx+5));
+            let _fxNameSt = _fxNameStReg.exec(_t);
+            
+            }
+            
             
             return _fx;
             // var _root = new CodeBlock();
@@ -103,23 +121,24 @@
 
 
     /**
-     * Create codeBlock instance for sub code block source text.
+     * Create codeBlock instance for block structure, which contain line, charater, 
+     * content, etc...
      * @class
-     * @example
-     * CodeBlock ('...{}');
-     * @param {string} source source one to be handled block unit source text. 
-     * source text should be begin with last "{".index +1 , next "}"
-     * @returns {CodeBlock} return instance of CodeBlock
+     * @param {string} name function name;
+     * @param {number} line line of function in vsc
+     * @param {number} charater charater index in vsc
+     * @param {string} source source content.
+     * @param {CodeBlock} next next CodeBlock node
+     * @param {CodeBlock} previous previous CodeBlock node
      */
-    function CodeBlock(source) {
-
-        this.front; // content before first "{"
-        this.content; // array contain all content, traverse if have another {}
-        this.i_begin; // block beginning index of context
-        this.i_end; // block end index of context
-        this.head = null;
+    function CodeBlock(name,line,character,source) {
+        this.name = name;
+        this.line = line;
+        this.character = character;
+        this.content = source;
+        this.previous = null; 
         this.next = null;
-        this.last = null;
+
     }
 
 
@@ -173,10 +192,10 @@
     }
 
         initial(`
-    function this is sparta(){
+    function one(){
         asd
     }
-    function HiBitch () {
+    function two () {
         asd
     }
     HiBitch();
