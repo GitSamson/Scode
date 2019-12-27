@@ -215,17 +215,18 @@
             //Attention: Here must be 'g' as attr, otherwise only output first result;
             
             let _s = source;
-            let _result = new Array;
+            let _result = {result:[],groups:[],index:[],input:[],length:[]};
             let _item = _key.exec(_s);
-            let timesControl =100;
-            while(_item != null & timesControl>0){
-                console.log(_item);
-                
-                if(timesControl==1){
-                    throw ('infinite while!');
-                }
-                timesControl -=1 ;
-                _result.push(_item);
+            while(_item != null ){
+ 
+                _result.result.push(_item[0])
+                _result.groups.push(_item.groups);
+                _result.index.push(_item.index);
+                _result.input.push(_item.input);
+                _result.length.push(_item.length);
+
+  
+                // _result.push(_item);
                 _item = _key.exec(_s);
             }
             return _result;
