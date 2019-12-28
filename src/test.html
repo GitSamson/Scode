@@ -47,26 +47,14 @@
             let _t = t;
             let _fxNameStReg = /(?<=function)/; // key for function start
             let _fxNameEdReg = /{/; // key for function name end
-            // var _fxNameSt = _t.search(/(?<=function).*?(?={)/g);
+            let _regResult = reg.list(t, /(?<=function).*?(?={)/);
+                for (let i = 0; i < _regResult.result.length; i++) {
+                    const element = _regResult.result[i];
+                    _result.push(new CodeBlock())
+                    
+                }
+            
 
-            //TODO: here should have some thing for line seperater...
-
-
-            let _fxNameSt = _fxNameStReg.exec(_t);
-            let _fxNameEd = _fxNameEdReg.exec(_t);
-            // while (_fxNameSt != null) {
-                // var _name = _t.slice(_fxNameSt,_fxNameEd);
-                // var _line = 
-                // var charater = _fxNameSt - line index;
-                // var _cb = new CodeBlock(_name,_line,_charater,source);
-                // _result.push(new CodeBlock(_t.splice(_fxNameSt,_fxNameEd),));
-                // _fxNameEd = _fxNameEdReg.exec(_t);
-                // _fxNameSt = _fxNameStReg.exec(_t);
-            // }
-
-
-            // return _fx;
-            // var _root = new CodeBlock();
 
         },
         /**
@@ -118,15 +106,7 @@
         let _result = content; // : string
 
         _result = codeAnalysis.block(_result); // return root block
-        //code block : function ... {} 
-        /*
-        blockTraversal(
-            _result,
-            codeAnalysis.anno, // handle annotation in code
-            codeAnalysis.link,  // add link prop to block instances
-            codeAnalysis.prop,   // add props property into block instance
-        );
-        */
+        
 
         return _result;// root block include all block instances
     }
@@ -138,13 +118,12 @@
      * content, etc...
      * @class
      * @param {string} name function name;
-     * @param {number} line line of function in vsc
-     * @param {number} charater charater index in vsc
+     * @param {number} index index in vsc
      * @param {string} source source content.
      * @param {CodeBlock} next next CodeBlock node
      * @param {CodeBlock} previous previous CodeBlock node
      */
-    function CodeBlock(name, line, character, source) {
+    function CodeBlock(name, index, source) {
         this.name = name;
         this.line = line;
         this.character = character;
