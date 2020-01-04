@@ -19,7 +19,7 @@
     </div>
 </body>
 <script>
-    "use strict";
+    'use strict';
 
     function postMsg(line, character) {
         const vscode = acquireVsCodeApi();
@@ -90,7 +90,8 @@
      * @function
      */
     function initial(content) {
-        console.log(indexLocate.divisionFind([1,2,3,4,5,6],6));
+        console.log(indexLocate.divisionFind([1, 3, 3, 4, 4, 4, 4, 6], 5));
+
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
 
@@ -208,8 +209,8 @@
             let _s = source;
             let _item = _key.exec(_s);
             let _check = 10;
-            while (_item != null && _check>0) {
-                _check-=1;
+            while (_item != null && _check > 0) {
+                _check -= 1;
                 // _result.push(_item);
                 _result.push(_item);
                 _item = _key.exec(_s);// Attention sequence with push.
@@ -298,55 +299,71 @@
 
             // if length <= 3 use beginningFind function.
             if (_l.length <= 3) {
-                return this.beginningFind(list,key);
+                return this.beginningFind(list, key);
             }
+
+            let _OverRange = (key > _l[_l.length - 1] && _l.length) || (key < _l[0] && 0);
+            if (_OverRange !== false) { return _OverRange; }
+
+
             // filt even number;
-            if(_l.length%2 == 0){
-                // r = l.last < key -> _l.length or l.last == key -> l.length
-                let _r = _l[_l.length-1]<key&& _l.length || _l[_l.length]==key && _l.length;
-                console.log(_r);
-                
-                if(_r){return _r};
-                _l.pop();
+            // if (_l.length % 2 == 0) {
+            //     // r = l.last < key -> _l.length or l.last == key -> l.length
+            //     let _r = _l[_l.length - 1] < key && _l.length || _l[_l.length] == key && _l.length;
+            //     console.log(_r);
 
-            }
+            //     if (_r) { return _r; };
+            //     _l.pop();
+
+            // }
 
 
-            let _indexPointer; // mid index 
             let _left = 0; // left pointer 
-            let _over = 10;
-            let _right  = _l.length-1; // right pointer
-            while( _right-_left !=2 ){
+            let _over = 12;
+            let _right = _l.length - 1; // right pointer
+            let _indexPointer; // mid index 
 
-                _over-= 1;
-                if(_over == 0 ){
-                    throw('over while');
+
+            do {
+                _indexPointer = ((_right - _left) % 2 == 0) ? ((_right - _left) / 2 + _left) : ((_right - _left - 1) / 2 + _left);
+                _over -= 1;
+                if (_over == 0) {
+                    throw ('over while');
                 }
-                _indexPointer = Math.floor((_right-_left) / 2 + _left);
 
                 // if mid is result then just return mid.
-                if(_l[_indexPointer] == key){
+                if (_l[_indexPointer] == key) {
                     return _indexPointer;
                 }
 
                 // mid > finding key, result on the left
-                if(key< _l[_indexPointer]){
-                    
+                if (key < _l[_indexPointer]) {
+
                     _right = _indexPointer;
-                }else{
+                } else if (key > _l[_indexPointer]) {
                     _left = _indexPointer;
                 }
-            };
+                // two index ?  get smaller one, cause it will repalce the larger one in result.
 
-            if(key == _l[_left] | key ==_l[_right]| key ==_l[_indexPointer]){
-                return (key==_l[_left]&&_left )|| (key == _l[_right] && _right) ||( _key==_l[_indexPointer] &&_indexPointer);
+
+
+            } while (_right - _left > 2);
+
+            let _result;
+            if (key == _l[_left] | key == _l[_right] | key == _l[_indexPointer]) {
+
+                _result = key == _l[_left] ? _left : key == _l[_right] ? _right : _indexPointer;
+                return _result
             }
-            return key<_l[_indexPointer] && _indexPointer || _indexPointer+1;
+
+            _result = key < _l[_indexPointer] ? _indexPointer : _right;
+
+            return _result;
 
         },
         beginningFind: function (list, key) {
             let _resultIndex = 0;
-            if(this.list.length == 0){return 0;}
+            if (this.list.length == 0) { return 0; }
 
             while (_resultIndex < list.length) {
                 if (element == key) {
