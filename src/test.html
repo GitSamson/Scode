@@ -200,7 +200,7 @@
         * search regExp in whole string, will return a list for all information
         * @param {string} source source input text
         * @param {RegExp} k searching keyword.
-        * @retrun {[]} list for all information in sourceText.
+        * @retrun {[]} list for all information in sourceText.['result-1','result-2',...]
         */
         list: function (source, k) {
             let _key = new RegExp(k, 'g');
@@ -245,6 +245,7 @@
     /** get line from block.
      */
     var lineHandler = {
+        lineMarker : '\n',
         list: [],
         /** reset line marker pool. 
         * @returns return marker list.
@@ -254,12 +255,24 @@
             return this.list;
         },
         /** update line marker list pool
-        * @param {number} beginning updating start index in source text.
+        * @param {number} beginning updating start index of source text.
         * @param {number} end updating end index in source text.
         * @return {[]} return lineHandler.list.
         */
-        update: function (beginning, end) {
+        update: function (source,beginning = 0, end = null) {
+            
+            let _source = end != null ? source.slice(beginning,end) : source;
 
+            let updateContent = reg.keyList(_source,this.lineMarker);
+
+            // find location for beginning and end in list.
+            let _range_st = index.divisionFind(this.list,beginning);
+            let _range_ed = index.divisionFind(this.list,end);
+
+            //update list
+            this.list.splice(_range_st,_range_ed-_range_st,[...updateContent.index]);
+
+            return this.list;
 
         },
         get: function (indexCheck) {
