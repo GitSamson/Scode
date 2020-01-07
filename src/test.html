@@ -46,13 +46,12 @@
          */
         block: function (t) {
             var _result = []; // result for CodeBlock array;
-
-
             let _t = t;
 
             // get list from reg.list
-            let _regResult = reg.list(t, reg.regBetween('function', ''));
-
+            let _regResult = reg.list(t, reg.regBetween('function', '{'));
+            console.log(_regResult);
+            
             if (_regResult.length == 0) { throw ('_regResult is empty') };
 
             //handle list from reg.list
@@ -90,8 +89,7 @@
      * @function
      */
     function initial(content) {
-        console.log(indexLocate.divisionFind([1, 3, 3, 4, 4, 4, 4, 6], 5));
-
+        
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
 
@@ -241,7 +239,13 @@
             return new RegExp(_source, 'g');
         }
     }
+    /** content comparison function
+     * 
+     */
+    var contentComparison = {
+        
 
+    }
     /** get line from block.
      */
     var lineHandler = {
@@ -324,10 +328,8 @@
             //     // r = l.last < key -> _l.length or l.last == key -> l.length
             //     let _r = _l[_l.length - 1] < key && _l.length || _l[_l.length] == key && _l.length;
             //     console.log(_r);
-
             //     if (_r) { return _r; };
             //     _l.pop();
-
             // }
 
 
@@ -396,195 +398,386 @@
         }
 
     }
-
+    
     initial(`
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global.wangEditor = factory());
-}(this, (function () { 'use strict';
 
-/*
-    poly-fill
-*/
+    function postMsg(line, character) {
+        const vscode = acquireVsCodeApi();
+        vscode.postMessage({ line, character });
+    }
 
-var polyfill = function () {
+    // Handle the message inside the webview
 
-    // Object.assign
-    if (typeof Object.assign != 'function') {
-        Object.assign = function (target, varArgs) {
-            // .length of function is 2
-            if (target == null) {
-                // TypeError if undefined or null
-                throw new TypeError('Cannot convert undefined or null to object');
-            }
 
-            var to = Object(target);
+    window.addEventListener('message', event => {
+        const message = event.data; // The JSON data our extension sent
+        initial(message); // initialize data, rebuild code structure
+    });
 
-            for (var index = 1; index < arguments.length; index++) {
-                var nextSource = arguments[index];
+    /** 
+     * functions for handle content in code block
+     */
+    var codeAnalysis = {
+        /**
+         * Split source to sub code block's source text
+         * @function
+         * @prarm {string} t source text from editor.
+         * @retruns {object} sub code block's source text
+         */
+        block: function (t) {
+            var _result = []; // result for CodeBlock array;
+            let _t = t;
 
-                if (nextSource != null) {
-                    // Skip over if undefined or null
-                    for (var nextKey in nextSource) {
-                        // Avoid bugs when hasOwnProperty is shadowed
-                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                            to[nextKey] = nextSource[nextKey];
-                        }
-                    }
+            // get list from reg.list
+            let _regResult = reg.list(t, reg.regBetween('function', '{'));
+            console.log(_regResult);
+            
+            if (_regResult.length == 0) { throw ('_regResult is empty') };
+
+            //handle list from reg.list
+            for (let i = 0; i < _regResult.length; i++) {
+                const element = _regResult[i];
+                let _block = new CodeBlock(element[0], element.index, element, 'function');
+
+                // link previous and next in block;
+                if (i > 0) {
+                    _block.previous = _result[i - 1];
+                    _result[i - 1].next = _block;
                 }
+                _result.push(_block);
             }
-            return to;
+            return _result[0];
+
+
+
+        },
+        /**
+        * for seperate lines in vsc source. will get lines index array.
+        * @param {string} t source text.
+        * @returns {array} array for line objects.
+        */
+        line: function (t) {
+
+        },
+
+        anno: function (b) { },
+        prop: function (b) { },
+    }
+
+    /**
+     * Initial whole process
+     * @function
+     */
+    function initial(content) {
+        
+        let container = document.getElementById('container');
+        let container_ed = document.getElementById('container_end');
+
+        // analysis contetn text and generate a content node tree;
+        let sourceTree = contentStructure(content);
+
+        //render node tree;
+        diagramRender(sourceTree, container);
+
+        //when click on each element rendered on container, move cursor to where it is.
+        eventHandler.do_vscCursor();
+        // event include these:
+        // 1: mouse :   cilck on diagram move cursor to the position
+        // 2: zoom:     select and zoom in.
+        // 3: modify:   change diagram content (add/delete/modify)update to vscode
+        // 4: gesture:  move or drag update to vscode
+
+    }
+
+
+    /**
+     * generate code block instances
+     * @function
+     * @param {string} content text capture from editor. 
+     * @returns {CodeBlock} root CodeBlock instance.
+     */
+    function contentStructure(content) {
+        let _result = content; // : string
+
+        _result = codeAnalysis.block(_result); // return root block
+
+
+        return _result;// root block include all block instances
+    }
+
+
+
+    /**
+     * Create codeBlock instance for block structure, which contain line, charater, 
+     * content, etc...
+     * @class
+     * @param {string} name function name;
+     * @param {number} index index in vsc
+     * @param {string} source source content.
+     * @param {CodeBlock} next next CodeBlock node
+     * @param {CodeBlock} previous previous CodeBlock node
+     */
+    function CodeBlock(name, index, source, type) {
+        this.type = null;
+        this.name = name;
+        // this.line = line;
+        // this.character = character;
+        this.source = source;
+        this.previous = null;
+        this.next = null;
+
+    }
+
+
+    /**
+     * Render from root codeBlock
+     * @param {CodeBlock} nodeTree root codeBlock, also can be where want to generate.
+     * @param {string} container here is a test;
+     */
+    function diagramRender(nodeTree, container) {
+        let _nodeT = nodeTree;
+        let _node = _nodeT; // pointer node from root codeBlock;
+        if (nodeTree == null) {
+            throw ('code structure is empty');
+            return;
         };
+
+        // PositionGenerator(nodeTree); // add position prop to block
+
+        /** 
+         * Render source
+         * @param {string} content innerText of render element.
+        */
+        function renderElementGenerator(text) {
+            var _result = document.createElement('div');
+            _result.innerText = text;
+            container.appendChild(_result);
+        }
+
+        //render from root, traverse each next;
+        while (_node != null) {
+            renderElementGenerator(_node.name);
+            _node = _node.next; // pointer move to next one.
+        }
+
+
     }
 
-    // IE 中兼容 Element.prototype.matches
-    if (!Element.prototype.matches) {
-        Element.prototype.matches = Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector || function (s) {
-            var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-                i = matches.length;
-            while (--i >= 0 && matches.item(i) !== this) {}
-            return i > -1;
-        };
-    }
-};
 
-/*
-    DOM 操作 API
-*/
+    var eventHandler = {
+        do_vscCursor: function (param) { }
+    };
+    /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
+    /**
+     * Text handler
+     * @function
+     * RegExp extension
+     */
+    var reg = {
+        /**
+        * search regExp in whole string, will return a list for all information
+        * @param {string} source source input text
+        * @param {RegExp} k searching keyword.
+        * @retrun {[]} list for all information in sourceText.['result-1','result-2',...]
+        */
+        list: function (source, k) {
+            let _key = new RegExp(k, 'g');
+            //Attention: Here must be 'g' as attr, otherwise only output first result;
+            let _result = [];
+            let _s = source;
+            let _item = _key.exec(_s);
+            let _check = 10;
+            while (_item != null && _check > 0) {
+                _check -= 1;
+                // _result.push(_item);
+                _result.push(_item);
+                _item = _key.exec(_s);// Attention sequence with push.
+            }
+            return _result;
+        },
+        keyList: function (source, k) {
+            let _fullList = this.list(source, k);
+            let _result = { result: [], groups: [], index: [], input: [], length: [] };
+            _fullList.forEach(element => {
 
-// 根据 html 代码片段创建 dom 对象
-function createElemByHTML(html) {
-    var div = void 0;
-    div = document.createElement('div');
-    div.innerHTML = html;
-    return div.children;
-}
+                _result.result.push(element[0])
+                _result.groups.push(element.groups);
+                _result.index.push(element.index);
+                _result.input.push(element.input);
+                _result.length.push(element.length);
+            });
+            return _result;
+        },
 
-// 是否是 DOM List
-function isDOMList(selector) {
-    if (!selector) {
-        return false;
-    }
-    if (selector instanceof HTMLCollection || selector instanceof NodeList) {
-        return true;
-    }
-    return false;
-}
-
-// 封装 document.querySelectorAll
-function querySelectorAll(selector) {
-    var result = document.querySelectorAll(selector);
-    if (isDOMList(result)) {
-        return result;
-    } else {
-        return [result];
-    }
-}
-
-// 记录所有的事件绑定
-var eventList = [];
-
-// 创建构造函数
-function DomElement(selector) {
-    if (!selector) {
-        return;
-    }
-
-    // selector 本来就是 DomElement 对象，直接返回
-    if (selector instanceof DomElement) {
-        return selector;
-    }
-
-    this.selector = selector;
-    var nodeType = selector.nodeType;
-
-    // 根据 selector 得出的结果（如 DOM，DOM List）
-    var selectorResult = [];
-    if (nodeType === 9) {
-        // document 节点
-        selectorResult = [selector];
-    } else if (nodeType === 1) {
-        // 单个 DOM 节点
-        selectorResult = [selector];
-    } else if (isDOMList(selector) || selector instanceof Array) {
-        // DOM List 或者数组
-        selectorResult = selector;
-    } else if (typeof selector === 'string') {
-        // 字符串
-        selector = selector.replace('/\n/mg', '').trim();
-        if (selector.indexOf('<') === 0) {
-            // 如 <div>
-            selectorResult = createElemByHTML(selector);
-        } else {
-            // 如 #id .class
-            selectorResult = querySelectorAll(selector);
+        /** get RegExp instance between Beginning and end keywords;
+         * @param {string} beginning beginning keyword
+         * @param {string} end end keyword
+         * @returns {RegExp} retrun RegExp instance;
+         */
+        regBetween: function (beginning, end) {
+            let _source = '(?<=' + beginning + ').*?(?=' + end + ')';
+            return new RegExp(_source, 'g');
         }
     }
+    /** content comparison function
+     * 
+     */
+    var contentComparison = {
+        
 
-    var length = selectorResult.length;
-    if (!length) {
-        // 空数组
-        return this;
     }
+    /** get line from block.
+     */
+    var lineHandler = {
+        lineMarker : '\n',
+        list: [],
+        /** reset line marker pool. 
+        * @returns return marker list.
+        */
+        refresh: function () {
+            this.list = [];
+            return this.list;
+        },
+        /** update line marker list pool
+        * @param {number} beginning updating start index of source text.
+        * @param {number} end updating end index in source text.
+        * @return {[]} return lineHandler.list.
+        */
+        update: function (source,beginning = 0, end = null) {
+            
+            let _source = end != null ? source.slice(beginning,end) : source;
 
-    // 加入 DOM 节点
-    var i = void 0;
-    for (i = 0; i < length; i++) {
-        this[i] = selectorResult[i];
-    }
-    this.length = length;
-}
+            let updateContent = reg.keyList(_source,this.lineMarker);
 
-// 修改原型
-DomElement.prototype = {
-    constructor: DomElement,
+            // find location for beginning and end in list.
+            let _range_st = index.divisionFind(this.list,beginning);
+            let _range_ed = index.divisionFind(this.list,end);
 
-    // 类数组，forEach
-    forEach: function forEach(fn) {
-        var i = void 0;
-        for (i = 0; i < this.length; i++) {
-            var elem = this[i];
-            var result = fn.call(elem, elem, i);
-            if (result === false) {
-                break;
+            //update list
+            this.list.splice(_range_st,_range_ed-_range_st,[...updateContent.index]);
+
+            return this.list;
+
+        },
+        get: function (indexCheck) {
+            // each update will compare where updated, take out updating lines marker do insert/delete in list;
+            // if index less than last item in list, then check where is the index, return its index in list.
+            // else: generate following index list, to indexCheck.
+
+            let _lastIndexInList; // get last index in list.
+            // list is empty last index is 0 , else is last item in list.
+            if (this.list.length == 0) {
+                _lastIndexInList = 0;
+            } else {
+                _lastIndexInList = this.list[this.list.length - 1];
+            }
+
+            // indexCheck already had in list then return it.
+            // else push line markers from last one to indexCheck.
+            if (_lastIndexInList >= indexCheck) {
+
+            }
+
+        },
+
+    };
+
+    // extension of get line function. provide functions of how to locate where index 
+    var indexLocate = {
+        /** function of division find.
+        @param {[]} list where this function find from 
+        @param {number} key finding key.
+        @returns {number} index where the key is or where it should be.
+        */
+        divisionFind: function (list, key) {
+            if (list.length == 0) { return; }
+
+            let _l = list;
+
+            // if length <= 3 use beginningFind function.
+            if (_l.length <= 3) {
+                return this.beginningFind(list, key);
+            }
+
+            let _OverRange = (key > _l[_l.length - 1] && _l.length) || (key < _l[0] && 0);
+            if (_OverRange !== false) { return _OverRange; }
+
+
+            // filt even number;
+            // if (_l.length % 2 == 0) {
+            //     // r = l.last < key -> _l.length or l.last == key -> l.length
+            //     let _r = _l[_l.length - 1] < key && _l.length || _l[_l.length] == key && _l.length;
+            //     console.log(_r);
+            //     if (_r) { return _r; };
+            //     _l.pop();
+            // }
+
+
+            let _left = 0; // left pointer 
+            let _over = 12;
+            let _right = _l.length - 1; // right pointer
+            let _indexPointer; // mid index 
+
+
+            do {
+                _indexPointer = ((_right - _left) % 2 == 0) ? ((_right - _left) / 2 + _left) : ((_right - _left - 1) / 2 + _left);
+                _over -= 1;
+                if (_over == 0) {
+                    throw ('over while');
+                }
+
+                // if mid is result then just return mid.
+                if (_l[_indexPointer] == key) {
+                    return _indexPointer;
+                }
+
+                // mid > finding key, result on the left
+                if (key < _l[_indexPointer]) {
+
+                    _right = _indexPointer;
+                } else if (key > _l[_indexPointer]) {
+                    _left = _indexPointer;
+                }
+                // two index ?  get smaller one, cause it will repalce the larger one in result.
+
+
+
+            } while (_right - _left > 2);
+
+            let _result;
+            if (key == _l[_left] | key == _l[_right] | key == _l[_indexPointer]) {
+
+                _result = key == _l[_left] ? _left : key == _l[_right] ? _right : _indexPointer;
+                return _result
+            }
+
+            _result = key < _l[_indexPointer] ? _indexPointer : _right;
+
+            return _result;
+
+        },
+        beginningFind: function (list, key) {
+            let _resultIndex = 0;
+            if (this.list.length == 0) { return 0; }
+
+            while (_resultIndex < list.length) {
+                if (element == key) {
+                    return _resultIndex;
+                }
+
+                // element same as key | element < result < element[i+1];
+                if ((list[_resultIndex] < key && list[_resultIndex + 1] > key)) {
+                    return _resultIndex + 1;
+                }
+
+                // if 2th of last still not match, means result should in the last of list. return last index +1/
+                if (_resultIndex == list.length - 2) { return list.length }
+
+                _resultIndex += 1;
             }
         }
-        return this;
-    },
 
-    // clone
-    clone: function clone(deep) {
-        var cloneList = [];
-        this.forEach(function (elem) {
-            cloneList.push(elem.cloneNode(!!deep));
-        });
-        return $(cloneList);
-    },
-
-    // 获取第几个元素
-    get: function get(index) {
-        var length = this.length;
-        if (index >= length) {
-            index = index % length;
-        }
-        return $(this[index]);
-    },
-
-    // 第一个
-    first: function first() {
-        return this.get(0);
-    },
-
-    // 最后一个
-    last: function last() {
-        var length = this.length;
-        return this.get(length - 1);
-    },
-
-
-};
-
+    }
     
     `);
 </script>
