@@ -398,7 +398,68 @@
         }
 
     }
-    
+    /*11111111111111111111111111111111111111111111111111111111111111111*/
+
+    //                  AST GENERATOR
+
+
+    /*11111111111111111111111111111111111111111111111111111111111111111*/
+    /**
+     *  AST handler Main function
+     */
+    function ASThandler(input){
+        let _result = AST.tokenize(input);
+
+
+    }
+    var AST = {
+        keySymbol_st: ['(','{'],
+        keySymbol_ed:[')','}'],
+        /** replace key symbol with space
+         * TO BE TEST
+        */
+        tokenize: function (input){
+            let _result = input;
+            let _symbol  = keySymbol_st.concat(keySymbol_st);
+            for (let i = 0; i < _symbol.length; i++) {
+                let element = _symbol[i];
+                let _replace = new RegExp('\\'+element,'gm');
+                // attention here, need double \ to make it works.
+
+                 _result = _result.replace(_replace,' '+element+' ');
+            };
+            _result = _result.split(' ');
+            return _result;
+        },
+        /**
+         * make cuted string have array structure
+         * @param {[]} input expect result from tokenize
+         */
+        onionize : function(input){
+            let _source = input;
+            let _result=[];
+            function readSource(s,start,end){
+                let _result = [];
+                if(s[0]==start){
+                    s.pop();
+                    while()
+
+                }
+
+
+                }
+ 
+            }
+            for (let i = 0; i < keySymbol_st.length; i++) {
+                const _st = keySymbol_st[i];
+                const _ed = keySymbol_ed[i];
+
+                
+            }
+        }
+
+    }
+    console.log(AST.tokenize('hhh(asda(s)sd)'));
     initial(`
 
     function postMsg(line, character) {
