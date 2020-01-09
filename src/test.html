@@ -50,7 +50,6 @@
 
             // get list from reg.list
             let _regResult = reg.list(t, reg.regBetween('function', '{'));
-            console.log(_regResult);
             
             if (_regResult.length == 0) { throw ('_regResult is empty') };
 
@@ -409,7 +408,8 @@
      */
     function ASThandler(input){
         let _result = AST.tokenize(input);
-
+        _result = AST.onionize(_result);
+        return _result;
 
     }
     var AST = {
@@ -420,15 +420,21 @@
         */
         tokenize: function (input){
             let _result = input;
-            let _symbol  = keySymbol_st.concat(keySymbol_st);
+            let _symbol  = this.keySymbol_st.concat(this.keySymbol_ed);
+            console.log(_symbol);
+            
             for (let i = 0; i < _symbol.length; i++) {
                 let element = _symbol[i];
                 let _replace = new RegExp('\\'+element,'gm');
                 // attention here, need double \ to make it works.
 
                  _result = _result.replace(_replace,' '+element+' ');
+                 
             };
             _result = _result.split(' ');
+            _result = _result.filter(i =>i);
+            console.log(_result);
+            
             return _result;
         },
         /**
@@ -437,29 +443,43 @@
          */
         onionize : function(input){
             let _source = input;
-            let _result=[];
+            console.log(_source);
+            
+            let _result= readSource(_source,this.keySymbol_st[0],this.keySymbol_ed[0]);
+
             function readSource(s,start,end){
-                let _result = [];
-                if(s[0]==start){
-                    s.pop();
-                    while()
-
+                if(!s){
+                    return;
+                }
+                let _e = s.shift();
+                console.log(_e);
+                if (_e == start){
+                    let _res = [];
+                    while (s[0]!= end){
+                        _res.push(readSource(s,start,end));
+                    }
+                    s.shift();
+                    
+                    return _res;
                 }
 
-
+                else{
+                    // throw ('unexpected');
                 }
+            }
  
-            }
-            for (let i = 0; i < keySymbol_st.length; i++) {
-                const _st = keySymbol_st[i];
-                const _ed = keySymbol_ed[i];
+            
+            // for (let i = 1; i < this.keySymbol_st.length; i++) {
+            //     const _st = this.keySymbol_st[i];
+            //     const _ed = this.keySymbol_ed[i];
 
-                
-            }
+            //     _result = readSource(_result,_st,_ed);
+            // }
+            return _result;
         }
 
     }
-    console.log(AST.tokenize('hhh(asda(s)sd)'));
+    console.log(ASThandler('(asda(s)sd)'));
     initial(`
 
     function postMsg(line, character) {
