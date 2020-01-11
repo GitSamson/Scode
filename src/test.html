@@ -421,7 +421,6 @@
         tokenize: function (input){
             let _result = input;
             let _symbol  = this.keySymbol_st.concat(this.keySymbol_ed);
-            console.log(_symbol);
             
             for (let i = 0; i < _symbol.length; i++) {
                 let element = _symbol[i];
@@ -433,7 +432,6 @@
             };
             _result = _result.split(' ');
             _result = _result.filter(i =>i);
-            console.log(_result);
             
             return _result;
         },
@@ -442,8 +440,9 @@
          * @param {[]} input expect result from tokenize
          */
         onionize : function(input){
+
+            //// CONTINUE 
             let _source = input;
-            console.log(_source);
             
             let _result= readSource(_source,this.keySymbol_st[0],this.keySymbol_ed[0]);
 
@@ -452,7 +451,6 @@
                     return;
                 }
                 let _e = s.shift();
-                console.log(_e);
                 if (_e == start){
                     let _res = [];
                     while (s[0]!= end){
@@ -462,8 +460,10 @@
                     
                     return _res;
                 }
+                
 
                 else{
+                    return _e;
                     // throw ('unexpected');
                 }
             }
@@ -479,7 +479,7 @@
         }
 
     }
-    console.log(ASThandler('(asda(s)sd)'));
+    console.log(ASThandler('(asda(s(ssss)s)sd)'));
     initial(`
 
     function postMsg(line, character) {
