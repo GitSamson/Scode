@@ -50,7 +50,7 @@
 
             // get list from reg.list
             let _regResult = reg.list(t, reg.regBetween('function', '{'));
-            
+
             if (_regResult.length == 0) { throw ('_regResult is empty') };
 
             //handle list from reg.list
@@ -88,7 +88,7 @@
      * @function
      */
     function initial(content) {
-        
+
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
 
@@ -183,7 +183,7 @@
     }
 
 
-    var eventHandler = { 
+    var eventHandler = {
         do_vscCursor: function (param) { }
     };
     /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
@@ -242,13 +242,13 @@
      * 
      */
     var contentComparison = {
-        
+
 
     }
     /** get line from block.
      */
     var lineHandler = {
-        lineMarker : '\n',
+        lineMarker: '\n',
         list: [],
         /** reset line marker pool. 
         * @returns return marker list.
@@ -262,18 +262,18 @@
         * @param {number} end updating end index in source text.
         * @return {[]} return lineHandler.list.
         */
-        update: function (source,beginning = 0, end = null) {
-            
-            let _source = end != null ? source.slice(beginning,end) : source;
+        update: function (source, beginning = 0, end = null) {
 
-            let updateContent = reg.keyList(_source,this.lineMarker);
+            let _source = end != null ? source.slice(beginning, end) : source;
+
+            let updateContent = reg.keyList(_source, this.lineMarker);
 
             // find location for beginning and end in list.
-            let _range_st = index.divisionFind(this.list,beginning);
-            let _range_ed = index.divisionFind(this.list,end);
+            let _range_st = index.divisionFind(this.list, beginning);
+            let _range_ed = index.divisionFind(this.list, end);
 
             //update list
-            this.list.splice(_range_st,_range_ed-_range_st,[...updateContent.index]);
+            this.list.splice(_range_st, _range_ed - _range_st, [...updateContent.index]);
 
             return this.list;
 
@@ -406,80 +406,150 @@
     /**
      *  AST handler Main function
      */
-    function ASThandler(input){
+    function ASThandler(input) {
         let _result = AST.tokenize(input);
         _result = AST.onionize(_result);
         return _result;
 
     }
+
+    /**
+     * for generate AST unit, can be lines/ block
+     */
+    class AST_Unit {
+        constructor() {
+            this.body= [];
+            this.type;
+
+        }
+        push(content) {
+            // check type and initial end checking
+            if (!this.type) {
+                this.type = this.getType(content);
+            }
+
+            // here coulde be more check function 
+            this.body.push(content);
+        };
+
+        /** type check prototype function
+         * @returns false | type
+         */
+        getType(content) {
+            
+            var typeMarker = {
+                function: new AST_Type_Register('block', 'function'),
+                variable: new AST_Type_Register('variable', 'var' ,'let' , 'const')
+            }
+            
+            console.log(typeMarker.variable.check('var'));
+            
+
+            let _type = false;
+            
+            for (let i in typeMarker) {
+                console.log(typeMarker.variable.check('var'));
+                
+                let _e = typeMarker[i].check(content);
+                if (_e) {
+                    _type = _e;
+                    break;
+                }
+            }
+            return _type;
+        }
+    }
+
+    /**
+     * AST type register for instance types
+     */
+    class AST_Type_Register {
+        constructor(type, ...typeIndicator) {
+            this.typeIndicator = [typeIndicator];
+            this.type = type;
+        }
+        check(input) {
+            let _result = false;
+            for (let i = 0; i < this.typeIndicator.length; i++) {
+                const element = this.typeIndicator[i];
+                if (input == element) {
+                    _result = this.type;
+                    break;
+               }
+                
+            }
+           
+            return _result;
+        }
+    }
+
+
     var AST = {
-        keySymbol_st: ['(','{'],
-        keySymbol_ed:[')','}'],
+        keySymbol_st: ['(', '{'],
+        keySymbol_ed: [')', '}'],
         /** replace key symbol with space
          * TO BE TEST
         */
-        tokenize: function (input){
+        tokenize: function (input) {
             let _result = input;
-            let _symbol  = this.keySymbol_st.concat(this.keySymbol_ed);
-            
+            let _symbol = this.keySymbol_st.concat(this.keySymbol_ed);
+
             for (let i = 0; i < _symbol.length; i++) {
                 let element = _symbol[i];
-                let _replace = new RegExp('\\'+element,'gm');
+                let _replace = new RegExp('\\' + element, 'gm');
                 // attention here, need double \ to make it works.
 
-                 _result = _result.replace(_replace,' '+element+' ');
-                 
+                _result = _result.replace(_replace, ' ' + element + ' ');
+
             };
             _result = _result.split(' ');
-            _result = _result.filter(i =>i);
-            
+            _result = _result.filter(i => i);
+
             return _result;
         },
         /**
          * make cuted string have array structure
          * @param {[]} input expect result from tokenize
          */
-        onionize : function(input){
+        onionize: function (input) {
 
             //// CONTINUE 
             let _source = input;
-            
-            let _result= readSource(_source,this.keySymbol_st[0],this.keySymbol_ed[0]);
+            let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
 
-            function readSource(s,start,end){
-                if(!s){
-                    return;
-                }
-                let _e = s.shift();
-                if (_e == start){
-                    let _res = [];
-                    while (s[0]!= end){
-                        _res.push(readSource(s,start,end));
-                    }
-                    s.shift();
-                    
-                    return _res;
-                }
-                
 
-                else{
-                    return _e;
-                    // throw ('unexpected');
-                }
-            }
- 
-            
-            // for (let i = 1; i < this.keySymbol_st.length; i++) {
-            //     const _st = this.keySymbol_st[i];
-            //     const _ed = this.keySymbol_ed[i];
-
-            //     _result = readSource(_result,_st,_ed);
-            // }
             return _result;
+        },
+        /**
+         * structure analysis
+         * @param {[]} s souce text splted by space
+         * @param {string} start start marker
+         * @param {string} end end marker 
+         */
+        readSource: function (s, start, end) {
+            if (!s) {
+                return;
+            }
+            let _e = s.shift();
+            if (_e == start) {
+                let _res = new AST_Unit();
+                while (s[0] != end) {
+                    _res.push(this.readSource(s, start, end));
+                }
+                s.shift();
+
+                return _res;
+            }
+
+
+            else {
+                return _e;
+                // throw ('unexpected');
+            }
         }
 
     }
-    console.log(ASThandler('(asda(s(ssss)s)sd)'));
+    console.log(ASThandler('(function asda(s(ssss)s) var a = 12; sd)'));
     initial(`
 
     function postMsg(line, character) {
