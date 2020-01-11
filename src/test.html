@@ -428,7 +428,7 @@
                 this.type = this.getType(content);
             }
 
-            // here coulde be more check function 
+            // here coulde be more checking function 
             this.body.push(content);
         };
 
@@ -442,14 +442,9 @@
                 variable: new AST_Type_Register('variable', 'var' ,'let' , 'const')
             }
             
-            console.log(typeMarker.variable.check('var'));
-            
-
             let _type = false;
             
             for (let i in typeMarker) {
-                console.log(typeMarker.variable.check('var'));
-                
                 let _e = typeMarker[i].check(content);
                 if (_e) {
                     _type = _e;
@@ -465,13 +460,15 @@
      */
     class AST_Type_Register {
         constructor(type, ...typeIndicator) {
-            this.typeIndicator = [typeIndicator];
+            this.typeIndicator = typeIndicator; // no need [typeIndicator]
             this.type = type;
         }
         check(input) {
             let _result = false;
+            
             for (let i = 0; i < this.typeIndicator.length; i++) {
                 const element = this.typeIndicator[i];
+                
                 if (input == element) {
                     _result = this.type;
                     break;
@@ -488,7 +485,6 @@
         keySymbol_st: ['(', '{'],
         keySymbol_ed: [')', '}'],
         /** replace key symbol with space
-         * TO BE TEST
         */
         tokenize: function (input) {
             let _result = input;
@@ -549,7 +545,7 @@
         }
 
     }
-    console.log(ASThandler('(function asda(s(ssss)s) var a = 12; sd)'));
+    console.log(ASThandler('(function asda( {var a = 12;}(ssss)s) sd)'));
     initial(`
 
     function postMsg(line, character) {
