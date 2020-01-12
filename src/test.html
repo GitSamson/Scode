@@ -88,6 +88,8 @@
      * @function
      */
     function initial(content) {
+        console.log(ASThandler(content));
+
 
         let container = document.getElementById('container');
         let container_ed = document.getElementById('container_end');
@@ -418,7 +420,7 @@
      */
     class AST_Unit {
         constructor() {
-            this.body= [];
+            this.body = [];
             this.type;
 
         }
@@ -431,19 +433,29 @@
             // here coulde be more checking function 
             this.body.push(content);
         };
+        analysis() {
+            this.type = this.getType(this.body[0]);
+            this.id = this.body[1];
+
+        }
 
         /** type check prototype function
          * @returns false | type
          */
         getType(content) {
-            
+
             var typeMarker = {
-                function: new AST_Type_Register('block', 'function'),
-                variable: new AST_Type_Register('variable', 'var' ,'let' , 'const')
+                function: new AST_Type_Register('function_Indicator', 'function'),
+                variable: new AST_Type_Register('variable_Indicator', 'var', 'let', 'const'),
+                class: new AST_Type_Register('class_Indicator', 'class'),
+                for: new AST_Type_Register('for_Indicator', 'for'),
+                if: new AST_Type_Register('if_Indicator', 'if'),
+                while: new AST_Type_Register('while_Indicator', 'while'),
+                retrun: new AST_Type_Register('return_Indicator', 'return')
             }
-            
+
             let _type = false;
-            
+
             for (let i in typeMarker) {
                 let _e = typeMarker[i].check(content);
                 if (_e) {
@@ -465,25 +477,25 @@
         }
         check(input) {
             let _result = false;
-            
+
             for (let i = 0; i < this.typeIndicator.length; i++) {
                 const element = this.typeIndicator[i];
-                
+
                 if (input == element) {
                     _result = this.type;
                     break;
-               }
-                
+                }
+
             }
-           
+
             return _result;
         }
     }
 
 
     var AST = {
-        keySymbol_st: ['(', '{'],
-        keySymbol_ed: [')', '}'],
+        keySymbol_st: [ '{'],
+        keySymbol_ed: [ '}'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
@@ -494,8 +506,9 @@
                 let element = _symbol[i];
                 let _replace = new RegExp('\\' + element, 'gm');
                 // attention here, need double \ to make it works.
-
                 _result = _result.replace(_replace, ' ' + element + ' ');
+                _result = _result.replace(new RegExp('\n'), ' ' + element + ' ');
+
 
             };
             _result = _result.split(' ');
@@ -509,7 +522,6 @@
          */
         onionize: function (input) {
 
-            //// CONTINUE 
             let _source = input;
             let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
 
@@ -545,9 +557,7 @@
         }
 
     }
-    console.log(ASThandler('(function asda( {var a = 12;}(ssss)s) sd)'));
     initial(`
-
     function postMsg(line, character) {
         const vscode = acquireVsCodeApi();
         vscode.postMessage({ line, character });
