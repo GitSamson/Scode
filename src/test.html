@@ -14,7 +14,7 @@
 
 <body>
     <div id='container'>
-
+WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         <br id='container_end'></div>
     </div>
 </body>
@@ -434,8 +434,9 @@
             this.body.push(content);
         };
         analysis() {
-            this.type = this.getType(this.body[0]);
-            this.id = this.body[1];
+            if(!this.type){return;}
+            this.id = this.type.analysisId(this.body);
+            // TODO :
 
         }
 
@@ -448,10 +449,6 @@
                 function: new AST_Type_Register('function_Indicator', 'function'),
                 variable: new AST_Type_Register('variable_Indicator', 'var', 'let', 'const'),
                 class: new AST_Type_Register('class_Indicator', 'class'),
-                for: new AST_Type_Register('for_Indicator', 'for'),
-                if: new AST_Type_Register('if_Indicator', 'if'),
-                while: new AST_Type_Register('while_Indicator', 'while'),
-                retrun: new AST_Type_Register('return_Indicator', 'return')
             }
 
             let _type = false;
@@ -459,7 +456,7 @@
             for (let i in typeMarker) {
                 let _e = typeMarker[i].check(content);
                 if (_e) {
-                    _type = _e;
+                    _type = typeMarker[i]; // return type instance
                     break;
                 }
             }
@@ -471,9 +468,9 @@
      * AST type register for instance types
      */
     class AST_Type_Register {
-        constructor(type, ...typeIndicator) {
+        constructor(type=null, ...typeIndicator) {
             this.typeIndicator = typeIndicator; // no need [typeIndicator]
-            this.type = type;
+            this.name = type;
         }
         check(input) {
             let _result = false;
@@ -482,7 +479,7 @@
                 const element = this.typeIndicator[i];
 
                 if (input == element) {
-                    _result = this.type;
+                    _result = this.name;
                     break;
                 }
 
@@ -490,12 +487,15 @@
 
             return _result;
         }
+        analysisId(content){
+            return content[1];
+        }
     }
 
 
     var AST = {
-        keySymbol_st: [ '{'],
-        keySymbol_ed: [ '}'],
+        keySymbol_st: [ '{','('],
+        keySymbol_ed: [ '}',')'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
@@ -525,7 +525,6 @@
             let _source = input;
             let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
 
-
             return _result;
         },
         /**
@@ -545,6 +544,9 @@
                     _res.push(this.readSource(s, start, end));
                 }
                 s.shift();
+                
+                _res.analysis();
+                console.log(_res.id);
 
                 return _res;
             }
@@ -558,10 +560,12 @@
 
     }
     initial(`
-    function postMsg(line, character) {
+    function postMsgs(line, character) {
         const vscode = acquireVsCodeApi();
         vscode.postMessage({ line, character });
     }
+    var a =12
+    var b =13
 
     // Handle the message inside the webview
 
@@ -571,9 +575,7 @@
         initial(message); // initialize data, rebuild code structure
     });
 
-    /** 
-     * functions for handle content in code block
-     */
+
     var codeAnalysis = {
         /**
          * Split source to sub code block's source text
