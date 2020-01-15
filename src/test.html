@@ -403,13 +403,14 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
 
     //                  AST GENERATOR
 
-
     /*11111111111111111111111111111111111111111111111111111111111111111*/
     /**
      *  AST handler Main function
      */
     function ASThandler(input) {
         let _result = AST.tokenize(input);
+        console.log(_result);
+        
         _result = AST.onionize(_result);
         return _result;
 
@@ -425,16 +426,20 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
 
         }
         push(content) {
+
             // check type and initial end checking
             if (!this.type) {
                 this.type = this.getType(content);
+                console.log(content,this.type,this.type.end);
+                
+                return this.type.end;
             }
 
             // here coulde be more checking function 
             this.body.push(content);
         };
         analysis() {
-            if(!this.type){return;}
+            if(!this.type){this.type = this.getType();}
             this.id = this.type.analysisId(this.body);
             // TODO :
 
@@ -443,13 +448,15 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         /** type check prototype function
          * @returns false | type
          */
-        getType(content) {
+        getType(content=null) {
 
             var typeMarker = {
-                function: new AST_Type_Register('function_Indicator', 'function'),
-                variable: new AST_Type_Register('variable_Indicator', 'var', 'let', 'const'),
-                class: new AST_Type_Register('class_Indicator', 'class'),
+                function: new AST_Type_Register('function_Indicator','}', 'function'),
+                variable: new AST_Type_Register('variable_Indicator',';', 'var', 'let', 'const'),
+                class: new AST_Type_Register('class_Indicator','}', 'class'),
+                expression: new AST_Type_Register('command',';','')
             }
+            if(!content){return typeMarker.expression}
 
             let _type = false;
 
@@ -468,9 +475,10 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
      * AST type register for instance types
      */
     class AST_Type_Register {
-        constructor(type=null, ...typeIndicator) {
+        constructor(type=null,end =null, ...typeIndicator) {
             this.typeIndicator = typeIndicator; // no need [typeIndicator]
             this.name = type;
+            this.end = end;
         }
         check(input) {
             let _result = false;
@@ -494,8 +502,8 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
 
 
     var AST = {
-        keySymbol_st: [ '{','('],
-        keySymbol_ed: [ '}',')'],
+        keySymbol_st: [ '{'],
+        keySymbol_ed: [ '}'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
@@ -524,7 +532,8 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
 
             let _source = input;
             let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
-
+            
+            
             return _result;
         },
         /**
@@ -534,410 +543,34 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
          * @param {string} end end marker 
          */
         readSource: function (s, start, end) {
+            // for source have to have start and end for all. like {function...}
             if (!s) {
                 return;
             }
             let _e = s.shift();
             if (_e == start) {
+                let _endCapture = '}';
+                let _temp;
                 let _res = new AST_Unit();
-                while (s[0] != end) {
-                    _res.push(this.readSource(s, start, end));
+                while (s[0] != _endCapture) {
+                    _temp = _res.push(this.readSource(s, start, end));
+                    if(_temp){_endCapture = _temp}
                 }
-                s.shift();
-                
                 _res.analysis();
-                console.log(_res.id);
+                s.shift();
+                // console.log(_res.type.name);
 
                 return _res;
             }
-
 
             else {
                 return _e;
                 // throw ('unexpected');
             }
         }
-
     }
-    initial(`
-    function postMsgs(line, character) {
-        const vscode = acquireVsCodeApi();
-        vscode.postMessage({ line, character });
-    }
-    var a =12
-    var b =13
-
-    // Handle the message inside the webview
-
-
-    window.addEventListener('message', event => {
-        const message = event.data; // The JSON data our extension sent
-        initial(message); // initialize data, rebuild code structure
-    });
-
-
-    var codeAnalysis = {
-        /**
-         * Split source to sub code block's source text
-         * @function
-         * @prarm {string} t source text from editor.
-         * @retruns {object} sub code block's source text
-         */
-        block: function (t) {
-            var _result = []; // result for CodeBlock array;
-            let _t = t;
-
-            // get list from reg.list
-            let _regResult = reg.list(t, reg.regBetween('function', '{'));
-            console.log(_regResult);
-            
-            if (_regResult.length == 0) { throw ('_regResult is empty') };
-
-            //handle list from reg.list
-            for (let i = 0; i < _regResult.length; i++) {
-                const element = _regResult[i];
-                let _block = new CodeBlock(element[0], element.index, element, 'function');
-
-                // link previous and next in block;
-                if (i > 0) {
-                    _block.previous = _result[i - 1];
-                    _result[i - 1].next = _block;
-                }
-                _result.push(_block);
-            }
-            return _result[0];
-
-
-
-        },
-        /**
-        * for seperate lines in vsc source. will get lines index array.
-        * @param {string} t source text.
-        * @returns {array} array for line objects.
-        */
-        line: function (t) {
-
-        },
-
-        anno: function (b) { },
-        prop: function (b) { },
-    }
-
-    /**
-     * Initial whole process
-     * @function
-     */
-    function initial(content) {
-        
-        let container = document.getElementById('container');
-        let container_ed = document.getElementById('container_end');
-
-        // analysis contetn text and generate a content node tree;
-        let sourceTree = contentStructure(content);
-
-        //render node tree;
-        diagramRender(sourceTree, container);
-
-        //when click on each element rendered on container, move cursor to where it is.
-        eventHandler.do_vscCursor();
-        // event include these:
-        // 1: mouse :   cilck on diagram move cursor to the position
-        // 2: zoom:     select and zoom in.
-        // 3: modify:   change diagram content (add/delete/modify)update to vscode
-        // 4: gesture:  move or drag update to vscode
-
-    }
-
-
-    /**
-     * generate code block instances
-     * @function
-     * @param {string} content text capture from editor. 
-     * @returns {CodeBlock} root CodeBlock instance.
-     */
-    function contentStructure(content) {
-        let _result = content; // : string
-
-        _result = codeAnalysis.block(_result); // return root block
-
-
-        return _result;// root block include all block instances
-    }
-
-
-
-    /**
-     * Create codeBlock instance for block structure, which contain line, charater, 
-     * content, etc...
-     * @class
-     * @param {string} name function name;
-     * @param {number} index index in vsc
-     * @param {string} source source content.
-     * @param {CodeBlock} next next CodeBlock node
-     * @param {CodeBlock} previous previous CodeBlock node
-     */
-    function CodeBlock(name, index, source, type) {
-        this.type = null;
-        this.name = name;
-        // this.line = line;
-        // this.character = character;
-        this.source = source;
-        this.previous = null;
-        this.next = null;
-
-    }
-
-
-    /**
-     * Render from root codeBlock
-     * @param {CodeBlock} nodeTree root codeBlock, also can be where want to generate.
-     * @param {string} container here is a test;
-     */
-    function diagramRender(nodeTree, container) {
-        let _nodeT = nodeTree;
-        let _node = _nodeT; // pointer node from root codeBlock;
-        if (nodeTree == null) {
-            throw ('code structure is empty');
-            return;
-        };
-
-        // PositionGenerator(nodeTree); // add position prop to block
-
-        /** 
-         * Render source
-         * @param {string} content innerText of render element.
-        */
-        function renderElementGenerator(text) {
-            var _result = document.createElement('div');
-            _result.innerText = text;
-            container.appendChild(_result);
-        }
-
-        //render from root, traverse each next;
-        while (_node != null) {
-            renderElementGenerator(_node.name);
-            _node = _node.next; // pointer move to next one.
-        }
-
-
-    }
-
-
-    var eventHandler = {
-        do_vscCursor: function (param) { }
-    };
-    /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
-    /**
-     * Text handler
-     * @function
-     * RegExp extension
-     */
-    var reg = {
-        /**
-        * search regExp in whole string, will return a list for all information
-        * @param {string} source source input text
-        * @param {RegExp} k searching keyword.
-        * @retrun {[]} list for all information in sourceText.['result-1','result-2',...]
-        */
-        list: function (source, k) {
-            let _key = new RegExp(k, 'g');
-            //Attention: Here must be 'g' as attr, otherwise only output first result;
-            let _result = [];
-            let _s = source;
-            let _item = _key.exec(_s);
-            let _check = 10;
-            while (_item != null && _check > 0) {
-                _check -= 1;
-                // _result.push(_item);
-                _result.push(_item);
-                _item = _key.exec(_s);// Attention sequence with push.
-            }
-            return _result;
-        },
-        keyList: function (source, k) {
-            let _fullList = this.list(source, k);
-            let _result = { result: [], groups: [], index: [], input: [], length: [] };
-            _fullList.forEach(element => {
-
-                _result.result.push(element[0])
-                _result.groups.push(element.groups);
-                _result.index.push(element.index);
-                _result.input.push(element.input);
-                _result.length.push(element.length);
-            });
-            return _result;
-        },
-
-        /** get RegExp instance between Beginning and end keywords;
-         * @param {string} beginning beginning keyword
-         * @param {string} end end keyword
-         * @returns {RegExp} retrun RegExp instance;
-         */
-        regBetween: function (beginning, end) {
-            let _source = '(?<=' + beginning + ').*?(?=' + end + ')';
-            return new RegExp(_source, 'g');
-        }
-    }
-    /** content comparison function
-     * 
-     */
-    var contentComparison = {
-        
-
-    }
-    /** get line from block.
-     */
-    var lineHandler = {
-        lineMarker : '\n',
-        list: [],
-        /** reset line marker pool. 
-        * @returns return marker list.
-        */
-        refresh: function () {
-            this.list = [];
-            return this.list;
-        },
-        /** update line marker list pool
-        * @param {number} beginning updating start index of source text.
-        * @param {number} end updating end index in source text.
-        * @return {[]} return lineHandler.list.
-        */
-        update: function (source,beginning = 0, end = null) {
-            
-            let _source = end != null ? source.slice(beginning,end) : source;
-
-            let updateContent = reg.keyList(_source,this.lineMarker);
-
-            // find location for beginning and end in list.
-            let _range_st = index.divisionFind(this.list,beginning);
-            let _range_ed = index.divisionFind(this.list,end);
-
-            //update list
-            this.list.splice(_range_st,_range_ed-_range_st,[...updateContent.index]);
-
-            return this.list;
-
-        },
-        get: function (indexCheck) {
-            // each update will compare where updated, take out updating lines marker do insert/delete in list;
-            // if index less than last item in list, then check where is the index, return its index in list.
-            // else: generate following index list, to indexCheck.
-
-            let _lastIndexInList; // get last index in list.
-            // list is empty last index is 0 , else is last item in list.
-            if (this.list.length == 0) {
-                _lastIndexInList = 0;
-            } else {
-                _lastIndexInList = this.list[this.list.length - 1];
-            }
-
-            // indexCheck already had in list then return it.
-            // else push line markers from last one to indexCheck.
-            if (_lastIndexInList >= indexCheck) {
-
-            }
-
-        },
-
-    };
-
-    // extension of get line function. provide functions of how to locate where index 
-    var indexLocate = {
-        /** function of division find.
-        @param {[]} list where this function find from 
-        @param {number} key finding key.
-        @returns {number} index where the key is or where it should be.
-        */
-        divisionFind: function (list, key) {
-            if (list.length == 0) { return; }
-
-            let _l = list;
-
-            // if length <= 3 use beginningFind function.
-            if (_l.length <= 3) {
-                return this.beginningFind(list, key);
-            }
-
-            let _OverRange = (key > _l[_l.length - 1] && _l.length) || (key < _l[0] && 0);
-            if (_OverRange !== false) { return _OverRange; }
-
-
-            // filt even number;
-            // if (_l.length % 2 == 0) {
-            //     // r = l.last < key -> _l.length or l.last == key -> l.length
-            //     let _r = _l[_l.length - 1] < key && _l.length || _l[_l.length] == key && _l.length;
-            //     console.log(_r);
-            //     if (_r) { return _r; };
-            //     _l.pop();
-            // }
-
-
-            let _left = 0; // left pointer 
-            let _over = 12;
-            let _right = _l.length - 1; // right pointer
-            let _indexPointer; // mid index 
-
-
-            do {
-                _indexPointer = ((_right - _left) % 2 == 0) ? ((_right - _left) / 2 + _left) : ((_right - _left - 1) / 2 + _left);
-                _over -= 1;
-                if (_over == 0) {
-                    throw ('over while');
-                }
-
-                // if mid is result then just return mid.
-                if (_l[_indexPointer] == key) {
-                    return _indexPointer;
-                }
-
-                // mid > finding key, result on the left
-                if (key < _l[_indexPointer]) {
-
-                    _right = _indexPointer;
-                } else if (key > _l[_indexPointer]) {
-                    _left = _indexPointer;
-                }
-                // two index ?  get smaller one, cause it will repalce the larger one in result.
-
-
-
-            } while (_right - _left > 2);
-
-            let _result;
-            if (key == _l[_left] | key == _l[_right] | key == _l[_indexPointer]) {
-
-                _result = key == _l[_left] ? _left : key == _l[_right] ? _right : _indexPointer;
-                return _result
-            }
-
-            _result = key < _l[_indexPointer] ? _indexPointer : _right;
-
-            return _result;
-
-        },
-        beginningFind: function (list, key) {
-            let _resultIndex = 0;
-            if (this.list.length == 0) { return 0; }
-
-            while (_resultIndex < list.length) {
-                if (element == key) {
-                    return _resultIndex;
-                }
-
-                // element same as key | element < result < element[i+1];
-                if ((list[_resultIndex] < key && list[_resultIndex + 1] > key)) {
-                    return _resultIndex + 1;
-                }
-
-                // if 2th of last still not match, means result should in the last of list. return last index +1/
-                if (_resultIndex == list.length - 2) { return list.length }
-
-                _resultIndex += 1;
-            }
-        }
-
-    }
-    
+    initial(`{function a {s} var a = 12;   function b() { asd}
+    function c () {}}
     `);
 </script>
 
