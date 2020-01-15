@@ -430,7 +430,6 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             // check type and initial end checking
             if (!this.type) {
                 this.type = this.getType(content);
-                console.log(content,this.type,this.type.end);
                 
                 return this.type.end;
             }
@@ -441,7 +440,6 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         analysis() {
             if(!this.type){this.type = this.getType();}
             this.id = this.type.analysisId(this.body);
-            // TODO :
 
         }
 
@@ -458,7 +456,7 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             }
             if(!content){return typeMarker.expression}
 
-            let _type = false;
+            let _type = typeMarker.expression;
 
             for (let i in typeMarker) {
                 let _e = typeMarker[i].check(content);
@@ -552,13 +550,15 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
                 let _endCapture = '}';
                 let _temp;
                 let _res = new AST_Unit();
-                while (s[0] != _endCapture) {
+                while (s[0] != _endCapture && s!=false) {
                     _temp = _res.push(this.readSource(s, start, end));
                     if(_temp){_endCapture = _temp}
+                    
+                //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
                 }
                 _res.analysis();
                 s.shift();
-                // console.log(_res.type.name);
+                console.log(_res.type.name);
 
                 return _res;
             }
@@ -569,7 +569,7 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             }
         }
     }
-    initial(`{function a {s} var a = 12;   function b() { asd}
+    initial(`{function a {s;} var a = 12;   function b() { asd}
     function c () {}}
     `);
 </script>
