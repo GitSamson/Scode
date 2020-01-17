@@ -14,11 +14,12 @@
 
 <body>
     <div id='container'>
-WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
+        WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         <br id='container_end'></div>
     </div>
 </body>
 <script>
+  
     'use strict';
 
     function postMsg(line, character) {
@@ -409,9 +410,9 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
      */
     function ASThandler(input) {
         let _result = AST.tokenize(input);
-        
+
         _result = AST.onionize(_result);
-        
+
         console.log(_result.getBodyElements());
         return _result;
 
@@ -426,34 +427,37 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             this.type;
 
         }
-        getBodyElements(){
+
+        getBodyElements() {
+
             let _result = [];
             for (let i = 0; i < this.body.length; i++) {
-                const element = this.body[i];
-                
-                if (typeof(element)== 'string') {
-                    continue;
+
+                let element = this.body[i];
+
+                if (typeof (element) == 'string') {
+                } else {
+                    _result = _result.concat(element);
+                    _result = _result.concat(element.getBodyElements());
                 }
-                _result.push(element);
             }
-            
+
+            if (_result == false) { return this }
             return _result;
         }
-        
+
         push(content) {
+            this.body.push(content);
 
             // check type and initial end checking
             if (!this.type) {
                 this.type = this.getType(content);
-                this.body.push(content);
                 return this.type.end;
             }
-
             // here coulde be more checking function 
-            this.body.push(content);
         };
         analysis() {
-            if(!this.type){this.type = this.getType();}
+            if (!this.type) { this.type = this.getType(); }
             this.id = this.type.analysisId(this.body);
 
         }
@@ -461,15 +465,15 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         /** type check prototype function
          * @returns false | type
          */
-        getType(content=null) {
+        getType(content = null) {
 
             var typeMarker = {
-                function: new AST_Type_Register('function_Indicator','}', 'function'),
-                variable: new AST_Type_Register('variable_Indicator',';', 'var', 'let', 'const'),
-                class: new AST_Type_Register('class_Indicator','}', 'class'),
-                expression: new AST_Type_Register('command',';','')
+                function: new AST_Type_Register('function_Indicator', '}', 'function'),
+                variable: new AST_Type_Register('variable_Indicator', ';', 'var', 'let', 'const'),
+                class: new AST_Type_Register('class_Indicator', '}', 'class'),
+                expression: new AST_Type_Register('command', ';', '')
             }
-            if(!content){return typeMarker.expression}
+            if (!content) { return typeMarker.expression }
 
             let _type = typeMarker.expression;
 
@@ -482,12 +486,12 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             }
             return _type;
         }
-        endCheck(input){
-            if(!this.type){
-                if(input == '\n' | ';'){
+        endCheck(input) {
+            if (!this.type) {
+                if (input == '\n' | ';') {
                     return true;
                 }
-            }else{
+            } else {
                 return this.type.endCheck(input);
             }
         }
@@ -497,17 +501,17 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
      * AST type register for instance types
      */
     class AST_Type_Register {
-        constructor(type=null,end =['\n'], ...typeIndicator) {
+        constructor(type = null, end = ['\n'], ...typeIndicator) {
             this.typeIndicator = typeIndicator; // no need [typeIndicator]
             this.name = type;
-            if(!Array.isArray(end)){this.end= [end]}
-            else{this.end = end}
+            if (!Array.isArray(end)) { this.end = [end] }
+            else { this.end = end }
         }
-        endCheck(input){
+        endCheck(input) {
             let _result = false;
             this.end.forEach(
-                i=>{
-                    if(i==input){
+                i => {
+                    if (i == input) {
                         _result = true;
                     }
                 }
@@ -516,28 +520,24 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
         }
         check(input) {
             let _result = false;
-
             for (let i = 0; i < this.typeIndicator.length; i++) {
                 const element = this.typeIndicator[i];
-
                 if (input == element) {
                     _result = this.name;
                     break;
                 }
-
             }
-
             return _result;
         }
-        analysisId(content){
+        analysisId(content) {
             return content[0];
         }
     }
 
 
     var AST = {
-        keySymbol_st: [ '{'],
-        keySymbol_ed: [ '}'],
+        keySymbol_st: ['{'],
+        keySymbol_ed: ['}'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
@@ -564,12 +564,15 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             let _source = input;
             let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
             // let _resultList = this.listAll(_regResult);
-            
+
             return _result;
         },
-
-        listAll:function (source){
-            return source.getBodyElements();            
+        /**
+         * Show full list
+         * @param {object} source AST_unit
+         */
+        listAll: function (source) {
+            return source.getBodyElements();
         },
         /**
          * structure analysis
@@ -582,17 +585,17 @@ WHY ONLY HAVE FEW ANALYSISED , WHY STOPED
             if (!s) {
                 return;
             }
-            
+
             let _e = s.shift();
             if (_e == start) {
                 let _endCapture = '}';
                 let _temp;
                 let _res = new AST_Unit();
-                while (!_res.endCheck(s[0]) && s!=false) {
+                while (!_res.endCheck(s[0]) && s != false) {
                     _temp = _res.push(this.readSource(s, start, end));
-                    if(_temp){_endCapture = _temp}
-                    
-                //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
+                    if (_temp) { _endCapture = _temp }
+
+                    //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
                 }
                 _res.analysis();
                 s.shift();
