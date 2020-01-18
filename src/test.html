@@ -19,7 +19,7 @@
     </div>
 </body>
 <script>
-  
+
     'use strict';
 
     function postMsg(line, character) {
@@ -609,6 +609,39 @@
             }
         }
     }
+
+    //-------------------------------------------------------
+    //                  SHOW 
+    //  SHOW FUNCTION INCLUDE COMPARISION THEN HANDLE SHOWING
+    //  KIND OF LIKE REACT
+    //-------------------------------------------------------
+    class diagram {
+        constructor(canv) {
+            this.canv = canv;
+            this.contentList = [];
+        }
+        update(list) {
+            let _newList = list;
+            if (this.contentList == false) {
+                _newList.forEach(
+                    i => {
+                        this.show(i);
+                    }
+                )
+            }
+        }
+
+        show(unit) {
+            this.canv.appendChild(unit.show())
+        }
+    }
+
+
+    function ASTListComparison(oldList, newList) {
+
+    }
+    let a = new diagram(1);
+    a.update([1, 23, 4]);
     initial(`{function a {s;} var a = 12;   function b() { asd}
     function c () {}}
     `);
