@@ -99,7 +99,7 @@
         let sourceTree = contentStructure(content);
 
         //render node tree;
-        diagramRender(sourceTree, container);
+        // diagramRender(sourceTree, container);
 
         //when click on each element rendered on container, move cursor to where it is.
         eventHandler.do_vscCursor();
@@ -413,7 +413,10 @@
 
         _result = AST.onionize(_result);
 
-        console.log(_result.getBodyElements());
+        let _all = _result.getBodyElements();
+
+        let a = new diagram(document.getElementById('container'));
+        a.update(_all);
         return _result;
 
     }
@@ -421,12 +424,39 @@
     /**
      * for generate AST unit, can be lines/ block
      */
+    var typeMarker = {
+        function: new AST_Type_Register({
+            typeIndicator: 'function_Indicator',
+            name: 'function',
+            start: '{',
+            end: '}'
+        }),
+        variable: new AST_Type_Register({
+            typeIndicator: 'variable_Indicator',
+            name: 'variable',
+            start: ['var', 'let', 'const'],
+            end: [';', '\n']
+        }),
+        class: new AST_Type_Register({
+            typeIndicator: 'class_Indicator',
+            name: 'class',
+            start: '{',
+            end: '}'
+        }),
+        expression: new AST_Type_Register({
+            typeIndicator: 'command',
+            name: 'command',
+            start: '',
+            end: ''
+        })
+    }
     class AST_Unit {
         constructor() {
             this.body = [];
             this.type;
 
         }
+
 
         getBodyElements() {
 
@@ -467,12 +497,7 @@
          */
         getType(content = null) {
 
-            var typeMarker = {
-                function: new AST_Type_Register('function_Indicator', '}', 'function'),
-                variable: new AST_Type_Register('variable_Indicator', ';', 'var', 'let', 'const'),
-                class: new AST_Type_Register('class_Indicator', '}', 'class'),
-                expression: new AST_Type_Register('command', ';', '')
-            }
+
             if (!content) { return typeMarker.expression }
 
             let _type = typeMarker.expression;
@@ -495,17 +520,28 @@
                 return this.type.endCheck(input);
             }
         }
+
+        show() {
+            return this.type.show(this.type.name + ' ' + this.id + this.body.toString());
+        }
     }
 
     /**
      * AST type register for instance types
      */
     class AST_Type_Register {
-        constructor(type = null, end = ['\n'], ...typeIndicator) {
-            this.typeIndicator = typeIndicator; // no need [typeIndicator]
-            this.name = type;
-            if (!Array.isArray(end)) { this.end = [end] }
-            else { this.end = end }
+        constructor(
+            prop = {
+                typeIndicator: 'unknown',
+                name: 'unknown',
+                start: '',
+                end: '\n',
+            }
+        ) {
+            this.typeIndicator = prop.typeIndicator;
+            this.name = prop.type;
+            if (!Array.isArray(prop.end)) { this.end = [prop.end] }
+            else { this.end = prop.end }
         }
         endCheck(input) {
             let _result = false;
@@ -530,7 +566,11 @@
             return _result;
         }
         analysisId(content) {
-            return content[0];
+            return content[1];
+        }
+        show(content) {
+            let _result = draw.div(content);
+            return _result;
         }
     }
 
@@ -632,7 +672,9 @@
         }
 
         show(unit) {
-            this.canv.appendChild(unit.show())
+            console.log(unit.show());
+
+            this.canv.appendChild(unit.show());
         }
     }
 
@@ -640,8 +682,22 @@
     function ASTListComparison(oldList, newList) {
 
     }
-    let a = new diagram(1);
-    a.update([1, 23, 4]);
+
+
+    //=========================================
+
+    //                DIV GENERATOR
+
+    //========================================
+    var draw = {
+        div: function (content = null) {
+            let _result = document.createElement('div');
+            if (content) { _result.innerHTML = content }
+            return _result;
+        }
+
+    }
+
     initial(`{function a {s;} var a = 12;   function b() { asd}
     function c () {}}
     `);
