@@ -428,7 +428,7 @@
         function: new AST_Type_Register({
             typeIndicator: 'function_Declaration',
             name: 'function',
-            start: '{',
+            start: 'function',
             end: '}'
         }),
         variable: new AST_Type_Register({
@@ -450,6 +450,7 @@
             end: ''
         })
     }
+
     class AST_Unit {
         constructor() {
             this.body = [];
