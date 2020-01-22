@@ -1,7 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
+    .body {
+        background-color: #8AC007;
+        border-radius: 10px;
+        font-size: 15px;
+        width: fit-content;
+        color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 10px;
+    }
 
+    .title {
+        background-color: white;
+        color: grey;
+        font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 5px;
+    }
 </style>
 
 <head>
@@ -89,7 +105,7 @@
      * @function
      */
     function initial(content) {
-        console.log(ASThandler(content));
+        ASThandler(content);
 
 
         let container = document.getElementById('container');
@@ -422,23 +438,79 @@
     }
 
     /**
+     * AST type register for instance types
+     */
+    class AST_Type_Register {
+        constructor(
+            prop = {
+                typeIndicator: 'unknown',
+                name: 'unknown',
+                start: '',
+                end: '\n',
+            }
+        ) {
+            this.typeIndicator = prop.typeIndicator;
+            this.name = prop.name;
+            if (!Array.isArray(prop.end)) { this.end = [prop.end] }
+            else { this.end = prop.end }
+        }
+        endCheck(input) {
+            let _result = false;
+            this.end.forEach(
+                i => {
+                    if (i == input) {
+                        _result = true;
+                    }
+                }
+            )
+            return _result;
+        }
+        check(input) {
+            let _result = false;
+            for (let i = 0; i < this.typeIndicator.length; i++) {
+                const element = this.typeIndicator[i];
+                if (input == element) {
+                    _result = this.name;
+                    break;
+                }
+            }
+            return _result;
+        }
+        analysisId(content) {
+            return content[1];
+        }
+        show(content = {
+            param,
+            body,
+            anno
+        }) {
+            return [
+                draw.div(this.name),
+                draw.div(content.body, 'body'),
+                draw.break()
+            ];
+        }
+    }
+
+
+    /**
      * for generate AST unit, can be lines/ block
      */
     var typeMarker = {
         function: new AST_Type_Register({
-            typeIndicator: 'function_Declaration',
+            typeIndicator: 'function_Indicator',
             name: 'function',
-            start: 'function',
+            start: '{',
             end: '}'
         }),
         variable: new AST_Type_Register({
-            typeIndicator: 'variable_Declaration',
+            typeIndicator: 'variable_Indicator',
             name: 'variable',
             start: ['var', 'let', 'const'],
             end: [';', '\n']
         }),
         class: new AST_Type_Register({
-            typeIndicator: 'class_Declaration',
+            typeIndicator: 'class_Indicator',
             name: 'class',
             start: '{',
             end: '}'
@@ -450,7 +522,6 @@
             end: ''
         })
     }
-
     class AST_Unit {
         constructor() {
             this.body = [];
@@ -523,55 +594,10 @@
         }
 
         show() {
-            return this.type.show(this.type.name + ' ' + this.id + this.body.toString());
-        }
-    }
 
-    /**
-     * AST type register for instance types
-     */
-    class AST_Type_Register {
-        constructor(
-            prop = {
-                typeIndicator: 'unknown',
-                name: 'unknown',
-                start: '',
-                end: '\n',
-            }
-        ) {
-            this.typeIndicator = prop.typeIndicator;
-            this.name = prop.type;
-            if (!Array.isArray(prop.end)) { this.end = [prop.end] }
-            else { this.end = prop.end }
-        }
-        endCheck(input) {
-            let _result = false;
-            this.end.forEach(
-                i => {
-                    if (i == input) {
-                        _result = true;
-                    }
-                }
-            )
-            return _result;
-        }
-        check(input) {
-            let _result = false;
-            for (let i = 0; i < this.typeIndicator.length; i++) {
-                const element = this.typeIndicator[i];
-                if (input == element) {
-                    _result = this.name;
-                    break;
-                }
-            }
-            return _result;
-        }
-        analysisId(content) {
-            return content[1];
-        }
-        show(content) {
-            let _result = draw.div(content);
-            return _result;
+            return this.type.show({
+                body: this.body.join(' ')
+            });
         }
     }
 
@@ -673,9 +699,12 @@
         }
 
         show(unit) {
-            console.log(unit.show());
+            let showList = unit.show();
+            for (let i = 0; i < showList.length; i++) {
+                const element = showList[i];
 
-            this.canv.appendChild(unit.show());
+                this.canv.appendChild(element);
+            }
         }
     }
 
@@ -691,9 +720,15 @@
 
     //========================================
     var draw = {
-        div: function (content = null) {
+        div: function (content = null, className = 'title') {
             let _result = document.createElement('div');
+            _result.className = className;
             if (content) { _result.innerHTML = content }
+
+            return _result;
+        },
+        break: function () {
+            let _result = document.createElement('p');
             return _result;
         }
 
