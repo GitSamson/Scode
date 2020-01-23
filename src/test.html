@@ -433,6 +433,8 @@
 
         let a = new diagram(document.getElementById('container'));
         a.update(_all);
+        console.log(_all);
+
         return _result;
 
     }
@@ -467,7 +469,7 @@
         }
         endCheck(input) {
             if (Array.isArray(this.end)) {
-                return input in this.end;
+                return this.end.includes(input);
             }
 
             return input == this.end;
@@ -546,7 +548,6 @@
             end: ''
         })
     };
-    console.log(typeMarker.startCheck('var'))
 
     var commandMarker = {
 
@@ -568,7 +569,6 @@
 
                 if (typeof (element) == 'string') {
                 } else {
-                    _result = _result.concat(element);
                     _result = _result.concat(element.getBodyElements());
                 }
             }
@@ -581,15 +581,13 @@
             this.body.push(content);
 
             // check type and initial end checking
-            if (!this.type) {
-                this.type = this.getType(content);
-                return this.type.end;
-            }
+            // if (!this.type) {
+            //     this.type = this.getType(content);
+            //     return this.type.end;
+            // }
             // here coulde be more checking function 
         };
         analysis() {
-            if (!this.type) { this.type = this.getType(); }
-            this.id = this.type.analysisId(this.body);
 
         }
 
@@ -632,20 +630,18 @@
 
 
     var AST = {
-        keySymbol_st: ['{'],
-        keySymbol_ed: ['}'],
+        keySymbol: ['{', '}', ';', '\n'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
             let _result = input;
-            let _symbol = this.keySymbol_st.concat(this.keySymbol_ed);
+            let _symbol = this.keySymbol;
 
             for (let i = 0; i < _symbol.length; i++) {
                 let element = _symbol[i];
                 let _replace = new RegExp('\\' + element, 'gm');
                 // attention here, need double \ to make it works.
                 _result = _result.replace(_replace, ' ' + element + ' ');
-                _result = _result.replace(new RegExp('\n'), ' ' + element + ' ');
             };
             _result = _result.split(' ');
             _result = _result.filter(i => i);
@@ -660,7 +656,6 @@
             let _source = input;
             let _result = this.readSource(_source, true, false);
             // let _resultList = this.listAll(_regResult);
-            console.log(_result);
 
             return _result;
         },
@@ -685,15 +680,21 @@
 
             let _e = s.shift();
 
-            if (_e == start || start === true) {
+            let isStart = typeMarker.startCheck(_e);
+            if (_e === true || isStart != false) {
                 let _res = new AST_Unit();
-                while (!_res.endCheck(s[0]) && s != false) {
+                _res.type = isStart;
+                _res.push(_e);
+                while (1) {
                     _res.push(this.readSource(s, start, end));
+                    if (_res.endCheck(s[0]) == true) {
+                        break;
+                    };
 
                     //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
                 }
+                _res.push(s.shift());
                 _res.analysis();
-                s.shift();
 
                 return _res;
             }
@@ -763,11 +764,16 @@
 
     }
 
-    initial(`
-function a {s;} 
+    initial(`function a {s;
 var a = 12;   
 function b() { asd}
-    function c () 
+function(){
+    function a {}
+}
+    function c () }
+var a = 13;
+var asd asd = 111;
+}
     `);
 </script>
 
