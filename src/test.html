@@ -437,6 +437,16 @@
 
     }
 
+    function toArray(input) {
+        let result = input;
+        if (!result) {
+            return false;
+        }
+        result = Array.isArray(result) ? result : [result];
+        return result;
+    }
+
+
     /**
      * AST type register for instance types
      */
@@ -451,30 +461,25 @@
         ) {
             this.typeIndicator = prop.typeIndicator;
             this.name = prop.name;
-            if (!Array.isArray(prop.end)) { this.end = [prop.end] }
-            else { this.end = prop.end }
+            this.end = toArray(prop.end) || [';', '\n'];
+            this.start = prop.start;
+
         }
         endCheck(input) {
-            let _result = false;
-            this.end.forEach(
-                i => {
-                    if (i == input) {
-                        _result = true;
-                    }
-                }
-            )
-            return _result;
-        }
-        check(input) {
-            let _result = false;
-            for (let i = 0; i < this.typeIndicator.length; i++) {
-                const element = this.typeIndicator[i];
-                if (input == element) {
-                    _result = this.name;
-                    break;
-                }
+            if (Array.isArray(this.end)) {
+                return input in this.end;
             }
-            return _result;
+
+            return input == this.end;
+        }
+        startCheck(input) {
+            if (!this.start) { return; }
+            if (Array.isArray(this.start)) {
+                let _r = this.start.includes(input);
+                return (_r);
+            }
+
+            return (input == this.start);
         }
         analysisId(content) {
             return content[1];
@@ -492,15 +497,40 @@
         }
     }
 
-
     /**
      * for generate AST unit, can be lines/ block
      */
     var typeMarker = {
+        startCheck: function (input) {
+            let _in = input;
+            let _result = false;
+            for (const i in this) {
+                if (this.hasOwnProperty(i)) {
+                    const element = this[i];
+                    if (element instanceof AST_Type_Register) {
+                        if (element.startCheck(_in) == true) {
+                            _result = element;
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+
+            return _result;
+        },
         function: new AST_Type_Register({
             typeIndicator: 'function_Indicator',
             name: 'function',
-            start: '{',
+            start: 'function',
+            end: '}'
+        }),
+
+        class: new AST_Type_Register({
+            typeIndicator: 'class_Indicator',
+            name: 'class',
+            start: 'class',
             end: '}'
         }),
         variable: new AST_Type_Register({
@@ -509,18 +539,17 @@
             start: ['var', 'let', 'const'],
             end: [';', '\n']
         }),
-        class: new AST_Type_Register({
-            typeIndicator: 'class_Indicator',
-            name: 'class',
-            start: '{',
-            end: '}'
-        }),
         expression: new AST_Type_Register({
             typeIndicator: 'command',
             name: 'command',
-            start: '',
+            start: false,
             end: ''
         })
+    };
+    console.log(typeMarker.startCheck('var'))
+
+    var commandMarker = {
+
     }
     class AST_Unit {
         constructor() {
@@ -575,7 +604,7 @@
             let _type = typeMarker.expression;
 
             for (let i in typeMarker) {
-                let _e = typeMarker[i].check(content);
+                let _e = typeMarker.startCheck(content);
                 if (_e) {
                     _type = typeMarker[i]; // return type instance
                     break;
@@ -629,8 +658,9 @@
         onionize: function (input) {
 
             let _source = input;
-            let _result = this.readSource(_source, this.keySymbol_st[0], this.keySymbol_ed[0]);
+            let _result = this.readSource(_source, true, false);
             // let _resultList = this.listAll(_regResult);
+            console.log(_result);
 
             return _result;
         },
@@ -654,13 +684,11 @@
             }
 
             let _e = s.shift();
-            if (_e == start) {
-                let _endCapture = '}';
-                let _temp;
+
+            if (_e == start || start === true) {
                 let _res = new AST_Unit();
                 while (!_res.endCheck(s[0]) && s != false) {
-                    _temp = _res.push(this.readSource(s, start, end));
-                    if (_temp) { _endCapture = _temp }
+                    _res.push(this.readSource(s, start, end));
 
                     //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
                 }
@@ -676,6 +704,7 @@
             }
         }
     }
+
 
     //-------------------------------------------------------
     //                  SHOW 
@@ -734,8 +763,11 @@
 
     }
 
-    initial(`{function a {s;} var a = 12;   function b() { asd}
-    function c () {}}
+    initial(`
+function a {s;} 
+var a = 12;   
+function b() { asd}
+    function c () 
     `);
 </script>
 
