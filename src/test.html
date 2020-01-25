@@ -18,6 +18,9 @@
         font-family: Arial, Helvetica, sans-serif;
         padding: 5px;
     }
+    .frame{
+        
+    }
 </style>
 
 <head>
@@ -432,7 +435,7 @@
         let _all = _result.getBodyElements();
 
         let a = new diagram(document.getElementById('container'));
-        a.update(_all);
+        a.update(_result);
         console.log(_all);
 
         return _result;
@@ -465,7 +468,6 @@
             this.name = prop.name;
             this.end = toArray(prop.end) || [';', '\n'];
             this.start = prop.start;
-
         }
         endCheck(input) {
             if (Array.isArray(this.end)) {
@@ -486,16 +488,9 @@
         analysisId(content) {
             return content[1];
         }
-        show(content = {
-            param,
-            body,
-            anno
-        }) {
-            return [
-                draw.div(this.name),
-                draw.div(content.body, 'body'),
-                draw.break()
-            ];
+
+        renderAllNode(unit, parent) {
+
         }
     }
 
@@ -554,6 +549,8 @@
     }
     class AST_Unit {
         constructor() {
+            this.body_content = [];
+            this.body_units = [];
             this.body = [];
             this.type;
 
@@ -563,6 +560,19 @@
         getBodyElements() {
 
             let _result = [];
+            let _ASTStack = [];
+
+            // this.body.map(i=>{
+            //     if(typeof(i) == 'string'){
+            //         _result.push(i);
+            //     }else{
+            //         _ASTStack.push(i.getBodyElements());
+            //     }
+            // });
+            // _result.join(' ');
+            // _ASTStack.join(' ');
+            // return _result.concat(_ASTStack);
+
             for (let i = 0; i < this.body.length; i++) {
 
                 let element = this.body[i];
@@ -579,14 +589,16 @@
 
         push(content) {
             this.body.push(content);
+            if (typeof (content) == 'string') {
+                this.body_content.push(content);
+            } else if (content instanceof AST_Unit == true) {
+                this.body_units.push(content);
+            }
 
-            // check type and initial end checking
-            // if (!this.type) {
-            //     this.type = this.getType(content);
-            //     return this.type.end;
-            // }
-            // here coulde be more checking function 
         };
+        /**
+         * analysis is for content analysis after whole body finish;
+         */
         analysis() {
 
         }
@@ -619,18 +631,31 @@
                 return this.type.endCheck(input);
             }
         }
+        getContentNode() {
+            this.type.renderNode(this);
+        }
+        renderNode() {
+            let frame = draw.div(null, 'frame');
+            frame.appendChild(draw.div(this.type.name, 'title'));
+            let _body = draw.div(null, 'body');
+            for (let i = 0; i < this.body.length; i++) {
 
-        show() {
+                if (typeof (this.body[i]) == 'string') {
 
-            return this.type.show({
-                body: this.body.join(' ')
-            });
+                    _body.appendChild(draw.span(this.body[i]));
+
+                } else if (typeof (this.body[i]) == 'AST_Unit') {
+                    _body.appendChild(this.body[i].renderNode());
+                }
+            }
+            frame.appendChild(_body);
+            return frame;
         }
     }
 
 
     var AST = {
-        keySymbol: ['{', '}', ';', '\n'],
+        keySymbol: ['{', '}', ';', '\n', '(', ')'],
         /** replace key symbol with space
         */
         tokenize: function (input) {
@@ -718,23 +743,39 @@
             this.contentList = [];
         }
         update(list) {
-            let _newList = list;
-            if (this.contentList == false) {
-                _newList.forEach(
-                    i => {
-                        this.show(i);
-                    }
-                )
-            }
+            this.canv.appendChild(list.renderNode());
+
+            // let _newList = list;
+            // if (this.contentList == false) {
+            //     _newList.forEach(
+            //         i => {
+            //             this.show(i);
+            //         }
+            //     )
+            // }
         }
 
-        show(unit) {
-            let showList = unit.show();
-            for (let i = 0; i < showList.length; i++) {
-                const element = showList[i];
-
-                this.canv.appendChild(element);
+        /**
+         * render on DOM
+         * @param {AST_Unit} unit
+         * @param {*} parent 
+         */
+        show(unit, parent = null) {
+            if (!parent) {
+                this.canv.appendChild(unit.renderNode());
+            } else {
+                parent.appendChild(unit.getContentNode());
             }
+        };
+        /**
+         * 
+         * @param {AST_Unit} rootUnit
+         */
+        showAll(rootUnit) {
+            let _list = rootUnit;
+            let pointer;
+
+            rootUnit.renderNode();
         }
     }
 
@@ -754,27 +795,34 @@
             let _result = document.createElement('div');
             _result.className = className;
             if (content) { _result.innerHTML = content }
-
             return _result;
         },
         break: function () {
             let _result = document.createElement('p');
             return _result;
+        },
+        p: function (content) {
+            let _result = document.createElement('p');
+            _result.innerHTML = content;
+            return _result;
+        },
+        span: function (content) {
+            let _result = document.createElement('span');
+            _result.innerText = content;
+            return _result;
         }
 
     }
 
-    initial(`function a {s;
+    initial(`function a {
 var a = 12;   
 function b() { asd}
-function(){
+function asd (){
     function a {}
-}
-    function c () }
+}function c (){ }
 var a = 13;
-var asd asd = 111;
-}
-    `);
+var asd asd = 111;}
+ `);
 </script>
 
 </html>
