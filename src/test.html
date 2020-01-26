@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-    .body {
+    .body{
         background-color: #8AC007;
         border-radius: 10px;
         font-size: 15px;
@@ -11,14 +11,19 @@
         padding: 10px;
     }
 
-    .title {
-        background-color: white;
+    .title{
         color: grey;
         font-size: 20px;
         font-family: Arial, Helvetica, sans-serif;
         padding: 5px;
     }
     .frame{
+        background-color: white;
+        border-radius: 10px;
+        width: fit-content;
+        padding: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+
         
     }
 </style>
@@ -432,11 +437,9 @@
 
         _result = AST.onionize(_result);
 
-        let _all = _result.getBodyElements();
 
         let a = new diagram(document.getElementById('container'));
         a.update(_result);
-        console.log(_all);
 
         return _result;
 
@@ -577,7 +580,7 @@
 
                 let element = this.body[i];
 
-                if (typeof (element) == 'string') {
+                if (typeof (element) == 'object') {
                 } else {
                     _result = _result.concat(element.getBodyElements());
                 }
@@ -644,7 +647,8 @@
 
                     _body.appendChild(draw.span(this.body[i]));
 
-                } else if (typeof (this.body[i]) == 'AST_Unit') {
+                } else if (typeof (this.body[i]) == 'object') {
+                    _body.appendChild(draw.break())
                     _body.appendChild(this.body[i].renderNode());
                 }
             }
@@ -816,10 +820,21 @@
 
     initial(`function a {
 var a = 12;   
+var b =13;
+let c = 14;
+function(){
+    function a (){
+        class a () {
+            asdasd
+        }
+    }
+}
 function b() { asd}
 function asd (){
     function a {}
-}function c (){ }
+}function c (){ 
+    var c =13;
+}
 var a = 13;
 var asd asd = 111;}
  `);
