@@ -424,11 +424,13 @@
         }
 
     }
-    /*11111111111111111111111111111111111111111111111111111111111111111*/
 
-    //                  AST GENERATOR
+    //-------------------------------------------------------
 
-    /*11111111111111111111111111111111111111111111111111111111111111111*/
+    //                  ASThandler
+
+    //-------------------------------------------------------
+
     /**
      *  AST handler Main function
      */
@@ -454,6 +456,11 @@
         return result;
     }
 
+    //-------------------------------------------------------
+
+    //                  AST_TYPE_REGISTER
+
+    //-------------------------------------------------------
 
     /**
      * AST type register for instance types
@@ -496,6 +503,11 @@
 
         }
     }
+    //-------------------------------------------------------
+
+    //                  TYPEMARKER
+
+    //-------------------------------------------------------
 
     /**
      * for generate AST unit, can be lines/ block
@@ -550,6 +562,14 @@
     var commandMarker = {
 
     }
+
+    //-------------------------------------------------------
+
+    //                  AST_UNIT
+
+    //-------------------------------------------------------
+
+
     class AST_Unit {
         constructor() {
             this.body_content = [];
@@ -563,18 +583,7 @@
         getBodyElements() {
 
             let _result = [];
-            let _ASTStack = [];
 
-            // this.body.map(i=>{
-            //     if(typeof(i) == 'string'){
-            //         _result.push(i);
-            //     }else{
-            //         _ASTStack.push(i.getBodyElements());
-            //     }
-            // });
-            // _result.join(' ');
-            // _ASTStack.join(' ');
-            // return _result.concat(_ASTStack);
 
             for (let i = 0; i < this.body.length; i++) {
 
@@ -656,6 +665,12 @@
             return frame;
         }
     }
+
+    //-------------------------------------------------------
+
+    //                        AST
+
+    //-------------------------------------------------------
 
 
     var AST = {
@@ -748,15 +763,6 @@
         }
         update(list) {
             this.canv.appendChild(list.renderNode());
-
-            // let _newList = list;
-            // if (this.contentList == false) {
-            //     _newList.forEach(
-            //         i => {
-            //             this.show(i);
-            //         }
-            //     )
-            // }
         }
 
         /**
@@ -794,10 +800,24 @@
     //                DIV GENERATOR
 
     //========================================
+    var test;
     var draw = {
         div: function (content = null, className = 'title') {
             let _result = document.createElement('div');
             _result.className = className;
+            _result.onclick = function (s) {
+                console.log('at lease it clicked')
+                s.cancelBubble = true;
+                test = this;
+                this.style.left = '30px'
+                this.parentElement.style.width = 'fit-content';
+                console.log(this.parentElement.style.width);
+
+                console.log(this.style.left);
+                console.log(this.style.top);
+
+                // test.style.backgroundColor = 'red';
+            }
             if (content) { _result.innerHTML = content }
             return _result;
         },
@@ -816,6 +836,21 @@
             return _result;
         }
 
+    }
+    //-------------------------------------------------------
+
+    //                  TOOLS
+
+    //-------------------------------------------------------
+
+    var tool = {
+        toPx: function (input) {
+            if (typeof (input) == 'number') {
+                return input + 'px';
+            } else {
+                return parseInt(input);
+            }
+        }
     }
 
     initial(`function a {
