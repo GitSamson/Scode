@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-    .body{
+    .body {
         background-color: #8AC007;
         border-radius: 10px;
         font-size: 15px;
-        width: fit-content;
         color: white;
         font-family: Arial, Helvetica, sans-serif;
         padding: 10px;
+        user-select: none;
     }
 
-    .title{
+    .title {
         color: grey;
         font-size: 20px;
         font-family: Arial, Helvetica, sans-serif;
         padding: 5px;
+        user-select: none;
+
     }
-    .frame{
+
+    .frame {
         background-color: white;
         border-radius: 10px;
         width: fit-content;
+        height: max-content;
         padding: 10px;
         font-family: Arial, Helvetica, sans-serif;
-
-        
+        position: absolute;
+        user-select: none;
+        box-shadow: 5px 5px 5px grey;
     }
 </style>
 
@@ -56,63 +61,16 @@
 
     window.addEventListener('message', event => {
         const message = event.data; // The JSON data our extension sent
-        initial(message); // initialize data, rebuild code structure
+        setup(message); // initialize data, rebuild code structure
     });
 
-    /** 
-     * functions for handle content in code block
-     */
-    var codeAnalysis = {
-        /**
-         * Split source to sub code block's source text
-         * @function
-         * @prarm {string} t source text from editor.
-         * @retruns {object} sub code block's source text
-         */
-        block: function (t) {
-            var _result = []; // result for CodeBlock array;
-            let _t = t;
 
-            // get list from reg.list
-            let _regResult = reg.list(t, reg.regBetween('function', '{'));
-
-            if (_regResult.length == 0) { throw ('_regResult is empty') };
-
-            //handle list from reg.list
-            for (let i = 0; i < _regResult.length; i++) {
-                const element = _regResult[i];
-                let _block = new CodeBlock(element[0], element.index, element, 'function');
-
-                // link previous and next in block;
-                if (i > 0) {
-                    _block.previous = _result[i - 1];
-                    _result[i - 1].next = _block;
-                }
-                _result.push(_block);
-            }
-            return _result[0];
-
-
-
-        },
-        /**
-        * for seperate lines in vsc source. will get lines index array.
-        * @param {string} t source text.
-        * @returns {array} array for line objects.
-        */
-        line: function (t) {
-
-        },
-
-        anno: function (b) { },
-        prop: function (b) { },
-    }
 
     /**
      * Initial whole process
      * @function
      */
-    function initial(content) {
+    function setup(content) {
         ASThandler(content);
 
 
@@ -120,7 +78,6 @@
         let container_ed = document.getElementById('container_end');
 
         // analysis contetn text and generate a content node tree;
-        let sourceTree = contentStructure(content);
 
         //render node tree;
         // diagramRender(sourceTree, container);
@@ -135,79 +92,6 @@
 
     }
 
-
-    /**
-     * generate code block instances
-     * @function
-     * @param {string} content text capture from editor. 
-     * @returns {CodeBlock} root CodeBlock instance.
-     */
-    function contentStructure(content) {
-        let _result = content; // : string
-
-        _result = codeAnalysis.block(_result); // return root block
-
-
-        return _result;// root block include all block instances
-    }
-
-
-
-    /**
-     * Create codeBlock instance for block structure, which contain line, charater, 
-     * content, etc...
-     * @class
-     * @param {string} name function name;
-     * @param {number} index index in vsc
-     * @param {string} source source content.
-     * @param {CodeBlock} next next CodeBlock node
-     * @param {CodeBlock} previous previous CodeBlock node
-     */
-    function CodeBlock(name, index, source, type) {
-        this.type = null;
-        this.name = name;
-        // this.line = line;
-        // this.character = character;
-        this.source = source;
-        this.previous = null;
-        this.next = null;
-
-    }
-
-
-    /**
-     * Render from root codeBlock
-     * @param {CodeBlock} nodeTree root codeBlock, also can be where want to generate.
-     * @param {string} container here is a test;
-     */
-    function diagramRender(nodeTree, container) {
-        let _nodeT = nodeTree;
-        let _node = _nodeT; // pointer node from root codeBlock;
-        if (nodeTree == null) {
-            throw ('code structure is empty');
-            return;
-        };
-
-        // PositionGenerator(nodeTree); // add position prop to block
-
-        /** 
-         * Render source
-         * @param {string} content innerText of render element.
-        */
-        function renderElementGenerator(text) {
-            var _result = document.createElement('div');
-            _result.innerText = text;
-            container.appendChild(_result);
-        }
-
-        //render from root, traverse each next;
-        while (_node != null) {
-            renderElementGenerator(_node.name);
-            _node = _node.next; // pointer move to next one.
-        }
-
-
-    }
 
 
     var eventHandler = {
@@ -347,24 +231,10 @@
 
             let _OverRange = (key > _l[_l.length - 1] && _l.length) || (key < _l[0] && 0);
             if (_OverRange !== false) { return _OverRange; }
-
-
-            // filt even number;
-            // if (_l.length % 2 == 0) {
-            //     // r = l.last < key -> _l.length or l.last == key -> l.length
-            //     let _r = _l[_l.length - 1] < key && _l.length || _l[_l.length] == key && _l.length;
-            //     console.log(_r);
-            //     if (_r) { return _r; };
-            //     _l.pop();
-            // }
-
-
             let _left = 0; // left pointer 
             let _over = 12;
             let _right = _l.length - 1; // right pointer
             let _indexPointer; // mid index 
-
-
             do {
                 _indexPointer = ((_right - _left) % 2 == 0) ? ((_right - _left) / 2 + _left) : ((_right - _left - 1) / 2 + _left);
                 _over -= 1;
@@ -376,7 +246,6 @@
                 if (_l[_indexPointer] == key) {
                     return _indexPointer;
                 }
-
                 // mid > finding key, result on the left
                 if (key < _l[_indexPointer]) {
 
@@ -385,9 +254,6 @@
                     _left = _indexPointer;
                 }
                 // two index ?  get smaller one, cause it will repalce the larger one in result.
-
-
-
             } while (_right - _left > 2);
 
             let _result;
@@ -400,7 +266,6 @@
             _result = key < _l[_indexPointer] ? _indexPointer : _right;
 
             return _result;
-
         },
         beginningFind: function (list, key) {
             let _resultIndex = 0;
@@ -648,7 +513,7 @@
         }
         renderNode() {
             let frame = draw.div(null, 'frame');
-            frame.appendChild(draw.div(this.type.name, 'title'));
+            frame.appendChild(draw.span(this.type.name, 'title'));
             let _body = draw.div(null, 'body');
             for (let i = 0; i < this.body.length; i++) {
 
@@ -657,8 +522,11 @@
                     _body.appendChild(draw.span(this.body[i]));
 
                 } else if (typeof (this.body[i]) == 'object') {
-                    _body.appendChild(draw.break())
-                    _body.appendChild(this.body[i].renderNode());
+                    let _node = this.body[i].renderNode()
+
+                    _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
+
+                    _body.appendChild(_node);
                 }
             }
             frame.appendChild(_body);
@@ -762,62 +630,24 @@
             this.contentList = [];
         }
         update(list) {
-            this.canv.appendChild(list.renderNode());
-        }
+            let _node = list.renderNode();
+            _node.style.top = (100 + this.canv.lastChild.offsetTop + this.canv.lastChild.offsetHeight) + 'px';
 
-        /**
-         * render on DOM
-         * @param {AST_Unit} unit
-         * @param {*} parent 
-         */
-        show(unit, parent = null) {
-            if (!parent) {
-                this.canv.appendChild(unit.renderNode());
-            } else {
-                parent.appendChild(unit.getContentNode());
-            }
-        };
-        /**
-         * 
-         * @param {AST_Unit} rootUnit
-         */
-        showAll(rootUnit) {
-            let _list = rootUnit;
-            let pointer;
-
-            rootUnit.renderNode();
+            this.canv.appendChild(_node);
         }
     }
-
-
-    function ASTListComparison(oldList, newList) {
-
-    }
-
 
     //=========================================
 
-    //                DIV GENERATOR
+    //                DIV _DRAW
 
     //========================================
-    var test;
+
     var draw = {
         div: function (content = null, className = 'title') {
             let _result = document.createElement('div');
             _result.className = className;
-            _result.onclick = function (s) {
-                console.log('at lease it clicked')
-                s.cancelBubble = true;
-                test = this;
-                this.style.left = '30px'
-                this.parentElement.style.width = 'fit-content';
-                console.log(this.parentElement.style.width);
-
-                console.log(this.style.left);
-                console.log(this.style.top);
-
-                // test.style.backgroundColor = 'red';
-            }
+            _result.addEventListener('mousedown', e => { diagramEvent.click(e, _result) })
             if (content) { _result.innerHTML = content }
             return _result;
         },
@@ -830,13 +660,52 @@
             _result.innerHTML = content;
             return _result;
         },
-        span: function (content) {
+        span: function (content, className) {
             let _result = document.createElement('span');
             _result.innerText = content;
+            _result.className = className;
+
             return _result;
         }
 
     }
+    //-------------------------------------------------------
+
+    //                  EVENT
+
+    //-------------------------------------------------------
+    var test;
+    var posX, posY;
+    var tempX, tempY;
+    var diagramEvent = {
+        click: function (event, bindNode) {
+            console.log('at lease it clicked')
+            event.cancelBubble = true;
+            test = bindNode;
+            // bindNode.style.left = '30px';
+            // bindNode.parentElement.style.width = 'fit-content';
+            console.log(bindNode.parentElement.style.width);
+
+            console.log(bindNode.offsetTop);
+
+            // test.style.backgroundColor = 'red';
+
+            posY = event.y - test.offsetTop;
+            posX = event.x - test.offsetLeft;
+
+            document.onmousemove = function (e) {
+                test.style.left = (e.clientX - posX) + 'px';
+                test.style.top = (e.clientY - posY) + 'px';
+            }
+            // event.cancelBubble = true;
+            document.onmouseup = function (event) {
+                document.onmousemove = null;
+            }
+        }
+
+
+    }
+
     //-------------------------------------------------------
 
     //                  TOOLS
@@ -852,11 +721,16 @@
             }
         }
     }
-
-    initial(`function a {
+    var a = draw.div('asdasd', 'body');
+    a.style.left = '100px';
+    a.style.top = '150px'
+    a.style.width = 'fit-content'
+    document.body.append(a);
+    setup(`function a {
 var a = 12;   
 var b =13;
-let c = 14;
+let c = 14;}
+
 function(){
     function a (){
         class a () {
@@ -864,6 +738,7 @@ function(){
         }
     }
 }
+
 function b() { asd}
 function asd (){
     function a {}
@@ -871,7 +746,7 @@ function asd (){
     var c =13;
 }
 var a = 13;
-var asd asd = 111;}
+var asd asd = 111;
  `);
 </script>
 
