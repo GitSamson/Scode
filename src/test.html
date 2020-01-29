@@ -424,7 +424,16 @@
         })
     };
 
-    var commandMarker = {
+    class SymbolMark {
+        constructor(symbol = null) {
+            this.symbol = symbol;
+        }
+    }
+
+    var specialMarker = {
+        start: new SymbolMark(),
+        end: new SymbolMark(),
+
 
     }
 
@@ -566,7 +575,11 @@
         onionize: function (input) {
 
             let _source = input;
-            let _result = this.readSource(_source, true, false);
+            let _result = [];
+            while (_source != false) {
+                _result.push(this.readSource(_source, true));
+            }
+
             // let _resultList = this.listAll(_regResult);
 
             return _result;
@@ -584,21 +597,20 @@
          * @param {string} start start marker
          * @param {string} end end marker 
          */
-        readSource: function (s, start, end) {
+        readSource: function (s, start = false) {
             // for source have to have start and end for all. like {function...}
             if (!s) {
                 return;
             }
-
             let _e = s.shift();
 
             let isStart = typeMarker.startCheck(_e);
-            if (_e === true || isStart != false) {
+            if (start === true || isStart != false) {
                 let _res = new AST_Unit();
                 _res.type = isStart;
                 _res.push(_e);
                 while (1) {
-                    _res.push(this.readSource(s, start, end));
+                    _res.push(this.readSource(s));
                     if (_res.endCheck(s[0]) == true) {
                         break;
                     };
@@ -607,12 +619,12 @@
                 }
                 _res.push(s.shift());
                 _res.analysis();
-
                 return _res;
             }
 
             else {
                 return _e;
+
                 // throw ('unexpected');
             }
         }
@@ -630,10 +642,11 @@
             this.contentList = [];
         }
         update(list) {
-            let _node = list.renderNode();
-            _node.style.top = (100 + this.canv.lastChild.offsetTop + this.canv.lastChild.offsetHeight) + 'px';
+            list.forEach(i => {
+                let _node = i.renderNode();
+                this.canv.appendChild(_node);
+            })
 
-            this.canv.appendChild(_node);
         }
     }
 
@@ -679,17 +692,9 @@
     var tempX, tempY;
     var diagramEvent = {
         click: function (event, bindNode) {
-            console.log('at lease it clicked')
             event.cancelBubble = true;
             test = bindNode;
-            // bindNode.style.left = '30px';
-            // bindNode.parentElement.style.width = 'fit-content';
-            console.log(bindNode.parentElement.style.width);
-
-            console.log(bindNode.offsetTop);
-
-            // test.style.backgroundColor = 'red';
-
+            test.style.top = test.offsetTop;
             posY = event.y - test.offsetTop;
             posX = event.x - test.offsetLeft;
 
@@ -697,7 +702,6 @@
                 test.style.left = (e.clientX - posX) + 'px';
                 test.style.top = (e.clientY - posY) + 'px';
             }
-            // event.cancelBubble = true;
             document.onmouseup = function (event) {
                 document.onmousemove = null;
             }
@@ -726,12 +730,13 @@
     a.style.top = '150px'
     a.style.width = 'fit-content'
     document.body.append(a);
-    setup(`function a {
+    setup(`var a = 12;
+function a {
 var a = 12;   
 var b =13;
 let c = 14;}
 
-function(){
+class opps(){
     function a (){
         class a () {
             asdasd
