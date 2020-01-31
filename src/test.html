@@ -730,12 +730,25 @@
             }
             document.onmouseup = function (event) {
                 event.cancelBubble = true;
+
                 test.style.position = 'absolute';
                 test.style.left = placeHolder.style.left;
                 test.style.top = placeHolder.style.top;
-                bindNode.parentElement.removeChild(placeHolder);
 
+                if (test.style.position == 'absolute' &&
+                    test.offsetTop < 100 &&
+                    test.offsetLeft < 100
+                ) {
+                    console.log('ss');
+
+                    test.style.position = 'relative';
+                    test.style.top = '';
+                    test.style.left = '';
+
+                }
+                bindNode.parentElement.removeChild(placeHolder);
                 document.onmousemove = null;
+                document.onmouseup = null;
 
             }
         }
