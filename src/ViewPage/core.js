@@ -637,13 +637,18 @@ var draw = {
 //                  EVENT
 
 //-------------------------------------------------------
-var test;
+var activeNode;
+var activeNodeStyle;
 var posX, posY;
-var moveCheck;
 var diagramEvent = {
     click: function (event, bindNode) {
+        if (activeNode) {
+            activeNode.style.borderStyle = ''
+        }
         event.cancelBubble = true;
-        test = bindNode;
+        activeNode = bindNode;
+        activeNodeStyle = activeNode.style;
+        activeNode.style.borderStyle = 'solid'
 
         let placeHolder;
 
@@ -660,7 +665,7 @@ var diagramEvent = {
         posX = event.x - placeHolder.offsetLeft;
         posY = event.y - placeHolder.offsetTop;
 
-        test.ondblclick = function () {
+        activeNode.ondblclick = function () {
             event.cancelBubble = true;
             this.style.position = 'relative';
             this.style.left = '';
@@ -676,21 +681,21 @@ var diagramEvent = {
         document.onmouseup = function (event) {
             event.cancelBubble = true;
 
-            test.style.position = 'absolute';
-            test.style.left = placeHolder.style.left;
-            test.style.top = placeHolder.style.top;
+            activeNode.style.position = 'absolute';
+            activeNode.style.left = placeHolder.style.left;
+            activeNode.style.top = placeHolder.style.top;
 
-            if (test.style.position == 'absolute' &&
-                test.offsetTop < 100 &&
-                test.offsetLeft < 100
+            if (activeNode.style.position == 'absolute' &&
+                activeNode.offsetTop < 100 &&
+                activeNode.offsetLeft < 100
             ) {
                 console.log('ss');
 
-                test.style.position = 'relative';
-                test.style.top = '';
-                test.style.left = '';
+                activeNode.style.position = 'relative';
+                activeNode.style.top = '';
+                activeNode.style.left = '';
 
-            } 
+            }
             bindNode.parentElement.removeChild(placeHolder);
             document.onmousemove = null;
             document.onmouseup = null;
