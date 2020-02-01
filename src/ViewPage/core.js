@@ -472,6 +472,7 @@ class AST_Unit {
     }
     renderNode() {
         let frame = draw.div(null, 'frame');
+        frame.draggable = 'true';
         frame.appendChild(draw.span(this.type.name, 'title'));
         let _body = draw.div(null, 'body');
         for (let i = 0; i < this.body.length; i++) {
@@ -610,7 +611,7 @@ var draw = {
     div: function (content = null, className = 'title') {
         let _result = document.createElement('div');
         _result.className = className;
-        _result.addEventListener('mousedown', e => { diagramEvent.click(e, _result) })
+        _result.addEventListener('dragstart', e => { diagramEvent.dragStart(e, _result) });
         if (content) { _result.innerHTML = content }
         return _result;
     },
@@ -637,69 +638,53 @@ var draw = {
 //                  EVENT
 
 //-------------------------------------------------------
-var activeNode;
-var activeNodeStyle;
 var posX, posY;
 var diagramEvent = {
-    click: function (event, bindNode) {
-        if (activeNode) {
-            activeNode.style.borderStyle = ''
-        }
+    hostNode: null,
+    placeHolder: null,
+    dragStart: function (event, bindNode) {
         event.cancelBubble = true;
-        activeNode = bindNode;
-        activeNodeStyle = activeNode.style;
-        activeNode.style.borderStyle = 'solid'
+        diagramEvent.hostNode = bindNode;
 
-        let placeHolder;
 
-        if (!placeHolder) {
-            placeHolder = draw.div('', 'placeHolder');
-            placeHolder.style.position = 'absolute';
-            placeHolder.style.width = getComputedStyle(bindNode, null).width;
-            placeHolder.style.height = getComputedStyle(bindNode, null).height;
-            placeHolder.style.left = bindNode.offsetLeft + 'px';
-            placeHolder.style.top = bindNode.offsetTop + 'px';
-            bindNode.parentElement.appendChild(placeHolder);
-        };
+        diagramEvent.placeHolder = draw.div('', 'placeHolder');
+        diagramEvent.placeHolder.style.position = 'absolute';
+        diagramEvent.placeHolder.style.width = getComputedStyle(bindNode, null).width;
+        diagramEvent.placeHolder.style.height = getComputedStyle(bindNode, null).height;
+        diagramEvent.placeHolder.style.left = bindNode.offsetLeft + 'px';
+        diagramEvent.placeHolder.style.top = bindNode.offsetTop + 'px';
+        bindNode.parentElement.appendChild(diagramEvent.placeHolder);
 
-        posX = event.x - placeHolder.offsetLeft;
-        posY = event.y - placeHolder.offsetTop;
-
-        activeNode.ondblclick = function () {
-            event.cancelBubble = true;
-            this.style.position = 'relative';
-            this.style.left = '';
-            this.style.top = '';
-        }
+        posX = event.x - diagramEvent.placeHolder.offsetLeft;
+        posY = event.y - diagramEvent.placeHolder.offsetTop;
 
         document.onmousemove = function (e) {
-
-            placeHolder.style.left = (e.clientX - posX) + 'px';
-            placeHolder.style.top = (e.clientY - posY) + 'px';
-
+            diagramEvent.placeHolder.style.left = (e.clientX - posX) + 'px';
+            diagramEvent.placeHolder.style.top = (e.clientY - posY) + 'px';
         }
+
         document.onmouseup = function (event) {
+
             event.cancelBubble = true;
 
-            activeNode.style.position = 'absolute';
-            activeNode.style.left = placeHolder.style.left;
-            activeNode.style.top = placeHolder.style.top;
+            diagramEvent.hostNode.style.position = 'absolute';
+            diagramEvent.hostNode.style.left = diagramEvent.placeHolder.style.left;
+            diagramEvent.hostNode.style.top = diagramEvent.placeHolder.style.top;
 
-            if (activeNode.style.position == 'absolute' &&
-                activeNode.offsetTop < 100 &&
-                activeNode.offsetLeft < 100
+            if (diagramEvent.hostNode.style.position == 'absolute' &&
+                diagramEvent.hostNode.offsetTop < 100 &&
+                diagramEvent.hostNode.offsetLeft < 100
             ) {
                 console.log('ss');
 
-                activeNode.style.position = 'relative';
-                activeNode.style.top = '';
-                activeNode.style.left = '';
+                diagramEvent.hostNode.style.position = 'relative';
+                diagramEvent.hostNode.style.top = '';
+                diagramEvent.hostNode.style.left = '';
 
             }
-            bindNode.parentElement.removeChild(placeHolder);
+            bindNode.parentElement.removeChild(diagramEvent.placeHolder);
             document.onmousemove = null;
             document.onmouseup = null;
-
         }
     }
 
