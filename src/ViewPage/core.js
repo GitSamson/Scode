@@ -33,7 +33,6 @@ function setup(content) {
     // diagramRender(sourceTree, container);
 
     //when click on each element rendered on container, move cursor to where it is.
-    eventHandler.do_vscCursor();
     // event include these:
     // 1: mouse :   cilck on diagram move cursor to the position
     // 2: zoom:     select and zoom in.
@@ -44,9 +43,7 @@ function setup(content) {
 
 
 
-var eventHandler = {
-    do_vscCursor: function (param) { }
-};
+
 /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
 /**
  * Text handler
@@ -460,7 +457,7 @@ class AST_Unit {
     }
     endCheck(input) {
         if (!this.type) {
-            if (input == '\n' | ';') {
+            if (input == '/n' | ';') {
                 return true;
             }
         } else {
@@ -502,20 +499,27 @@ class AST_Unit {
 
 
 var AST = {
-    keySymbol: ['{', '}', ';', '\n', '(', ')'],
+    keySymbol: ['{', '}', ';', '(', ')','='],
     /** replace key symbol with space
     */
     tokenize: function (input) {
         let _result = input;
+        console.log(input);
+        
         let _symbol = this.keySymbol;
+        let _replace = new RegExp('\n','gm');
 
         for (let i = 0; i < _symbol.length; i++) {
             let element = _symbol[i];
-            let _replace = new RegExp('\\' + element, 'gm');
+            _replace = new RegExp('\\' + element, 'gm');
             // attention here, need double \ to make it works.
             _result = _result.replace(_replace, ' ' + element + ' ');
         };
         _result = _result.split(' ');
+        _result = _result.split('\n');
+
+        console.log(_result);
+        
         _result = _result.filter(i => i);
         return _result;
     },
