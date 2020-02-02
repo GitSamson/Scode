@@ -22,7 +22,7 @@ window.addEventListener('message', event => {
  */
 function setup(content) {
     ASThandler(content);
-
+    console.log(['\n', 'asd'].includes('\n'));
 
     let container = document.getElementById('container');
     let container_ed = document.getElementById('container_end');
@@ -457,7 +457,7 @@ class AST_Unit {
     }
     endCheck(input) {
         if (!this.type) {
-            if (input == '/n' | ';') {
+            if (input == '\n' | input ==';') {
                 return true;
             }
         } else {
@@ -503,20 +503,18 @@ var AST = {
     /** replace key symbol with space
     */
     tokenize: function (input) {
-        let _result = input;
+        let _result = input.replace(/\n/g,' \n ');
         console.log(input);
-        
+
         let _symbol = this.keySymbol;
-        let _replace = new RegExp('\n','gm');
 
         for (let i = 0; i < _symbol.length; i++) {
             let element = _symbol[i];
-            _replace = new RegExp('\\' + element, 'gm');
+            let _replace = new RegExp('\\' + element, 'gm');
             // attention here, need double \ to make it works.
             _result = _result.replace(_replace, ' ' + element + ' ');
         };
         _result = _result.split(' ');
-        _result = _result.split('\n');
 
         console.log(_result);
         
@@ -564,7 +562,8 @@ var AST = {
             let _res = new AST_Unit();
             _res.type = isStart;
             _res.push(_e);
-            while (1) {
+            
+            while (1 ) {
                 _res.push(this.readSource(s));
                 if (_res.endCheck(s[0]) == true) {
                     break;
@@ -734,5 +733,4 @@ function asd (){
     var c =13;
 }
 var a = 13;
-var asd asd = 111;
- `);
+var asd asd = 111;`);
