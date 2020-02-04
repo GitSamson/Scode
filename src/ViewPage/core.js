@@ -21,8 +21,8 @@ window.addEventListener('message', event => {
  * @function
  */
 function setup(content) {
-    console.log(ASThandler(content));
-    console.log(['\n', 'asd'].includes('\n'));
+    let _result = ASThandler(content);
+    
 
     let container = document.getElementById('container');
     let container_ed = document.getElementById('container_end');
@@ -247,11 +247,13 @@ var indexLocate = {
  *  AST handler Main function
  */
 function ASThandler(input) {
-    let _result = AST.tokenize(input);
+    let _result  = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-    console.log(_result[1].getBodyElements);
-
+    console.log(_result[1].getBodyElements());
+    
+    
+    document.body.appendChild(draw.span(_result[1].getBodyElements(),));
     let a = new diagram(document.getElementById('container'));
     a.update(_result);
 
@@ -403,20 +405,22 @@ class AST_Unit {
 
     getBodyElements() {
 
-        let _result = [];
+        let _result = new String() ;
 
 
         for (let i = 0; i < this.body.length; i++) {
 
             let element = this.body[i];
-
             if (typeof (element) == 'object') {
-            } else {
-                _result = _result.concat(element.getBodyElements());
+                    _result = _result +(element.getBodyElements());
+            }else{
+                if(_result[_result.length-1] !='\n'){
+                    _result+=' '}
+
+                    _result += element;
             }
         }
-
-        if (_result == false) { return this }
+        
         return _result;
     }
 
@@ -610,6 +614,7 @@ var draw = {
         let _result = document.createElement('div');
         _result.className = className;
         _result.addEventListener('dragstart', e => { diagramEvent.dragStart(e, _result) });
+
         if (content) { _result.innerHTML = content }
         return _result;
     },
