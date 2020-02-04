@@ -21,7 +21,7 @@ window.addEventListener('message', event => {
  * @function
  */
 function setup(content) {
-    ASThandler(content);
+    console.log(ASThandler(content));
     console.log(['\n', 'asd'].includes('\n'));
 
     let container = document.getElementById('container');
@@ -250,7 +250,7 @@ function ASThandler(input) {
     let _result = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-
+    console.log(_result[1].getBodyElements);
 
     let a = new diagram(document.getElementById('container'));
     a.update(_result);
@@ -504,7 +504,6 @@ var AST = {
     */
     tokenize: function (input) {
         let _result = input.replace(/\n/g,' \n ');
-        console.log(input);
 
         let _symbol = this.keySymbol;
 
@@ -516,8 +515,6 @@ var AST = {
         };
         _result = _result.split(' ');
 
-        console.log(_result);
-        
         _result = _result.filter(i => i);
         return _result;
     },
@@ -552,9 +549,7 @@ var AST = {
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
-        if (!s) {
-            return;
-        }
+        if (!s) {return;}
         let _e = s.shift();
 
         let isStart = typeMarker.startCheck(_e);
