@@ -399,7 +399,7 @@ class AST_Unit {
         this.body_units = [];
         this.body = [];
         this.type;
-
+        this.id = ASTPool.push(this);
     }
 
 
@@ -473,24 +473,21 @@ class AST_Unit {
     }
     renderNode() {
         let frame = draw.div(null, 'frame');
-        frame.draggable = 'true';
         frame.appendChild(draw.span(this.type.name, 'title'));
         let _body = draw.div(null, 'body');
         for (let i = 0; i < this.body.length; i++) {
-
             if (typeof (this.body[i]) == 'string') {
-
                 _body.appendChild(draw.span(this.body[i]));
-
+                
             } else if (typeof (this.body[i]) == 'object') {
                 let _node = this.body[i].renderNode()
-
                 _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
-
                 _body.appendChild(_node);
             }
         }
         frame.appendChild(_body);
+        frame.setAttribute('state','unit');
+        frame.addEventListener('dblclick',e=>{diagramEvent.showSourceText(e,this)});
         return frame;
     }
 }
@@ -583,6 +580,23 @@ var AST = {
     }
 }
 
+//-------------------------------------------------------
+//                   
+//                      AST POOL
+//
+//-------------------------------------------------------
+var ASTPool = {
+    list: [],
+    push: function(input){
+        this.list.push(input);
+        return this.list.length-1;
+    },
+    get : function (id){
+        return this.list[id];
+    }
+
+
+}
 
 //-------------------------------------------------------
 //                  SHOW 
@@ -613,8 +627,8 @@ var draw = {
     div: function (content = null, className = 'title') {
         let _result = document.createElement('div');
         _result.className = className;
+        _result.draggable = true;
         _result.addEventListener('dragstart', e => { diagramEvent.dragStart(e, _result) });
-
         if (content) { _result.innerHTML = content }
         return _result;
     },
@@ -648,7 +662,6 @@ var diagramEvent = {
     dragStart: function (event, bindNode) {
         event.cancelBubble = true;
         diagramEvent.hostNode = bindNode;
-
 
         diagramEvent.placeHolder = draw.div('', 'placeHolder');
         diagramEvent.placeHolder.style.position = 'absolute';
@@ -689,6 +702,23 @@ var diagramEvent = {
             document.onmousemove = null;
             document.onmouseup = null;
         }
+    },
+    showSourceText: function(e,ASTunit){
+        let _state = e.target.getAttribute('state');
+        a = e.target;
+        let _show ={
+            sourceText:function(){
+                
+                e.target.innerHTML = ASTunit.renderNode().innerHTML;
+                e.target.setAttribute('state','unit') ;
+            },
+            unit: function(){
+                e.target.innerHTML = ASTunit.getBodyElements();
+                e.target.setAttribute('state','sourceText') ;
+            }
+        }
+        let _action = _show[_state];
+        _action(); 
     }
 
 
