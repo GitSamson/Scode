@@ -490,6 +490,26 @@ class AST_Unit {
         frame.addEventListener('dblclick',e=>{diagramEvent.showSourceText(e,this)});
         return frame;
     }
+    getText(){
+        let _result = [];
+        this.body.forEach(i=>{
+            if(typeof(i)=='string'){
+                _result.push(i);
+            }else{
+                _result.concat(i.getText());
+            }
+        });
+        return _result;
+    }
+    renderSourceText(){
+        let _text = this.getText();
+        let _result = draw.div(null,'body');
+        _text.forEach(i=>{
+            _result.appendChild(draw.span(i));
+        });
+        
+        return _result;
+    }
 }
 
 //-------------------------------------------------------
@@ -652,6 +672,17 @@ var draw = {
 }
 //-------------------------------------------------------
 
+//                  RENDER
+
+//-------------------------------------------------------
+var render = {
+    span: function(text){
+
+    }
+}
+
+//-------------------------------------------------------
+
 //                  EVENT
 
 //-------------------------------------------------------
@@ -705,6 +736,7 @@ var diagramEvent = {
     },
     showSourceText: function(e,ASTunit){
         let _state = e.target.getAttribute('state');
+        if(!_state){return;}
         a = e.target;
         let _show ={
             sourceText:function(){
@@ -713,7 +745,7 @@ var diagramEvent = {
                 e.target.setAttribute('state','unit') ;
             },
             unit: function(){
-                e.target.innerHTML = ASTunit.getBodyElements();
+                e.target.innerHTML = ASTunit.renderSourceText();
                 e.target.setAttribute('state','sourceText') ;
             }
         }
@@ -723,7 +755,6 @@ var diagramEvent = {
 
 
 }
-var a = document.body;
 
 
 //-------------------------------------------------------
@@ -741,7 +772,8 @@ var tool = {
         }
     }
 }
-var a = draw.div('asdasd', 'body');
+
+
 setup(`var a = 12;
 function a {
 var a = 12;   
@@ -764,3 +796,5 @@ function asd (){
 }
 var a = 13;
 var asd asd = 111;`);
+var a = ASTPool.list[2].renderSourceText();
+console.log(a.innerHTML)
