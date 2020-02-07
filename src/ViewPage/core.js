@@ -722,7 +722,6 @@ var diagramEvent = {
                 diagramEvent.hostNode.offsetTop < 100 &&
                 diagramEvent.hostNode.offsetLeft < 100
             ) {
-                console.log('ss');
 
                 diagramEvent.hostNode.style.position = 'relative';
                 diagramEvent.hostNode.style.top = '';
