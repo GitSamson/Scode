@@ -486,28 +486,20 @@ class AST_Unit {
             }
         }
         frame.appendChild(_body);
-        frame.setAttribute('state','unit');
-        frame.addEventListener('dblclick',e=>{diagramEvent.showSourceText(e,this)});
+
+        frame = eventBind.frame(frame,this);
         return frame;
     }
     getText(){
         let _result = [];
         this.body.forEach(i=>{
             if(typeof(i)=='string'){
-                _result.push(i);
+                i!=='\n' ? _result.push(i+' '): _result.push(i);
+
             }else{
-                _result.concat(i.getText());
+                _result = _result.concat(i.getText());
             }
         });
-        return _result;
-    }
-    renderSourceText(){
-        let _text = this.getText();
-        let _result = draw.div(null,'body');
-        _text.forEach(i=>{
-            _result.appendChild(draw.span(i));
-        });
-        
         return _result;
     }
 }
@@ -647,8 +639,7 @@ var draw = {
     div: function (content = null, className = 'title') {
         let _result = document.createElement('div');
         _result.className = className;
-        _result.draggable = true;
-        _result.addEventListener('dragstart', e => { diagramEvent.dragStart(e, _result) });
+      
         if (content) { _result.innerHTML = content }
         return _result;
     },
@@ -675,32 +666,59 @@ var draw = {
 //                  RENDER
 
 //-------------------------------------------------------
-var render = {
-    span: function(text){
-
+var unitRender = {
+    text: function(textArray){
+        let _result = document.createElement('div');
+        textArray.forEach(i=>{
+            _result.appendChild(draw.span(i,'text'));
+        });
+        return _result;
     }
 }
 
 //-------------------------------------------------------
 
-//                  EVENT
+//                  EVENT BINDING
 
 //-------------------------------------------------------
-var posX, posY;
-var diagramEvent = {
-    hostNode: null,
-    placeHolder: null,
-    dragStart: function (event, bindNode) {
-        event.cancelBubble = true;
-        diagramEvent.hostNode = bindNode;
+var eventBind = {
+    frame : function(htmlNode,ASTunit){
+        // => draggable
+        htmlNode.draggable = true;
+        htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, htmlNode) });
+        // => show Source Text
+        htmlNode.setAttribute('state', 'unit');
+        htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e, ASTunit) });
+        
+        return htmlNode;
+    },
+    
+}
 
-        diagramEvent.placeHolder = draw.div('', 'placeHolder');
-        diagramEvent.placeHolder.style.position = 'absolute';
-        diagramEvent.placeHolder.style.width = getComputedStyle(bindNode, null).width;
-        diagramEvent.placeHolder.style.height = getComputedStyle(bindNode, null).height;
-        diagramEvent.placeHolder.style.left = bindNode.offsetLeft + 'px';
-        diagramEvent.placeHolder.style.top = bindNode.offsetTop + 'px';
-        bindNode.parentElement.appendChild(diagramEvent.placeHolder);
+
+//-------------------------------------------------------
+
+//                  DIAGRAM EVENT
+
+//-------------------------------------------------------
+var posX,posY;
+var diagramEvent = {
+    hostHtmlNode: null,
+    // posX:0,
+    // posY:0,
+    placeHolder: null,
+    drag: function (event) {
+        event.cancelBubble = true;
+        let htmlNode = event.target;
+        this.hostHtmlNode = htmlNode;
+
+        this.placeHolder = draw.div('', 'placeHolder');
+        this.placeHolder.style.position = 'absolute';
+        this.placeHolder.style.width = getComputedStyle(htmlNode, null).width;
+        this.placeHolder.style.height = getComputedStyle(htmlNode, null).height;
+        this.placeHolder.style.left = htmlNode.offsetLeft + 'px';
+        this.placeHolder.style.top = htmlNode.offsetTop + 'px';
+        htmlNode.parentElement.appendChild(diagramEvent.placeHolder);
 
         posX = event.x - diagramEvent.placeHolder.offsetLeft;
         posY = event.y - diagramEvent.placeHolder.offsetTop;
@@ -714,26 +732,27 @@ var diagramEvent = {
 
             event.cancelBubble = true;
 
-            diagramEvent.hostNode.style.position = 'absolute';
-            diagramEvent.hostNode.style.left = diagramEvent.placeHolder.style.left;
-            diagramEvent.hostNode.style.top = diagramEvent.placeHolder.style.top;
+            diagramEvent.hostHtmlNode.style.position = 'absolute';
+            diagramEvent.hostHtmlNode.style.left = diagramEvent.placeHolder.style.left;
+            diagramEvent.hostHtmlNode.style.top = diagramEvent.placeHolder.style.top;
 
-            if (diagramEvent.hostNode.style.position == 'absolute' &&
-                diagramEvent.hostNode.offsetTop < 100 &&
-                diagramEvent.hostNode.offsetLeft < 100
+            if (diagramEvent.hostHtmlNode.style.position == 'absolute' &&
+                diagramEvent.hostHtmlNode.offsetTop < 100 &&
+                diagramEvent.hostHtmlNode.offsetLeft < 100
             ) {
 
-                diagramEvent.hostNode.style.position = 'relative';
-                diagramEvent.hostNode.style.top = '';
-                diagramEvent.hostNode.style.left = '';
+                diagramEvent.hostHtmlNode.style.position = 'relative';
+                diagramEvent.hostHtmlNode.style.top = '';
+                diagramEvent.hostHtmlNode.style.left = '';
 
             }
-            bindNode.parentElement.removeChild(diagramEvent.placeHolder);
+            htmlNode.parentElement.removeChild(diagramEvent.placeHolder);
             document.onmousemove = null;
             document.onmouseup = null;
         }
     },
     showSourceText: function(e,ASTunit){
+        e.cancelBubble = true;
         let _state = e.target.getAttribute('state');
         if(!_state){return;}
         a = e.target;
@@ -744,8 +763,8 @@ var diagramEvent = {
                 e.target.setAttribute('state','unit') ;
             },
             unit: function(){
-                e.target.innerHTML = ASTunit.renderSourceText();
                 e.target.setAttribute('state','sourceText') ;
+                e.target.innerHTML =  unitRender.text(ASTunit.getText()).innerHTML;
             }
         }
         let _action = _show[_state];
@@ -795,5 +814,6 @@ function asd (){
 }
 var a = 13;
 var asd asd = 111;`);
-var a = ASTPool.list[2].renderSourceText();
-console.log(a.innerHTML)
+var a = ASTPool.list[2].getText();
+console.log(a);
+// document.body.innerHTML = unitRender.text(a);
