@@ -250,10 +250,7 @@ function ASThandler(input) {
     let _result  = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-    console.log(_result[1].getBodyElements());
     
-    
-    document.body.appendChild(draw.span(_result[1].getBodyElements(),));
     let a = new diagram(document.getElementById('container'));
     a.update(_result);
 
@@ -311,10 +308,6 @@ class AST_Type_Register {
     }
     analysisId(content) {
         return content[1];
-    }
-
-    renderAllNode(unit, parent) {
-
     }
 }
 //-------------------------------------------------------
@@ -486,6 +479,7 @@ class AST_Unit {
             }
         }
         frame.appendChild(_body);
+        frame.id = this.id;
 
         frame = eventBind.frame(frame,this);
         return frame;
@@ -539,8 +533,10 @@ var AST = {
 
         let _source = input;
         let _result = [];
+        let _unit;
         while (_source != false) {
-            _result.push(this.readSource(_source, true));
+             _unit = this.readSource(_source, true);
+            _unit!=false && _result.push(_unit);
         }
 
         // let _resultList = this.listAll(_regResult);
@@ -566,7 +562,7 @@ var AST = {
         let _e = s.shift();
 
         let isStart = typeMarker.startCheck(_e);
-        if (start === true || isStart != false) {
+        if ( isStart != false) {
             let _res = new AST_Unit();
             _res.type = isStart;
             _res.push(_e);
@@ -585,6 +581,7 @@ var AST = {
         }
 
         else {
+            
             return _e;
 
             // throw ('unexpected');
@@ -688,7 +685,7 @@ var eventBind = {
         htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, htmlNode) });
         // => show Source Text
         htmlNode.setAttribute('state', 'unit');
-        htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e, ASTunit) });
+        htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e) });
         
         return htmlNode;
     },
@@ -751,27 +748,30 @@ var diagramEvent = {
             document.onmouseup = null;
         }
     },
-    showSourceText: function(e,ASTunit){
+    showSourceText: function(e){
         e.cancelBubble = true;
+        console.log(e.target.id);
+        let ASTunit = ASTPool.get(e.target.id);
+        if(e.target.id===undefined){return}        
         let _state = e.target.getAttribute('state');
         if(!_state){return;}
         a = e.target;
         let _show ={
             sourceText:function(){
-                
                 e.target.innerHTML = ASTunit.renderNode().innerHTML;
                 e.target.setAttribute('state','unit') ;
             },
             unit: function(){
                 e.target.setAttribute('state','sourceText') ;
                 e.target.innerHTML =  unitRender.text(ASTunit.getText()).innerHTML;
+                a= e.target;
+                
+                // document.write(unitRender.text(ASTunit.getText()).innerHTML);
             }
         }
         let _action = _show[_state];
         _action(); 
     }
-
-
 }
 
 
@@ -793,12 +793,14 @@ var tool = {
 
 
 setup(`var a = 12;
-function a {
+function a (){
 var a = 12;   
 var b =13;
 let c = 14;}
 
 class opps(){
+
+
     function a (){
         class a () {
             asdasd
@@ -814,6 +816,6 @@ function asd (){
 }
 var a = 13;
 var asd asd = 111;`);
-var a = ASTPool.list[2].getText();
+var a = ASTPool.list[2];
 console.log(a);
 // document.body.innerHTML = unitRender.text(a);
