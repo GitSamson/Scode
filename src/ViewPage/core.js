@@ -781,6 +781,41 @@ var diagramEvent = {
     }
 }
 
+//-------------------------------------------------------
+
+//                  _TOOLS
+
+//-------------------------------------------------------
+
+class State  {
+constructor(){
+    this.pool = {};
+    this.functionPool = {};
+}
+    add (state, on = false, fn = null) {
+        if (this.pool[state] !== undefined) { throw ('repeating state adding') };
+
+        this.pool[state] = on;
+        if (fn != null) this.functionPool[state] = fn;
+
+    }
+    switch (state) {
+        if (this.pool[state] === undefined) { throw ('didnt registe this state : ' + state) };
+        this.pool[state] = !this.pool[state];
+        return this.pool[state];
+    }
+    run (state) {
+        if (state in this.functionPool) { this.functionPool[state].fn(); }
+        return this.pool[state];
+    }
+
+}
+
+
+var state = new State();
+state.add('unit',true);
+console.log(state.run('unit'));
+
 
 //-------------------------------------------------------
 
