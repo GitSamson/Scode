@@ -1,6 +1,8 @@
 
 'use strict';
 
+import { stat } from "fs";
+
 function postMsg(line, character) {
     const vscode = acquireVsCodeApi();
     vscode.postMessage({ line, character });
@@ -470,6 +472,7 @@ class AST_Unit {
     getContentNode() {
         this.type.renderNode(this);
     }
+    
     renderNode() {
         let frame = draw.div(null, 'frame');
         frame.appendChild(draw.span(this.type.name, 'title'));
@@ -783,38 +786,55 @@ var diagramEvent = {
 
 //-------------------------------------------------------
 
-//                  _TOOLS
+//                  _STATE
 
 //-------------------------------------------------------
 
-class State  {
+class State{
+    constructor(name,boolean = false,fn = null,...opposeState){
+        // repeating State check;
+
+
+    }
+}
+class StateManager  {
 constructor(){
     this.pool = {};
-    this.functionPool = {};
 }
-    add (state, on = false, fn = null) {
-        if (this.pool[state] !== undefined) { throw ('repeating state adding') };
+    add ( state ) {
+        if(this.has(state.name)){throw('repeating state regist action'+ state.name)};
+        this.pool[state.name] = state;
+    }
+    has(name){
+        if (this[name] === undefined) { return false };
+        return true;
+    }
+    getState(name){
+        if(this.has(state.name)){throw( name , 'dont exist')};
+        return this.pool[name];
+    }
+    // switch (state,...opposeState) {
+    //     if (this.pool[state] === undefined) { throw ('didnt registe this state : ' + state) };
+    //     this.pool[state] = !this.pool[state];
+    //     this.run(state);
+    //     return this.pool[state];
+    // }
+    // run (state) {
+    //     if (state in this.functionPool) { this.functionPool[state].fn(); }
+    //     return this.pool[state];
+    // }
+    // fn (state){
+    //     if (state in this.functionPool) { return this.functionPool[state].fn; }
 
-        this.pool[state] = on;
-        if (fn != null) this.functionPool[state] = fn;
-
-    }
-    switch (state) {
-        if (this.pool[state] === undefined) { throw ('didnt registe this state : ' + state) };
-        this.pool[state] = !this.pool[state];
-        return this.pool[state];
-    }
-    run (state) {
-        if (state in this.functionPool) { this.functionPool[state].fn(); }
-        return this.pool[state];
-    }
+    // }
 
 }
 
+var sM = new StateManager();
+sM.add(new State(
 
-var state = new State();
-state.add('unit',true);
-console.log(state.run('unit'));
+));
+
 
 
 //-------------------------------------------------------
