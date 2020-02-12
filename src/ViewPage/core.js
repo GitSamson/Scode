@@ -24,7 +24,7 @@ window.addEventListener('message', event => {
  */
 function setup(content) {
     let _result = ASThandler(content);
-    
+
 
     let container = document.getElementById('container');
     let container_ed = document.getElementById('container_end');
@@ -249,10 +249,10 @@ var indexLocate = {
  *  AST handler Main function
  */
 function ASThandler(input) {
-    let _result  = AST.tokenize(input);
+    let _result = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-    
+
     let a = new diagram(document.getElementById('container'));
     a.update(_result);
 
@@ -406,22 +406,23 @@ class AST_Unit {
 
     getBodyElements() {
 
-        let _result = new String() ;
+        let _result = new String();
 
 
         for (let i = 0; i < this.body.length; i++) {
 
             let element = this.body[i];
             if (typeof (element) == 'object') {
-                    _result = _result +(element.getBodyElements());
-            }else{
-                if(_result[_result.length-1] !='\n'){
-                    _result+=' '}
+                _result = _result + (element.getBodyElements());
+            } else {
+                if (_result[_result.length - 1] != '\n') {
+                    _result += ' '
+                }
 
-                    _result += element;
+                _result += element;
             }
         }
-        
+
         return _result;
     }
 
@@ -462,7 +463,7 @@ class AST_Unit {
     }
     endCheck(input) {
         if (!this.type) {
-            if (input == '\n' | input ==';') {
+            if (input == '\n' | input == ';') {
                 return true;
             }
         } else {
@@ -472,34 +473,17 @@ class AST_Unit {
     getContentNode() {
         this.type.renderNode(this);
     }
-    
+
     renderNode() {
-        let frame = draw.div(null, 'frame');
-        frame.appendChild(draw.span(this.type.name, 'title'));
-        let _body = draw.div(null, 'body');
-        for (let i = 0; i < this.body.length; i++) {
-            if (typeof (this.body[i]) == 'string') {
-                _body.appendChild(draw.span(this.body[i]));
-                
-            } else if (typeof (this.body[i]) == 'object') {
-                let _node = this.body[i].renderNode()
-                _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
-                _body.appendChild(_node);
-            }
-        }
-        frame.appendChild(_body);
-        frame.id = this.id;
-
-        frame = eventBind.frame(frame,this);
-        return frame;
+        return sM.presentMode.active.fn(this);
     }
-    getText(){
+    getText() {
         let _result = [];
-        this.body.forEach(i=>{
-            if(typeof(i)=='string'){
-                i!=='\n' ? _result.push(i+' '): _result.push(i);
+        this.body.forEach(i => {
+            if (typeof (i) == 'string') {
+                i !== '\n' ? _result.push(i + ' ') : _result.push(i);
 
-            }else{
+            } else {
                 _result = _result.concat(i.getText());
             }
         });
@@ -515,11 +499,11 @@ class AST_Unit {
 
 
 var AST = {
-    keySymbol: ['{', '}', ';', '(', ')','='],
+    keySymbol: ['{', '}', ';', '(', ')', '='],
     /** replace key symbol with space
     */
     tokenize: function (input) {
-        let _result = input.replace(/\n/g,' \n ');
+        let _result = input.replace(/\n/g, ' \n ');
 
         let _symbol = this.keySymbol;
 
@@ -544,8 +528,8 @@ var AST = {
         let _result = [];
         let _unit;
         while (_source != false) {
-             _unit = this.readSource(_source, true);
-            _unit!=false && _result.push(_unit);
+            _unit = this.readSource(_source, true);
+            _unit != false && _result.push(_unit);
         }
 
         // let _resultList = this.listAll(_regResult);
@@ -567,16 +551,16 @@ var AST = {
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
-        if (!s) {return;}
+        if (!s) { return; }
         let _e = s.shift();
 
         let isStart = typeMarker.startCheck(_e);
-        if ( isStart != false) {
+        if (isStart != false) {
             let _res = new AST_Unit();
             _res.type = isStart;
             _res.push(_e);
-            
-            while (1 ) {
+
+            while (1) {
                 _res.push(this.readSource(s));
                 if (_res.endCheck(s[0]) == true) {
                     break;
@@ -590,7 +574,7 @@ var AST = {
         }
 
         else {
-            
+
             return _e;
 
             // throw ('unexpected');
@@ -605,11 +589,11 @@ var AST = {
 //-------------------------------------------------------
 var ASTPool = {
     list: [],
-    push: function(input){
+    push: function (input) {
         this.list.push(input);
-        return this.list.length-1;
+        return this.list.length - 1;
     },
-    get : function (id){
+    get: function (id) {
         return this.list[id];
     }
 
@@ -646,7 +630,7 @@ var draw = {
     div: function (content = null, className = 'title') {
         let _result = document.createElement('div');
         _result.className = className;
-      
+
         if (content) { _result.innerHTML = content }
         return _result;
     },
@@ -674,10 +658,10 @@ var draw = {
 
 //-------------------------------------------------------
 var unitRender = {
-    text: function(textArray){
+    text: function (textArray) {
         let _result = document.createElement('div');
-        textArray.forEach(i=>{
-            _result.appendChild(draw.span(i,'text'));
+        textArray.forEach(i => {
+            _result.appendChild(draw.span(i, 'text'));
         });
         return _result;
     }
@@ -689,17 +673,24 @@ var unitRender = {
 
 //-------------------------------------------------------
 var eventBind = {
-    frame : function(htmlNode,ASTunit){
+    unitMode: function (htmlNode) {
         // => draggable
         htmlNode.draggable = true;
         htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, htmlNode) });
         // => show Source Text
         htmlNode.setAttribute('state', 'unit');
         htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e) });
-        
+
         return htmlNode;
     },
-    
+    batteryMode: function (htmlNode){
+        let _htmlNode = htmlNode;
+        _htmlNode.draggable = true;
+        _htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, _htmlNode) });
+        // => show Source Text
+        _htmlNode.addEventListener('click', e => { diagramEvent.showSourceText(e) });
+        return _htmlNode;
+    }
 }
 
 
@@ -708,7 +699,7 @@ var eventBind = {
 //                  _DIAGRAM EVENT
 
 //-------------------------------------------------------
-var posX,posY;
+var posX, posY;
 var diagramEvent = {
     hostHtmlNode: null,
     // posX:0,
@@ -758,29 +749,33 @@ var diagramEvent = {
             document.onmouseup = null;
         }
     },
-    showSourceText: function(e){
+    showSourceText: function (e) {
         e.cancelBubble = true;
         console.log(e.target.id);
         let ASTunit = ASTPool.get(e.target.id);
-        if(e.target.id===undefined){return}        
+        if (e.target.id === undefined) { return }
         let _state = e.target.getAttribute('state');
-        if(!_state){return;}
+        if (!_state) { return; }
         a = e.target;
-        let _show ={
-            sourceText:function(){
+        let _show = {
+            sourceText: function () {
                 e.target.innerHTML = ASTunit.renderNode().innerHTML;
-                e.target.setAttribute('state','unit') ;
+                e.target.setAttribute('state', 'unit');
             },
-            unit: function(){
-                e.target.setAttribute('state','sourceText') ;
-                e.target.innerHTML =  unitRender.text(ASTunit.getText()).innerHTML;
-                a= e.target;
-                
+            unit: function () {
+                e.target.setAttribute('state', 'sourceText');
+                e.target.innerHTML = unitRender.text(ASTunit.getText()).innerHTML;
+                a = e.target;
+
                 // document.write(unitRender.text(ASTunit.getText()).innerHTML);
             }
         }
         let _action = _show[_state];
-        _action(); 
+        _action();
+    },
+    appendSourceText : function (e){
+        let ASTunit = ASTPool.get(e.target.id);
+        // TODO : do this!!!!
     }
 }
 
@@ -790,29 +785,51 @@ var diagramEvent = {
 
 //-------------------------------------------------------
 
-class State{
-    constructor(name,boolean = false,fn = null,...opposeState){
+class State {
+    constructor(name, on = false, fn = null) {
         // repeating State check;
-
-
+        this.name = name;
+        this.on = on;
+        this.fn = fn;
+        this.opposeState = opposeState;
     }
 }
-class StateManager  {
-constructor(){
-    this.pool = {};
+
+class StateSet {
+    constructor(setA, setB) {
+        this.setA = setA;
+        this.setB = setB;
+        [this.setA.set, this.setB.set] = [this, this];
+        if (this.setA.on === this.setB.on) { this.setB.on = !this.setB.on }
+    }
+    active() {
+        if (this.setA.on === true) return this.setA;
+        return this.setB;
+    }
+    turn() {
+        this.setA.on = !this.setA.on;
+        this.setB.on = !this.setB.on;
+        return this.active();
+    }
 }
-    add ( state ) {
-        if(this.has(state.name)){throw('repeating state regist action'+ state.name)};
-        this.pool[state.name] = state;
-    }
-    has(name){
-        if (this[name] === undefined) { return false };
-        return true;
-    }
-    getState(name){
-        if(this.has(state.name)){throw( name , 'dont exist')};
-        return this.pool[name];
-    }
+// class StateManager  {
+// constructor(){
+//     this.pool = {};
+// }
+//     add ( state ) {
+//         if(this.has(state.name)){throw('repeating state regist action'+ state.name)};
+//         this.pool[state.name] = state;
+//     }
+//     has(name){
+//         if (this[name] === undefined) { return false };
+//         return true;
+//     }
+//     getState(name){
+//         if(this.has(state.name)){throw( name , 'dont exist')};
+//         return this.pool[name];
+//     }
+
+
     // switch (state,...opposeState) {
     //     if (this.pool[state] === undefined) { throw ('didnt registe this state : ' + state) };
     //     this.pool[state] = !this.pool[state];
@@ -830,11 +847,37 @@ constructor(){
 
 }
 
-var sM = new StateManager();
-sM.add(new State(
+var sM = new Set();
+sM.presentMode = new StateSet(
+        new State('unitMode',true,function(ASTunit){
 
-));
+            let frame = draw.div(null, 'frame');
+            frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+            let _body = draw.div(null, 'body');
+            for (let i = 0; i < ASTunit.body.length; i++) {
+                if (typeof (ASTunit.body[i]) == 'string') {
+                    _body.appendChild(draw.span(ASTunit.body[i]));
 
+                } else if (typeof (ASTunit.body[i]) == 'object') {
+                    let _node = ASTunit.body[i].renderNode()
+                    _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
+                    _body.appendChild(_node);
+                }
+            }
+            frame.appendChild(_body);
+            frame.id = ASTunit.id;
+            frame = eventBind.unitMode(frame);
+            return frame;
+
+        }),
+        new State('batteryMode',false,function(){
+            let frame = draw.div(null, 'body');
+            frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+            frame.id = ASTunit.id;
+            frame = eventBind.batteryMode(frame);
+            return frame;
+        })
+    );
 
 
 //-------------------------------------------------------
