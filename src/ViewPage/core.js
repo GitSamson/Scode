@@ -1,7 +1,6 @@
 
 'use strict';
 
-import { stat } from "fs";
 
 function postMsg(line, character) {
     const vscode = acquireVsCodeApi();
@@ -253,8 +252,8 @@ function ASThandler(input) {
 
     _result = AST.onionize(_result);
 
-    let a = new diagram(document.getElementById('container'));
-    a.update(_result);
+    let diagram = new Diagram(document.getElementById('container'));
+    diagram.update(_result);
 
     return _result;
 
@@ -400,6 +399,7 @@ class AST_Unit {
         this.body_units = [];
         this.body = [];
         this.type;
+        this.detail = 0;
         this.id = ASTPool.push(this);
     }
 
@@ -475,7 +475,7 @@ class AST_Unit {
     }
 
     renderNode() {
-        return sM.presentMode.active.fn(this);
+        return sM.presentMode.active().fn(this);
     }
     getText() {
         let _result = [];
@@ -566,7 +566,6 @@ var AST = {
                     break;
                 };
 
-                //TODO : COMMAND END HAVE PROBLEM NEED MORE END MARKER
             }
             _res.push(s.shift());
             _res.analysis();
@@ -606,7 +605,7 @@ var ASTPool = {
 //  SHOW FUNCTION INCLUDE COMPARISION THEN HANDLE SHOWING
 //  KIND OF LIKE REACT
 //-------------------------------------------------------
-class diagram {
+class Diagram {
     constructor(canv) {
         this.canv = canv;
         this.contentList = [];
@@ -683,12 +682,12 @@ var eventBind = {
 
         return htmlNode;
     },
-    batteryMode: function (htmlNode){
+    batteryMode: function (htmlNode) {
         let _htmlNode = htmlNode;
         _htmlNode.draggable = true;
         _htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, _htmlNode) });
         // => show Source Text
-        _htmlNode.addEventListener('click', e => { diagramEvent.showSourceText(e) });
+        _htmlNode.addEventListener('dblclick', e => { diagramEvent.appendSourceText(e) });
         return _htmlNode;
     }
 }
@@ -751,37 +750,42 @@ var diagramEvent = {
     },
     showSourceText: function (e) {
         e.cancelBubble = true;
-        console.log(e.target.id);
+        let htmlNode = e.currentTarget;
         let ASTunit = ASTPool.get(e.target.id);
         if (e.target.id === undefined) { return }
-        let _state = e.target.getAttribute('state');
-        if (!_state) { return; }
-        a = e.target;
-        let _show = {
-            sourceText: function () {
-                e.target.innerHTML = ASTunit.renderNode().innerHTML;
-                e.target.setAttribute('state', 'unit');
-            },
-            unit: function () {
-                e.target.setAttribute('state', 'sourceText');
-                e.target.innerHTML = unitRender.text(ASTunit.getText()).innerHTML;
-                a = e.target;
+        ASTunit.detail === 0 && function () {
+            htmlNode.innerHTML = unitRender.text(ASTunit.getText()).innerHTML;
+            ASTunit.detail = !ASTunit.detail;
+        };
+        ASTunit.detail === 1 && function () {
+            ASTunit.detail = !ASTunit.detail;
+            htmlNode.innerHTML = draw.span(ASTunit.type.name, 'title');
 
-                // document.write(unitRender.text(ASTunit.getText()).innerHTML);
-            }
+            // document.write(unitRender.text(ASTunit.getText()).innerHTML);
         }
-        let _action = _show[_state];
-        _action();
     },
-    appendSourceText : function (e){
-        let ASTunit = ASTPool.get(e.target.id);
-        // TODO : do this!!!!
+    appendSourceText: function (e) {
+        let htmlNode = e.currentTarget;
+        let ASTunit = ASTPool.get(e.currentTarget.id);
+        console.log(e.currentTarget, ASTunit.detail);
+        ASTunit.detail === 0 ? function () {
+            htmlNode.innerHTML = '';
+            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title'));
+            htmlNode.appendChild(unitRender.text(ASTunit.getText()));
+            ASTunit.detail = 1;
+        }() : function () {
+            htmlNode.innerHTML = '';
+            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title'));
+            a = htmlNode;
+            ASTunit.detail = 0;
+        }();
+
     }
 }
-
+var a;
 //-------------------------------------------------------
 
-//                  _STATE
+//                  _STATE_MANAGER
 
 //-------------------------------------------------------
 
@@ -791,7 +795,6 @@ class State {
         this.name = name;
         this.on = on;
         this.fn = fn;
-        this.opposeState = opposeState;
     }
 }
 
@@ -812,72 +815,39 @@ class StateSet {
         return this.active();
     }
 }
-// class StateManager  {
-// constructor(){
-//     this.pool = {};
-// }
-//     add ( state ) {
-//         if(this.has(state.name)){throw('repeating state regist action'+ state.name)};
-//         this.pool[state.name] = state;
-//     }
-//     has(name){
-//         if (this[name] === undefined) { return false };
-//         return true;
-//     }
-//     getState(name){
-//         if(this.has(state.name)){throw( name , 'dont exist')};
-//         return this.pool[name];
-//     }
 
-
-    // switch (state,...opposeState) {
-    //     if (this.pool[state] === undefined) { throw ('didnt registe this state : ' + state) };
-    //     this.pool[state] = !this.pool[state];
-    //     this.run(state);
-    //     return this.pool[state];
-    // }
-    // run (state) {
-    //     if (state in this.functionPool) { this.functionPool[state].fn(); }
-    //     return this.pool[state];
-    // }
-    // fn (state){
-    //     if (state in this.functionPool) { return this.functionPool[state].fn; }
-
-    // }
-
-}
 
 var sM = new Set();
 sM.presentMode = new StateSet(
-        new State('unitMode',true,function(ASTunit){
+    new State('unitMode', false, function (ASTunit) {
 
-            let frame = draw.div(null, 'frame');
-            frame.appendChild(draw.span(ASTunit.type.name, 'title'));
-            let _body = draw.div(null, 'body');
-            for (let i = 0; i < ASTunit.body.length; i++) {
-                if (typeof (ASTunit.body[i]) == 'string') {
-                    _body.appendChild(draw.span(ASTunit.body[i]));
+        let frame = draw.div(null, 'frame');
+        frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+        let _body = draw.div(null, 'body');
+        for (let i = 0; i < ASTunit.body.length; i++) {
+            if (typeof (ASTunit.body[i]) == 'string') {
+                _body.appendChild(draw.span(ASTunit.body[i]));
 
-                } else if (typeof (ASTunit.body[i]) == 'object') {
-                    let _node = ASTunit.body[i].renderNode()
-                    _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
-                    _body.appendChild(_node);
-                }
+            } else if (typeof (ASTunit.body[i]) == 'object') {
+                let _node = ASTunit.body[i].renderNode()
+                _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
+                _body.appendChild(_node);
             }
-            frame.appendChild(_body);
-            frame.id = ASTunit.id;
-            frame = eventBind.unitMode(frame);
-            return frame;
+        }
+        frame.appendChild(_body);
+        frame.id = ASTunit.id;
+        frame = eventBind.unitMode(frame);
+        return frame;
 
-        }),
-        new State('batteryMode',false,function(){
-            let frame = draw.div(null, 'body');
-            frame.appendChild(draw.span(ASTunit.type.name, 'title'));
-            frame.id = ASTunit.id;
-            frame = eventBind.batteryMode(frame);
-            return frame;
-        })
-    );
+    }),
+    new State('batteryMode', false, function (ASTunit) {
+        let frame = draw.div(null, 'frame');
+        frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+        frame.id = ASTunit.id;
+        frame = eventBind.batteryMode(frame);
+        return frame;
+    })
+);
 
 
 //-------------------------------------------------------
@@ -921,6 +891,4 @@ function asd (){
 }
 var a = 13;
 var asd asd = 111;`);
-var a = ASTPool.list[2];
-console.log(a);
 // document.body.innerHTML = unitRender.text(a);
