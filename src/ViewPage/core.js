@@ -698,6 +698,20 @@ var eventBind = {
 //                  _DIAGRAM EVENT
 
 //-------------------------------------------------------
+var htmlNodeStyleHandler = function(Node){
+    return function (styleName, content=null){
+        if(content){
+            Node.style[styleName] = content;
+        }else{
+            styleName.forEach{
+                i=>{
+                    Node.style[]
+                }
+            }
+        }
+    }
+}
+
 var posX, posY;
 var diagramEvent = {
     hostHtmlNode: null,
@@ -710,11 +724,15 @@ var diagramEvent = {
         this.hostHtmlNode = htmlNode;
 
         this.placeHolder = draw.div('', 'placeHolder');
-        this.placeHolder.style.position = 'absolute';
-        this.placeHolder.style.width = getComputedStyle(htmlNode, null).width;
-        this.placeHolder.style.height = getComputedStyle(htmlNode, null).height;
-        this.placeHolder.style.left = htmlNode.offsetLeft + 'px';
-        this.placeHolder.style.top = htmlNode.offsetTop + 'px';
+        let _style = htmlNodeStyleHandler(this.placeHolder);
+
+        this.placeHolder.style = {
+            positoin : 'absolute',
+            width: getComputedStyle(htmlNode, null).width,
+            left : htmlNode.offsetLeft + 'px',
+            top: htmlNode.offsetTop + 'px',
+        }
+
         htmlNode.parentElement.appendChild(diagramEvent.placeHolder);
 
         posX = event.x - diagramEvent.placeHolder.offsetLeft;
@@ -769,9 +787,15 @@ var diagramEvent = {
         let ASTunit = ASTPool.get(e.currentTarget.id);
         console.log(e.currentTarget, ASTunit.detail);
         ASTunit.detail === 0 ? function () {
-            htmlNode.innerHTML = '';
-            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title'));
+            htmlNode.innerHTML = ''; //clear content
+            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title')); // title
+
+            // body frame div
+            let _body = draw.div(null,'default');
+            _body.style.left = '15px';
+            _body.appendChild(unitRender.text(ASTunit.getText()));
             htmlNode.appendChild(unitRender.text(ASTunit.getText()));
+
             ASTunit.detail = 1;
         }() : function () {
             htmlNode.innerHTML = '';
