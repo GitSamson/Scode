@@ -657,12 +657,22 @@ var draw = {
 
 //-------------------------------------------------------
 var unitRender = {
+    divFrame : function(){
+        let _result = draw.div(null,'default');
+        return _result;
+    },
     text: function (textArray) {
-        let _result = document.createElement('div');
+        let _result = this.divFrame();
         textArray.forEach(i => {
             _result.appendChild(draw.span(i, 'text'));
         });
         return _result;
+    },
+    head: function (textArray){
+        let _result = this.divFrame();
+        textArray.forEach(i => {
+            _result.appendChild(draw.span(i, 'title'));
+        });
     }
 }
 
@@ -698,17 +708,17 @@ var eventBind = {
 //                  _DIAGRAM EVENT
 
 //-------------------------------------------------------
-var htmlNodeStyleHandler = function(Node){
-    return function (styleName, content=null){
-        if(content){
-            Node.style[styleName] = content;
-        }else{
-            styleName.forEach{
-                i=>{
-                    Node.style[]
-                }
-            }
+var htmlNodeStyleHandler = function (Node) {
+    let node = Node;
+    return function (styleName, content = null) {
+        if (content) {
+            node.style[styleName] = content;
+        } else {
+            Object.keys(styleName).forEach(i => {
+                node.style[i] = styleName[i];
+            });
         }
+        return node;
     }
 }
 
@@ -724,14 +734,14 @@ var diagramEvent = {
         this.hostHtmlNode = htmlNode;
 
         this.placeHolder = draw.div('', 'placeHolder');
-        let _style = htmlNodeStyleHandler(this.placeHolder);
 
-        this.placeHolder.style = {
-            positoin : 'absolute',
+        this.placeHolder = htmlNodeStyleHandler(this.placeHolder)({
+            position: 'absolute',
             width: getComputedStyle(htmlNode, null).width,
-            left : htmlNode.offsetLeft + 'px',
-            top: htmlNode.offsetTop + 'px',
-        }
+            height: getComputedStyle(htmlNode, null).height,
+            left: htmlNode.offsetLeft + 'px',
+            top: htmlNode.offsetTop + 'px'
+        });
 
         htmlNode.parentElement.appendChild(diagramEvent.placeHolder);
 
@@ -791,10 +801,9 @@ var diagramEvent = {
             htmlNode.appendChild(draw.span(ASTunit.type.name, 'title')); // title
 
             // body frame div
-            let _body = draw.div(null,'default');
-            _body.style.left = '15px';
+            let _body = draw.div(null, 'default');
             _body.appendChild(unitRender.text(ASTunit.getText()));
-            htmlNode.appendChild(unitRender.text(ASTunit.getText()));
+            htmlNode.appendChild(_body);
 
             ASTunit.detail = 1;
         }() : function () {
