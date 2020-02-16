@@ -657,8 +657,8 @@ var draw = {
 
 //-------------------------------------------------------
 var unitRender = {
-    divFrame : function(){
-        let _result = draw.div(null,'default');
+    divFrame: function () {
+        let _result = draw.div(null, 'default');
         return _result;
     },
     text: function (textArray) {
@@ -668,7 +668,7 @@ var unitRender = {
         });
         return _result;
     },
-    head: function (...textArray){
+    head: function (...textArray) {
         let _result = this.divFrame();
         textArray.forEach(i => {
             _result.appendChild(draw.span(i, 'title'));
@@ -676,10 +676,10 @@ var unitRender = {
     }
 }
 
-var ASTRender = function(ASTunit){
+var ASTRender = function (ASTunit) {
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.id),
-        body: 
+        body: ''
     }
 }
 //-------------------------------------------------------
@@ -741,7 +741,7 @@ var diagramEvent = {
 
         this.placeHolder = draw.div('', 'placeHolder');
 
-        this.placeHolder = htmlNodeStyleHandler(this.placeHolder)({
+        htmlNodeStyleHandler(this.placeHolder)({
             position: 'absolute',
             width: getComputedStyle(htmlNode, null).width,
             height: getComputedStyle(htmlNode, null).height,
@@ -755,27 +755,30 @@ var diagramEvent = {
         posY = event.y - diagramEvent.placeHolder.offsetTop;
 
         document.onmousemove = function (e) {
+
             diagramEvent.placeHolder.style.left = (e.clientX - posX) + 'px';
             diagramEvent.placeHolder.style.top = (e.clientY - posY) + 'px';
         }
 
         document.onmouseup = function (event) {
-
+            let _style = htmlNodeStyleHandler(diagramEvent.hostHtmlNode);
             event.cancelBubble = true;
+            _style({
+                position: 'absolute',
+                left: diagramEvent.placeHolder.style.left,
+                top: diagramEvent.placeHolder.style.top
+            })
 
-            diagramEvent.hostHtmlNode.style.position = 'absolute';
-            diagramEvent.hostHtmlNode.style.left = diagramEvent.placeHolder.style.left;
-            diagramEvent.hostHtmlNode.style.top = diagramEvent.placeHolder.style.top;
 
             if (diagramEvent.hostHtmlNode.style.position == 'absolute' &&
                 diagramEvent.hostHtmlNode.offsetTop < 100 &&
                 diagramEvent.hostHtmlNode.offsetLeft < 100
             ) {
-
-                diagramEvent.hostHtmlNode.style.position = 'relative';
-                diagramEvent.hostHtmlNode.style.top = '';
-                diagramEvent.hostHtmlNode.style.left = '';
-
+                _style({
+                    position: 'relative',
+                    top: '',
+                    left: ''
+                })
             }
             htmlNode.parentElement.removeChild(diagramEvent.placeHolder);
             document.onmousemove = null;
