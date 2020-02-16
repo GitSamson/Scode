@@ -668,7 +668,7 @@ var unitRender = {
         });
         return _result;
     },
-    head: function (textArray){
+    head: function (...textArray){
         let _result = this.divFrame();
         textArray.forEach(i => {
             _result.appendChild(draw.span(i, 'title'));
@@ -676,6 +676,12 @@ var unitRender = {
     }
 }
 
+var ASTRender = function(ASTunit){
+    return {
+        head: unitRender.head(ASTunit.type.name, ASTunit.id),
+        body: 
+    }
+}
 //-------------------------------------------------------
 
 //                  _EVENT BINDING
