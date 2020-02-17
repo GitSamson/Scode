@@ -661,7 +661,7 @@ var draw = {
 //-------------------------------------------------------
 var unitRender = {
     divFrame: function () {
-        let _result = draw.div();
+        let _result = draw.div(null,'default');
         return _result;
     },
     text: function (textArray) {
@@ -676,6 +676,7 @@ var unitRender = {
         textArray.forEach(i => {
             console.log(i);
             i!==undefined&&_result.appendChild(draw.span(i, 'title'));
+            _result.appendChild(draw.span(' ','default'));
         });
         return _result;
     }
@@ -867,7 +868,7 @@ sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
 
         let frame = draw.div(null, 'frame');
-        frame.appendChild(ASTRender(this).head);
+        frame.appendChild(ASTRender(ASTunit).head);
         let _body = draw.div(null, 'body');
         for (let i = 0; i < ASTunit.body.length; i++) {
             if (typeof (ASTunit.body[i]) == 'string') {
@@ -887,7 +888,7 @@ sM.presentMode = new StateSet(
     }),
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'frame');
-        frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+        frame.appendChild(ASTRender(ASTunit).head);
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
         return frame;
