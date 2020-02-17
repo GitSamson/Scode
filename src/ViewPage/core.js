@@ -283,13 +283,17 @@ class AST_Type_Register {
             typeIndicator: 'unknown',
             name: 'unknown',
             start: '',
-            end: '\n',
+            end: '\n'
+        },fn = {
         }
     ) {
         this.typeIndicator = prop.typeIndicator;
         this.name = prop.name;
         this.end = toArray(prop.end) || [';', '\n'];
         this.start = prop.start;
+        Object.keys(fn).forEach(i=>{
+            this[i] = fn[i];
+        });
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -307,9 +311,7 @@ class AST_Type_Register {
 
         return (input == this.start);
     }
-    analysisId(content) {
-        return content[1];
-    }
+
 }
 //-------------------------------------------------------
 
@@ -345,7 +347,10 @@ var typeMarker = {
         name: 'function',
         start: 'function',
         end: '}'
-    }),
+    },{
+            getName:function(){
+            return this.body[1]
+    }}),
 
     class: new AST_Type_Register({
         typeIndicator: 'class_Indicator',
@@ -401,6 +406,7 @@ class AST_Unit {
         this.type;
         this.detail = 0;
         this.id = ASTPool.push(this);
+        this.prop = {};
     }
 
 
@@ -439,7 +445,10 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-
+        if(this.type.name == 'function'){
+        this.prop.name = (this.type.getName.call(this));
+        };
+        
     }
 
     /** type check prototype function
@@ -493,7 +502,7 @@ class AST_Unit {
 
 //-------------------------------------------------------
 
-//                        _AST UNIT
+//                        _AST 
 
 //-------------------------------------------------------
 
@@ -565,19 +574,13 @@ var AST = {
                 if (_res.endCheck(s[0]) == true) {
                     break;
                 };
-
             }
             _res.push(s.shift());
             _res.analysis();
             return _res;
         }
-
-        else {
-
             return _e;
-
             // throw ('unexpected');
-        }
     }
 }
 
@@ -658,7 +661,7 @@ var draw = {
 //-------------------------------------------------------
 var unitRender = {
     divFrame: function () {
-        let _result = draw.div(null, 'default');
+        let _result = draw.div();
         return _result;
     },
     text: function (textArray) {
@@ -671,15 +674,17 @@ var unitRender = {
     head: function (...textArray) {
         let _result = this.divFrame();
         textArray.forEach(i => {
-            _result.appendChild(draw.span(i, 'title'));
+            console.log(i);
+            i!==undefined&&_result.appendChild(draw.span(i, 'title'));
         });
+        return _result;
     }
 }
 
 var ASTRender = function (ASTunit) {
     return {
-        head: unitRender.head(ASTunit.type.name, ASTunit.id),
-        body: ''
+        head: unitRender.head(ASTunit.type.name,ASTunit.prop.name),
+        body: unitRender.text(ASTunit.getText())
     }
 }
 //-------------------------------------------------------
@@ -804,21 +809,19 @@ var diagramEvent = {
     appendSourceText: function (e) {
         let htmlNode = e.currentTarget;
         let ASTunit = ASTPool.get(e.currentTarget.id);
+        let _rend = ASTRender(ASTunit);
         console.log(e.currentTarget, ASTunit.detail);
         ASTunit.detail === 0 ? function () {
             htmlNode.innerHTML = ''; //clear content
-            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title')); // title
+            htmlNode.appendChild(_rend.head); // title
 
             // body frame div
-            let _body = draw.div(null, 'default');
-            _body.appendChild(unitRender.text(ASTunit.getText()));
-            htmlNode.appendChild(_body);
+            htmlNode.appendChild(_rend.body);
 
             ASTunit.detail = 1;
         }() : function () {
             htmlNode.innerHTML = '';
-            htmlNode.appendChild(draw.span(ASTunit.type.name, 'title'));
-            a = htmlNode;
+            htmlNode.appendChild(_rend.head);
             ASTunit.detail = 0;
         }();
 
@@ -864,7 +867,7 @@ sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
 
         let frame = draw.div(null, 'frame');
-        frame.appendChild(draw.span(ASTunit.type.name, 'title'));
+        frame.appendChild(ASTRender(this).head);
         let _body = draw.div(null, 'body');
         for (let i = 0; i < ASTunit.body.length; i++) {
             if (typeof (ASTunit.body[i]) == 'string') {
