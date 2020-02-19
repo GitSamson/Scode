@@ -353,12 +353,12 @@ var typeMarker = {
             return this.body[1]
         },
         param: function () {
-            let i = 1;
+            let i = 3;
             let _result = [];
-            do {
+            while (this.body[i]!= ')') {
                 _result.push(this.body[i]);
                 i++;
-            } while (this.body[i] !== this.type.end);
+            }
             return _result;
         }
     }),
@@ -477,7 +477,7 @@ class AST_Unit {
         };
 
     }
-    typeDo(command){
+    do(command){
         return this.type[command].call(this);
     }
     /** type check prototype function
@@ -537,13 +537,13 @@ class AST_Unit {
 
 
 var AST = {
-    keySymbol: ['{', '}', ';', '(', ')', '='],
+    breaker: ['{', '}', ';', '(', ')', '='],
     /** replace key symbol with space
     */
     tokenize: function (input) {
         let _result = input.replace(/\n/g, ' \n ');
 
-        let _symbol = this.keySymbol;
+        let _symbol = this.breaker;
 
         for (let i = 0; i < _symbol.length; i++) {
             let element = _symbol[i];
@@ -942,7 +942,7 @@ var tool = {
 
 
 setup(`var a = 12;
-function a (){
+function a (x,y){
 var a = 12;   
 var b =13;
 let c = 14;}
@@ -966,4 +966,5 @@ function asd (){
 var a = 13;
 var asd asd = 111;`);
 var a = ASTPool.list[1];
+console.log(a.do('param'))
 // document.body.innerHTML = unitRender.text(a);
