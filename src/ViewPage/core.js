@@ -284,14 +284,14 @@ class AST_Type_Register {
             name: 'unknown',
             start: '',
             end: '\n'
-        },fn = {
+        }, fn = {
         }
     ) {
         this.typeIndicator = prop.typeIndicator;
         this.name = prop.name;
         this.end = toArray(prop.end) || [';', '\n'];
         this.start = prop.start;
-        Object.keys(fn).forEach(i=>{
+        Object.keys(fn).forEach(i => {
             this[i] = fn[i];
         });
     }
@@ -346,35 +346,62 @@ var typeMarker = {
         typeIndicator: 'function_Indicator',
         name: 'function',
         start: 'function',
-        end: '}'
-    },{
-            getName:function(){
+        end: '}',
+        block: true
+    }, {
+        getName: function () {
             return this.body[1]
-    }}),
+        },
+        param: function () {
+            let i = 1;
+            let _result = [];
+            do {
+                _result.push(this.body[i]);
+                i++;
+            } while (this.body[i] !== this.type.end);
+            return _result;
+        }
+    }),
 
     class: new AST_Type_Register({
         typeIndicator: 'class_Indicator',
         name: 'class',
         start: 'class',
-        end: '}'
+        end: '}',
+        block: true
+    }, {
+        getName: function () {
+            return this.body[1]
+        },
+        param: function () {
+            let i = 1;
+            let _result = [];
+            do {
+                _result.push(this.body[i]);
+            } while (this.body[i] !== this.type.end);
+            return _result;
+        }
     }),
     variable: new AST_Type_Register({
         typeIndicator: 'variable_Indicator',
         name: 'variable',
         start: ['var', 'let', 'const'],
-        end: [';', '\n']
+        end: [';', '\n'],
+        block: false
     }),
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
         name: 'annotation',
         start: '//',
-        end: '\n'
+        end: '\n',
+        block: false
     }),
     expression: new AST_Type_Register({
         typeIndicator: 'command',
         name: 'command',
         start: false,
-        end: ''
+        end: '',
+        block: false
     })
 };
 
@@ -445,12 +472,14 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-        if(this.type.name == 'function'){
-        this.prop.name = (this.type.getName.call(this));
+        if (this.type.name == 'function') {
+            this.prop.name = (this.type.getName.call(this));
         };
-        
-    }
 
+    }
+    typeDo(command){
+        return this.type[command].call(this);
+    }
     /** type check prototype function
      * @returns false | type
      */
@@ -579,8 +608,8 @@ var AST = {
             _res.analysis();
             return _res;
         }
-            return _e;
-            // throw ('unexpected');
+        return _e;
+        // throw ('unexpected');
     }
 }
 
@@ -661,7 +690,7 @@ var draw = {
 //-------------------------------------------------------
 var unitRender = {
     divFrame: function () {
-        let _result = draw.div(null,'default');
+        let _result = draw.div(null, 'default');
         return _result;
     },
     text: function (textArray) {
@@ -674,9 +703,8 @@ var unitRender = {
     head: function (...textArray) {
         let _result = this.divFrame();
         textArray.forEach(i => {
-            console.log(i);
-            i!==undefined&&_result.appendChild(draw.span(i, 'title'));
-            _result.appendChild(draw.span(' ','default'));
+            i !== undefined && _result.appendChild(draw.span(i, 'title'));
+            _result.appendChild(draw.span(' ', 'default'));
         });
         return _result;
     }
@@ -684,7 +712,7 @@ var unitRender = {
 
 var ASTRender = function (ASTunit) {
     return {
-        head: unitRender.head(ASTunit.type.name,ASTunit.prop.name),
+        head: unitRender.head(ASTunit.type.name, ASTunit.prop.name),
         body: unitRender.text(ASTunit.getText())
     }
 }
@@ -937,4 +965,5 @@ function asd (){
 }
 var a = 13;
 var asd asd = 111;`);
+var a = ASTPool.list[1];
 // document.body.innerHTML = unitRender.text(a);
