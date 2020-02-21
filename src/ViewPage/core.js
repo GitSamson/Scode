@@ -542,6 +542,8 @@ var AST = {
     */
     tokenize: function (input) {
         let _result = input.replace(/\n/g, ' \n ');
+        _result = _result.replace(/,/g, ' ');
+
 
         let _symbol = this.breaker;
 
