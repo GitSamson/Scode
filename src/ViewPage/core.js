@@ -692,14 +692,14 @@ var unitRender = {
         let _unitHeight = 20;
         let _result = draw.div(null,'default');
         _result.style.width = _unitHeight + 'px';
-        _result.style.height = (param.length - 1) * _unitHeight + 'px';
-        _result.style.position = 'absolute';
+        _result.style.height = (param.length ) * _unitHeight + 'px';
+        _result.style.position = 'relative';
 
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
             let _component = draw.div(element, 'component');
             _result.appendChild(_component);
-            _component.style.top = _unitHeight * (i+1) + 'px';
+            _component.style.top = _unitHeight * (i) + 'px';
             _component.style.left  = '0px';
 
         }
@@ -917,11 +917,12 @@ sM.presentMode = new StateSet(
     }),
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'default');
+        frame.style.margin = '15px'
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
         if(_unitHtml.param){
-            _unitHtml.top = _unitHtml.head.offsetHeight+'px';
-            _unitHtml.left = tool.toPx(_unitHtml.head.left) + tool.toPx(_unitHtml.head.margin)+'px';
+            _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
+            _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin)+'px';
             frame.appendChild(_unitHtml.param);
         }
         frame.id = ASTunit.id;
@@ -949,7 +950,7 @@ var tool = {
         add:function(A,B){
             return tool.toPx(A) + tool.toPx(B) + 'px';
         }
-    }
+    },
 }
 
 
