@@ -23,26 +23,10 @@ window.addEventListener('message', event => {
  */
 function setup(content) {
     let _result = ASThandler(content);
-
-
     let container = document.getElementById('container');
     let container_ed = document.getElementById('container_end');
 
-    // analysis contetn text and generate a content node tree;
-
-    //render node tree;
-    // diagramRender(sourceTree, container);
-
-    //when click on each element rendered on container, move cursor to where it is.
-    // event include these:
-    // 1: mouse :   cilck on diagram move cursor to the position
-    // 2: zoom:     select and zoom in.
-    // 3: modify:   change diagram content (add/delete/modify)update to vscode
-    // 4: gesture:  move or drag update to vscode
-
 }
-
-
 
 
 /* ||||||||||||||||||||||||||||||||||| Text handle functions||||||||||||||||||||||||||||||||||||*/
@@ -355,7 +339,7 @@ var typeMarker = {
         param: function () {
             let i = 3;
             let _result = [];
-            while (this.body[i]!= ')') {
+            while (this.body[i] != ')') {
                 _result.push(this.body[i]);
                 i++;
             }
@@ -373,14 +357,7 @@ var typeMarker = {
         getName: function () {
             return this.body[1]
         },
-        param: function () {
-            let i = 1;
-            let _result = [];
-            do {
-                _result.push(this.body[i]);
-            } while (this.body[i] !== this.type.end);
-            return _result;
-        }
+
     }),
     variable: new AST_Type_Register({
         typeIndicator: 'variable_Indicator',
@@ -425,195 +402,197 @@ var specialMarker = {
 //-------------------------------------------------------
 
 
-class AST_Unit {
-    constructor() {
-        this.body_content = [];
-        this.body_units = [];
-        this.body = [];
-        this.type;
-        this.detail = 0;
-        this.id = ASTPool.push(this);
-        this.prop = {};
-    }
+    class AST_Unit {
+        constructor() {
+            this.body_content = [];
+            this.body_units = [];
+            this.body = [];
+            this.type;
+            this.detail = 0;
+            this.id = ASTPool.push(this);
+            this.prop = {};
+        }
 
 
-    getBodyElements() {
+        getBodyElements() {
 
-        let _result = new String();
+            let _result = new String();
 
 
-        for (let i = 0; i < this.body.length; i++) {
+            for (let i = 0; i < this.body.length; i++) {
 
-            let element = this.body[i];
-            if (typeof (element) == 'object') {
-                _result = _result + (element.getBodyElements());
-            } else {
-                if (_result[_result.length - 1] != '\n') {
-                    _result += ' '
+                let element = this.body[i];
+                if (typeof (element) == 'object') {
+                    _result = _result + (element.getBodyElements());
+                } else {
+                    if (_result[_result.length - 1] != '\n') {
+                        _result += ' '
+                    }
+
+                    _result += element;
                 }
-
-                _result += element;
             }
+
+            return _result;
         }
 
-        return _result;
-    }
+        push(content) {
+            this.body.push(content);
+            if (typeof (content) == 'string') {
+                this.body_content.push(content);
+            } else if (content instanceof AST_Unit == true) {
+                this.body_units.push(content);
+            }
 
-    push(content) {
-        this.body.push(content);
-        if (typeof (content) == 'string') {
-            this.body_content.push(content);
-        } else if (content instanceof AST_Unit == true) {
-            this.body_units.push(content);
-        }
-
-    };
-    /**
-     * analysis is for content analysis after whole body finish;
-     */
-    analysis() {
-        if (this.type.name == 'function') {
-            this.prop.name = (this.type.getName.call(this));
         };
+        /**
+         * analysis is for content analysis after whole body finish;
+         */
+        analysis() {
+            if (this.type.name == 'function') {
+                this.prop.name = (this.type.getName.call(this));
+            };
 
-    }
-    do(command){
-        return this.type[command].call(this);
-    }
-    /** type check prototype function
-     * @returns false | type
-     */
-    getType(content = null) {
-
-
-        if (!content) { return typeMarker.expression }
-
-        let _type = typeMarker.expression;
-
-        for (let i in typeMarker) {
-            let _e = typeMarker.startCheck(content);
-            if (_e) {
-                _type = typeMarker[i]; // return type instance
-                break;
+        }
+        do(command) {
+            if(this.type[command]){
+                return this.type[command].call(this);
             }
         }
-        return _type;
-    }
-    endCheck(input) {
-        if (!this.type) {
-            if (input == '\n' | input == ';') {
-                return true;
-            }
-        } else {
-            return this.type.endCheck(input);
-        }
-    }
-    getContentNode() {
-        this.type.renderNode(this);
-    }
-
-    renderNode() {
-        return sM.presentMode.active().fn(this);
-    }
-    getText() {
-        let _result = [];
-        this.body.forEach(i => {
-            if (typeof (i) == 'string') {
-                i !== '\n' ? _result.push(i + ' ') : _result.push(i);
-
-            } else {
-                _result = _result.concat(i.getText());
-            }
-        });
-        return _result;
-    }
-}
-
-//-------------------------------------------------------
-
-//                        _AST 
-
-//-------------------------------------------------------
+        /** type check prototype function
+         * @returns false | type
+         */
+        getType(content = null) {
 
 
-var AST = {
-    breaker: ['{', '}', ';', '(', ')', '='],
-    /** replace key symbol with space
-    */
-    tokenize: function (input) {
-        let _result = input.replace(/\n/g, ' \n ');
-        _result = _result.replace(/,/g, ' ');
+            if (!content) { return typeMarker.expression }
 
+            let _type = typeMarker.expression;
 
-        let _symbol = this.breaker;
-
-        for (let i = 0; i < _symbol.length; i++) {
-            let element = _symbol[i];
-            let _replace = new RegExp('\\' + element, 'gm');
-            // attention here, need double \ to make it works.
-            _result = _result.replace(_replace, ' ' + element + ' ');
-        };
-        _result = _result.split(' ');
-
-        _result = _result.filter(i => i);
-        return _result;
-    },
-    /**
-     * make cuted string have array structure
-     * @param {[]} input expect result from tokenize
-     */
-    onionize: function (input) {
-
-        let _source = input;
-        let _result = [];
-        let _unit;
-        while (_source != false) {
-            _unit = this.readSource(_source, true);
-            _unit != false && _result.push(_unit);
-        }
-
-        // let _resultList = this.listAll(_regResult);
-
-        return _result;
-    },
-    /**
-     * Show full list
-     * @param {object} source AST_unit
-     */
-    listAll: function (source) {
-        return source.getBodyElements();
-    },
-    /**
-     * structure analysis
-     * @param {[]} s souce text splted by space
-     * @param {string} start start marker
-     * @param {string} end end marker 
-     */
-    readSource: function (s, start = false) {
-        // for source have to have start and end for all. like {function...}
-        if (!s) { return; }
-        let _e = s.shift();
-
-        let isStart = typeMarker.startCheck(_e);
-        if (isStart != false) {
-            let _res = new AST_Unit();
-            _res.type = isStart;
-            _res.push(_e);
-
-            while (1) {
-                _res.push(this.readSource(s));
-                if (_res.endCheck(s[0]) == true) {
+            for (let i in typeMarker) {
+                let _e = typeMarker.startCheck(content);
+                if (_e) {
+                    _type = typeMarker[i]; // return type instance
                     break;
-                };
+                }
             }
-            _res.push(s.shift());
-            _res.analysis();
-            return _res;
+            return _type;
         }
-        return _e;
-        // throw ('unexpected');
+        endCheck(input) {
+            if (!this.type) {
+                if (input == '\n' | input == ';') {
+                    return true;
+                }
+            } else {
+                return this.type.endCheck(input);
+            }
+        }
+        getContentNode() {
+            this.type.renderNode(this);
+        }
+
+        renderNode() {
+            return sM.presentMode.active().fn(this);
+        }
+        getText() {
+            let _result = [];
+            this.body.forEach(i => {
+                if (typeof (i) == 'string') {
+                    i !== '\n' ? _result.push(i + ' ') : _result.push(i);
+
+                } else {
+                    _result = _result.concat(i.getText());
+                }
+            });
+            return _result;
+        }
     }
-}
+
+    //-------------------------------------------------------
+
+    //                        _AST 
+
+    //-------------------------------------------------------
+
+
+    var AST = {
+        breaker: ['{', '}', ';', '(', ')', '='],
+        /** replace key symbol with space
+        */
+        tokenize: function (input) {
+            let _result = input.replace(/\n/g, ' \n ');
+            _result = _result.replace(/,/g, ' ');
+
+
+            let _symbol = this.breaker;
+
+            for (let i = 0; i < _symbol.length; i++) {
+                let element = _symbol[i];
+                let _replace = new RegExp('\\' + element, 'gm');
+                // attention here, need double \ to make it works.
+                _result = _result.replace(_replace, ' ' + element + ' ');
+            };
+            _result = _result.split(' ');
+
+            _result = _result.filter(i => i);
+            return _result;
+        },
+        /**
+         * make cuted string have array structure
+         * @param {[]} input expect result from tokenize
+         */
+        onionize: function (input) {
+
+            let _source = input;
+            let _result = [];
+            let _unit;
+            while (_source != false) {
+                _unit = this.readSource(_source, true);
+                _unit != false && _result.push(_unit);
+            }
+
+            // let _resultList = this.listAll(_regResult);
+
+            return _result;
+        },
+        /**
+         * Show full list
+         * @param {object} source AST_unit
+         */
+        listAll: function (source) {
+            return source.getBodyElements();
+        },
+        /**
+         * structure analysis
+         * @param {[]} s souce text splted by space
+         * @param {string} start start marker
+         * @param {string} end end marker 
+         */
+        readSource: function (s, start = false) {
+            // for source have to have start and end for all. like {function...}
+            if (!s) { return; }
+            let _e = s.shift();
+
+            let isStart = typeMarker.startCheck(_e);
+            if (isStart != false) {
+                let _res = new AST_Unit();
+                _res.type = isStart;
+                _res.push(_e);
+
+                while (1) {
+                    _res.push(this.readSource(s));
+                    if (_res.endCheck(s[0]) == true) {
+                        break;
+                    };
+                }
+                _res.push(s.shift());
+                _res.analysis();
+                return _res;
+            }
+            return _e;
+            // throw ('unexpected');
+        }
+    }
 
 //-------------------------------------------------------
 //                   
@@ -629,8 +608,6 @@ var ASTPool = {
     get: function (id) {
         return this.list[id];
     }
-
-
 }
 //-------------------------------------------------------
 
@@ -703,11 +680,29 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        let _result = this.divFrame();
+        let _result = draw.div(null,'frame');
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
             _result.appendChild(draw.span(' ', 'default'));
         });
+        return _result;
+    },
+    param: function(param){
+    if(!param){return;}        
+        let _unitHeight = 20;
+        let _result = draw.div(null,'default');
+        _result.style.width = _unitHeight + 'px';
+        _result.style.height = (param.length - 1) * _unitHeight + 'px';
+        _result.style.position = 'absolute';
+
+        for (let i = 0; i < param.length; i++) {
+            const element = param[i];
+            let _component = draw.div(element, 'component');
+            _result.appendChild(_component);
+            _component.style.top = _unitHeight * (i+1) + 'px';
+            _component.style.left  = '0px';
+
+        }
         return _result;
     }
 }
@@ -715,7 +710,8 @@ var unitRender = {
 var ASTRender = function (ASTunit) {
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.prop.name),
-        body: unitRender.text(ASTunit.getText())
+        body: unitRender.text(ASTunit.getText()),
+        param: unitRender.param(ASTunit.do('param'))
     }
 }
 //-------------------------------------------------------
@@ -743,7 +739,6 @@ var eventBind = {
         return _htmlNode;
     }
 }
-
 
 //-------------------------------------------------------
 
@@ -777,7 +772,7 @@ var diagramEvent = {
 
         this.placeHolder = draw.div('', 'placeHolder');
 
-        htmlNodeStyleHandler(this.placeHolder)({
+        htmlNodeStyleHandler(diagramEvent.placeHolder)({
             position: 'absolute',
             width: getComputedStyle(htmlNode, null).width,
             height: getComputedStyle(htmlNode, null).height,
@@ -791,20 +786,22 @@ var diagramEvent = {
         posY = event.y - diagramEvent.placeHolder.offsetTop;
 
         document.onmousemove = function (e) {
-
             diagramEvent.placeHolder.style.left = (e.clientX - posX) + 'px';
             diagramEvent.placeHolder.style.top = (e.clientY - posY) + 'px';
         }
 
         document.onmouseup = function (event) {
-            let _style = htmlNodeStyleHandler(diagramEvent.hostHtmlNode);
+            let htmlNode = diagramEvent.hostHtmlNode;
+            console.log(htmlNode);
+
+            let _style = htmlNodeStyleHandler(htmlNode);
             event.cancelBubble = true;
             _style({
                 position: 'absolute',
+                margin: '0px', //IMPORTANT: OTHERWISE IT WILL OFFSET
                 left: diagramEvent.placeHolder.style.left,
                 top: diagramEvent.placeHolder.style.top
-            })
-
+            });
 
             if (diagramEvent.hostHtmlNode.style.position == 'absolute' &&
                 diagramEvent.hostHtmlNode.offsetTop < 100 &&
@@ -812,10 +809,12 @@ var diagramEvent = {
             ) {
                 _style({
                     position: 'relative',
-                    top: '',
-                    left: ''
+                    top: '0px',
+                    left: '0px',
+                    margin: '15px'
                 })
-            }
+            };
+            console.log(htmlNode.parentElement)
             htmlNode.parentElement.removeChild(diagramEvent.placeHolder);
             document.onmousemove = null;
             document.onmouseup = null;
@@ -917,8 +916,14 @@ sM.presentMode = new StateSet(
 
     }),
     new State('batteryMode', false, function (ASTunit) {
-        let frame = draw.div(null, 'frame');
-        frame.appendChild(ASTRender(ASTunit).head);
+        let frame = draw.div(null, 'default');
+        let _unitHtml = ASTRender(ASTunit);
+        frame.appendChild(_unitHtml.head);
+        if(_unitHtml.param){
+            _unitHtml.top = _unitHtml.head.offsetHeight+'px';
+            _unitHtml.left = tool.toPx(_unitHtml.head.left) + tool.toPx(_unitHtml.head.margin)+'px';
+            frame.appendChild(_unitHtml.param);
+        }
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
         return frame;
@@ -938,6 +943,11 @@ var tool = {
             return input + 'px';
         } else {
             return parseInt(input);
+        }
+    },
+    Px: {
+        add:function(A,B){
+            return tool.toPx(A) + tool.toPx(B) + 'px';
         }
     }
 }
@@ -968,5 +978,4 @@ function asd (){
 var a = 13;
 var asd asd = 111;`);
 var a = ASTPool.list[1];
-console.log(a.do('param'))
-// document.body.innerHTML = unitRender.text(a);
+console.log(a.do('param'));
