@@ -680,7 +680,7 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        let _result = draw.div(null,'frame');
+        let _result = draw.div(null,'frame_title');
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
             _result.appendChild(draw.span(' ', 'default'));
@@ -698,9 +698,10 @@ var unitRender = {
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
             let _component = draw.div(element, 'component');
-            _result.appendChild(_component);
             _component.style.top = _unitHeight * (i) + 'px';
             _component.style.left  = '0px';
+             i==0 && (_component.style.borderTopStyle = 'none');
+            _result.appendChild(_component);
 
         }
         return _result;
@@ -917,7 +918,16 @@ sM.presentMode = new StateSet(
     }),
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'default');
-        frame.style.margin = '15px'
+        frame = htmlNodeStyleHandler(frame)
+        ({
+            'barckground-color':'white',
+            width: 'fit-content',
+            height:'fit-content',
+            padding:'0px',
+            margin:'15px',
+            'border-color':'grey',
+            'border-style':'solid'
+        });        
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
         if(_unitHtml.param){
