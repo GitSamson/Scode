@@ -845,7 +845,9 @@ var diagramEvent = {
         ASTunit.detail === 0 ? function () {
             htmlNode.innerHTML = ''; //clear content
             htmlNode.appendChild(_rend.head); // title
-
+            sM.presentMode.active().fn(ASTunit);
+            console.log('here');
+            
             // body frame div
             htmlNode.appendChild(_rend.body);
 
