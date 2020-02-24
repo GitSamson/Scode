@@ -402,197 +402,197 @@ var specialMarker = {
 //-------------------------------------------------------
 
 
-    class AST_Unit {
-        constructor() {
-            this.body_content = [];
-            this.body_units = [];
-            this.body = [];
-            this.type;
-            this.detail = 0;
-            this.id = ASTPool.push(this);
-            this.prop = {};
-        }
+class AST_Unit {
+    constructor() {
+        this.body_content = [];
+        this.body_units = [];
+        this.body = [];
+        this.type;
+        this.detail = 0;
+        this.id = ASTPool.push(this);
+        this.prop = {};
+    }
 
 
-        getBodyElements() {
+    getBodyElements() {
 
-            let _result = new String();
-
-
-            for (let i = 0; i < this.body.length; i++) {
-
-                let element = this.body[i];
-                if (typeof (element) == 'object') {
-                    _result = _result + (element.getBodyElements());
-                } else {
-                    if (_result[_result.length - 1] != '\n') {
-                        _result += ' '
-                    }
-
-                    _result += element;
-                }
-            }
-
-            return _result;
-        }
-
-        push(content) {
-            this.body.push(content);
-            if (typeof (content) == 'string') {
-                this.body_content.push(content);
-            } else if (content instanceof AST_Unit == true) {
-                this.body_units.push(content);
-            }
-
-        };
-        /**
-         * analysis is for content analysis after whole body finish;
-         */
-        analysis() {
-            if (this.type.name == 'function') {
-                this.prop.name = (this.type.getName.call(this));
-            };
-
-        }
-        do(command) {
-            if(this.type[command]){
-                return this.type[command].call(this);
-            }
-        }
-        /** type check prototype function
-         * @returns false | type
-         */
-        getType(content = null) {
+        let _result = new String();
 
 
-            if (!content) { return typeMarker.expression }
+        for (let i = 0; i < this.body.length; i++) {
 
-            let _type = typeMarker.expression;
-
-            for (let i in typeMarker) {
-                let _e = typeMarker.startCheck(content);
-                if (_e) {
-                    _type = typeMarker[i]; // return type instance
-                    break;
-                }
-            }
-            return _type;
-        }
-        endCheck(input) {
-            if (!this.type) {
-                if (input == '\n' | input == ';') {
-                    return true;
-                }
+            let element = this.body[i];
+            if (typeof (element) == 'object') {
+                _result = _result + (element.getBodyElements());
             } else {
-                return this.type.endCheck(input);
+                if (_result[_result.length - 1] != '\n') {
+                    _result += ' '
+                }
+
+                _result += element;
             }
         }
-        getContentNode() {
-            this.type.renderNode(this);
-        }
 
-        renderNode() {
-            return sM.presentMode.active().fn(this);
-        }
-        getText() {
-            let _result = [];
-            this.body.forEach(i => {
-                if (typeof (i) == 'string') {
-                    i !== '\n' ? _result.push(i + ' ') : _result.push(i);
-
-                } else {
-                    _result = _result.concat(i.getText());
-                }
-            });
-            return _result;
-        }
+        return _result;
     }
 
-    //-------------------------------------------------------
+    push(content) {
+        this.body.push(content);
+        if (typeof (content) == 'string') {
+            this.body_content.push(content);
+        } else if (content instanceof AST_Unit == true) {
+            this.body_units.push(content);
+        }
 
-    //                        _AST 
+    };
+    /**
+     * analysis is for content analysis after whole body finish;
+     */
+    analysis() {
+        if (this.type.name == 'function') {
+            this.prop.name = (this.type.getName.call(this));
+        };
 
-    //-------------------------------------------------------
-
-
-    var AST = {
-        breaker: ['{', '}', ';', '(', ')', '='],
-        /** replace key symbol with space
-        */
-        tokenize: function (input) {
-            let _result = input.replace(/\n/g, ' \n ');
-            _result = _result.replace(/,/g, ' ');
-
-
-            let _symbol = this.breaker;
-
-            for (let i = 0; i < _symbol.length; i++) {
-                let element = _symbol[i];
-                let _replace = new RegExp('\\' + element, 'gm');
-                // attention here, need double \ to make it works.
-                _result = _result.replace(_replace, ' ' + element + ' ');
-            };
-            _result = _result.split(' ');
-
-            _result = _result.filter(i => i);
-            return _result;
-        },
-        /**
-         * make cuted string have array structure
-         * @param {[]} input expect result from tokenize
-         */
-        onionize: function (input) {
-
-            let _source = input;
-            let _result = [];
-            let _unit;
-            while (_source != false) {
-                _unit = this.readSource(_source, true);
-                _unit != false && _result.push(_unit);
-            }
-
-            // let _resultList = this.listAll(_regResult);
-
-            return _result;
-        },
-        /**
-         * Show full list
-         * @param {object} source AST_unit
-         */
-        listAll: function (source) {
-            return source.getBodyElements();
-        },
-        /**
-         * structure analysis
-         * @param {[]} s souce text splted by space
-         * @param {string} start start marker
-         * @param {string} end end marker 
-         */
-        readSource: function (s, start = false) {
-            // for source have to have start and end for all. like {function...}
-            if (!s) { return; }
-            let _e = s.shift();
-
-            let isStart = typeMarker.startCheck(_e);
-            if (isStart != false) {
-                let _res = new AST_Unit();
-                _res.type = isStart;
-                _res.push(_e);
-
-                while (1) {
-                    _res.push(this.readSource(s));
-                    if (_res.endCheck(s[0]) == true) {
-                        break;
-                    };
-                }
-                _res.push(s.shift());
-                _res.analysis();
-                return _res;
-            }
-            return _e;
-            // throw ('unexpected');
+    }
+    do(command) {
+        if (this.type[command]) {
+            return this.type[command].call(this);
         }
     }
+    /** type check prototype function
+     * @returns false | type
+     */
+    getType(content = null) {
+
+
+        if (!content) { return typeMarker.expression }
+
+        let _type = typeMarker.expression;
+
+        for (let i in typeMarker) {
+            let _e = typeMarker.startCheck(content);
+            if (_e) {
+                _type = typeMarker[i]; // return type instance
+                break;
+            }
+        }
+        return _type;
+    }
+    endCheck(input) {
+        if (!this.type) {
+            if (input == '\n' | input == ';') {
+                return true;
+            }
+        } else {
+            return this.type.endCheck(input);
+        }
+    }
+    getContentNode() {
+        this.type.renderNode(this);
+    }
+
+    renderNode() {
+        return sM.presentMode.active().fn(this);
+    }
+    getText() {
+        let _result = [];
+        this.body.forEach(i => {
+            if (typeof (i) == 'string') {
+                i !== '\n' ? _result.push(i + ' ') : _result.push(i);
+
+            } else {
+                _result = _result.concat(i.getText());
+            }
+        });
+        return _result;
+    }
+}
+
+//-------------------------------------------------------
+
+//                        _AST 
+
+//-------------------------------------------------------
+
+
+var AST = {
+    breaker: ['{', '}', ';', '(', ')', '='],
+    /** replace key symbol with space
+    */
+    tokenize: function (input) {
+        let _result = input.replace(/\n/g, ' \n ');
+        _result = _result.replace(/,/g, ' ');
+
+
+        let _symbol = this.breaker;
+
+        for (let i = 0; i < _symbol.length; i++) {
+            let element = _symbol[i];
+            let _replace = new RegExp('\\' + element, 'gm');
+            // attention here, need double \ to make it works.
+            _result = _result.replace(_replace, ' ' + element + ' ');
+        };
+        _result = _result.split(' ');
+
+        _result = _result.filter(i => i);
+        return _result;
+    },
+    /**
+     * make cuted string have array structure
+     * @param {[]} input expect result from tokenize
+     */
+    onionize: function (input) {
+
+        let _source = input;
+        let _result = [];
+        let _unit;
+        while (_source != false) {
+            _unit = this.readSource(_source, true);
+            _unit != false && _result.push(_unit);
+        }
+
+        // let _resultList = this.listAll(_regResult);
+
+        return _result;
+    },
+    /**
+     * Show full list
+     * @param {object} source AST_unit
+     */
+    listAll: function (source) {
+        return source.getBodyElements();
+    },
+    /**
+     * structure analysis
+     * @param {[]} s souce text splted by space
+     * @param {string} start start marker
+     * @param {string} end end marker 
+     */
+    readSource: function (s, start = false) {
+        // for source have to have start and end for all. like {function...}
+        if (!s) { return; }
+        let _e = s.shift();
+
+        let isStart = typeMarker.startCheck(_e);
+        if (isStart != false) {
+            let _res = new AST_Unit();
+            _res.type = isStart;
+            _res.push(_e);
+
+            while (1) {
+                _res.push(this.readSource(s));
+                if (_res.endCheck(s[0]) == true) {
+                    break;
+                };
+            }
+            _res.push(s.shift());
+            _res.analysis();
+            return _res;
+        }
+        return _e;
+        // throw ('unexpected');
+    }
+}
 
 //-------------------------------------------------------
 //                   
@@ -674,33 +674,33 @@ var unitRender = {
     },
     text: function (textArray) {
         let _result = this.divFrame();
+        _result.style.margin = '5px'
         textArray.forEach(i => {
             _result.appendChild(draw.span(i, 'text'));
         });
         return _result;
     },
     head: function (...textArray) {
-        let _result = draw.div(null,'frame_title');
+        let _result = draw.div(null, 'frame_title');
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
             _result.appendChild(draw.span(' ', 'default'));
         });
         return _result;
     },
-    param: function(param){
-    if(!param){return;}        
+    param: function (param) {
+        if (!param) { return; }
         let _unitHeight = 20;
-        let _result = draw.div(null,'default');
-        _result.style.width = _unitHeight + 'px';
-        _result.style.height = (param.length ) * _unitHeight + 'px';
+        let _result = draw.div(null, 'default');
+        _result.style.height = (param.length) * _unitHeight + 'px';
         _result.style.position = 'relative';
 
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
             let _component = draw.div(element, 'component');
             _component.style.top = _unitHeight * (i) + 'px';
-            _component.style.left  = '0px';
-             i==0 && (_component.style.borderTopStyle = 'none');
+            _component.style.left = '0px';
+            i == 0 && (_component.style.borderTopStyle = 'none');
             _result.appendChild(_component);
 
         }
@@ -844,17 +844,16 @@ var diagramEvent = {
         console.log(e.currentTarget, ASTunit.detail);
         ASTunit.detail === 0 ? function () {
             htmlNode.innerHTML = ''; //clear content
-            htmlNode.appendChild(_rend.head); // title
-            sM.presentMode.active().fn(ASTunit);
-            console.log('here');
-            
+            htmlNode.innerHTML = sM.detail_text.fn(ASTunit).innerHTML;
+
+
             // body frame div
-            htmlNode.appendChild(_rend.body);
 
             ASTunit.detail = 1;
         }() : function () {
             htmlNode.innerHTML = '';
-            htmlNode.appendChild(_rend.head);
+            htmlNode.innerHTML = sM.presentMode.active().fn(ASTunit).innerHTML;
+            // htmlNode.appendChild(_rend.head);
             ASTunit.detail = 0;
         }();
 
@@ -921,20 +920,20 @@ sM.presentMode = new StateSet(
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'default');
         frame = htmlNodeStyleHandler(frame)
-        ({
-            'barckground-color':'white',
-            width: 'fit-content',
-            height:'fit-content',
-            padding:'0px',
-            margin:'15px',
-            'border-color':'grey',
-            'border-style':'solid'
-        });        
+            ({
+                'barckground-color': 'white',
+                width: 'fit-content',
+                height: 'fit-content',
+                padding: '0px',
+                margin: '15px',
+                'border-color': 'grey',
+                'border-style': 'solid'
+            });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
-        if(_unitHtml.param){
+        if (_unitHtml.param) {
             _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
-            _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin)+'px';
+            _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
             frame.appendChild(_unitHtml.param);
         }
         frame.id = ASTunit.id;
@@ -942,6 +941,15 @@ sM.presentMode = new StateSet(
         return frame;
     })
 );
+
+sM.detail_text = new State('sourceText', false, function (ASTunit) {
+    let _result = draw.div(null, 'default');
+    let _unitHtml = ASTRender(ASTunit);
+
+    _result.appendChild(_unitHtml.head);
+    _result.appendChild(_unitHtml.body)
+    return _result;
+})
 
 
 //-------------------------------------------------------
@@ -959,7 +967,7 @@ var tool = {
         }
     },
     Px: {
-        add:function(A,B){
+        add: function (A, B) {
             return tool.toPx(A) + tool.toPx(B) + 'px';
         }
     },
@@ -967,7 +975,7 @@ var tool = {
 
 
 setup(`var a = 12;
-function a (x,y){
+function a (asdasdx,asdasdasdasdy,x,y){
 var a = 12;   
 var b =13;
 let c = 14;}
