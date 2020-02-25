@@ -263,14 +263,16 @@ function toArray(input) {
  */
 class AST_Type_Register {
     constructor(
+        indexFinder = {},
         prop = {
             typeIndicator: 'unknown',
             name: 'unknown',
             start: '',
             end: '\n'
-        }, fn = {
-        }
+        },
+        fn = {},
     ) {
+        this.index = {};
         this.typeIndicator = prop.typeIndicator;
         this.name = prop.name;
         this.end = toArray(prop.end) || [';', '\n'];
@@ -323,10 +325,11 @@ var typeMarker = {
             }
 
         }
-
         return _result;
     },
     function: new AST_Type_Register({
+
+    }, {
         typeIndicator: 'function_Indicator',
         name: 'function',
         start: 'function',
@@ -344,7 +347,8 @@ var typeMarker = {
                 i++;
             }
             return _result;
-        }
+        },
+
     }),
 
     class: new AST_Type_Register({
@@ -931,11 +935,28 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
+        let _parameters = draw.div(null, 'default');
+        _parameters = htmlNodeStyleHandler(_parameters)({
+            height: 'fit-content',
+            width: 'fit-content',
+            top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
+            left: '0px'
+        });
+
         if (_unitHtml.param) {
             _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
             _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
-            frame.appendChild(_unitHtml.param);
+            _parameters.appendChild(_unitHtml.param);
         }
+        if (_unitHtml.output) {
+            _unitHtml.output.style.top = _unitHtml.
+                _unitHtml.output.left = _unitHtml.param.offsetWidth;
+            _unitHtml.output.style.height = '100%';
+            _parameters.appendChild(_unitHtml.output)
+        }
+        frame.appendChild(_parameters);
+
+
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
         return frame;
