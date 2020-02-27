@@ -347,8 +347,13 @@ var typeMarker = {
                 i++;
             }
             return _result;
-        },
-
+        }
+    },{
+        name: (currentPush)=>{
+            if(this.body[this.body.length-1] == 'function'){
+                this.name = currentPush;
+            }
+        }
     }),
 
     class: new AST_Type_Register({
