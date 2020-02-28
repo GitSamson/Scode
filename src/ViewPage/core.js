@@ -335,25 +335,30 @@ var typeMarker = {
         start: 'function',
         end: '}',
         block: true
-    }, {
-        getName: function () {
-            return this.body[1]
-        },
-        param: function () {
-            let i = 3;
-            let _result = [];
-            while (this.body[i] != ')') {
-                _result.push(this.body[i]);
-                i++;
-            }
-            return _result;
-        }
     },{
         name: (currentPush)=>{
             if(this.body[this.body.length-1] == 'function'){
-                this.name = currentPush;
+                this.prop.name = currentPush;
+            }
+        },
+        param: (currentPush)=>{
+            if(this.prop.param === undefined ){
+                // initial condition
+                if(currentPush!=='('){return;}else{
+                    // 
+                    if(this.body[this.body.length-2]=='function'){
+                        this.prop.param = [];
+                    }
+                }
+            }else{
+                if(this.prop.param[this.prop.param.length-1]===null){
+                    return;
+                }else{
+                    this.prop.param.push(currentPush)
+                }
             }
         }
+
     }),
 
     class: new AST_Type_Register({
