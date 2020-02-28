@@ -309,6 +309,26 @@ class AST_Type_Register {
  * for generate AST unit, can be lines/ block
  */
 var typeMarker = {
+    conditionDetect: function (propName, start, end, condition, currentPush){
+        if (this.prop[propName] === undefined) {
+            // initial condition
+            if (currentPush !== start) { return; } else {
+                // avoid body include other ( condition )
+                if (condition) {
+                    this.prop[propName] = [];
+                }
+            }
+        } else {
+            if (this.prop[propName][this.prop[propName].length - 1] === null) {
+                return;
+            } else {
+                // use null as end mark for param list
+                currentPush ===end ?
+                    this.prop[propName].push(null) :
+                    this.prop[propName].push(currentPush)
+            }
+        }
+    },
     startCheck: function (input) {
         let _in = input;
         let _result = false;
@@ -342,22 +362,21 @@ var typeMarker = {
             }
         },
         param: (currentPush)=>{
-            if(this.prop.param === undefined ){
-                // initial condition
-                if(currentPush!=='('){return;}else{
-                    // 
-                    if(this.body[this.body.length-2]=='function'){
-                        this.prop.param = [];
-                    }
-                }
-            }else{
-                if(this.prop.param[this.prop.param.length-1]===null){
-                    return;
-                }else{
-                    this.prop.param.push(currentPush)
-                }
-            }
-        }
+            typeMarker.conditionDetect(
+                'param',
+                 '(',
+                  ')', 
+                  this.body[this.body.length - 2] == 'function',
+                  currentPush);
+        },
+        body: (currentPush)=>{
+            typeMarker.conditionDetect(
+                'body',
+                '{',
+                '}',
+                this.body[this.body.length-1] === ')',
+                currentPush)
+        },
 
     }),
 
