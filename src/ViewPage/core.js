@@ -263,22 +263,21 @@ function toArray(input) {
  */
 class AST_Type_Register {
     constructor(
-        indexFinder = {},
-        prop = {
+        attr = {
             typeIndicator: 'unknown',
             name: 'unknown',
             start: '',
             end: '\n'
         },
-        fn = {},
+        prop = {},
     ) {
         this.index = {};
-        this.typeIndicator = prop.typeIndicator;
-        this.name = prop.name;
-        this.end = toArray(prop.end) || [';', '\n'];
-        this.start = prop.start;
-        Object.keys(fn).forEach(i => {
-            this[i] = fn[i];
+        this.typeIndicator = attr.typeIndicator;
+        this.name = attr.name;
+        this.end = toArray(attr.end) || [';', '\n'];
+        this.start = attr.start;
+        Object.keys(prop).forEach(i => {
+            this[i] = prop[i];
         });
     }
     endCheck(input) {
@@ -310,7 +309,9 @@ class AST_Type_Register {
  */
 var typeMarker = {
     conditionDetect: function (propName, start, end, condition, currentPush){
-        if (this.prop[propName] === undefined) {
+        console.log(this);
+        
+        if (this.prop.hasOwnProperty(param) == false) {
             // initial condition
             if (currentPush !== start) { return; } else {
                 // avoid body include other ( condition )
@@ -357,12 +358,15 @@ var typeMarker = {
         block: true
     },{
         name: (currentPush)=>{
+            
+            if(this.prop.name !== undefined)return;
             if(this.body[this.body.length-1] == 'function'){
                 this.prop.name = currentPush;
             }
         },
         param: (currentPush)=>{
-            typeMarker.conditionDetect(
+            
+            typeMarker.conditionDetect.call(this,
                 'param',
                  '(',
                   ')', 
@@ -370,7 +374,8 @@ var typeMarker = {
                   currentPush);
         },
         body: (currentPush)=>{
-            typeMarker.conditionDetect(
+            
+            typeMarker.conditionDetect.call(this,
                 'body',
                 '{',
                 '}',
@@ -387,10 +392,19 @@ var typeMarker = {
         end: '}',
         block: true
     }, {
-        getName: function () {
-            return this.body[1]
+        name: (currentPush)=>{
+            if(this.prop.name !== undefined)return;
+            if(this.body[this.body.length-1]=== 'class'){
+                this.prop.name = currentPush;
+            }
         },
-
+        param : (currentPush)=>{
+            typeMarker.conditionDetect.call(this,'param',
+            '(',
+            ')',
+            this.body&&this.body[this.body.length-2]==='constructor',
+            currentPush);
+        },
     }),
     variable: new AST_Type_Register({
         typeIndicator: 'variable_Indicator',
@@ -470,6 +484,10 @@ class AST_Unit {
     }
 
     push(content) {
+        if(this.type!==undefined){
+           this.type.prop&& this.type.prop.forEach((i)=>{
+               i.call(this,content);
+        })}
         this.body.push(content);
         if (typeof (content) == 'string') {
             this.body_content.push(content);
@@ -482,9 +500,6 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-        if (this.type.name == 'function') {
-            this.prop.name = (this.type.getName.call(this));
-        };
 
     }
     do(command) {
