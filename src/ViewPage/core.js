@@ -276,9 +276,7 @@ class AST_Type_Register {
         this.name = attr.name;
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
-        Object.keys(prop).forEach(i => {
-            this[i] = prop[i];
-        });
+        this.prop=prop;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -309,9 +307,8 @@ class AST_Type_Register {
  */
 var typeMarker = {
     conditionDetect: function (propName, start, end, condition, currentPush){
-        console.log(this);
         
-        if (this.prop.hasOwnProperty(param) == false) {
+        if (this.prop['param'] == undefined) {
             // initial condition
             if (currentPush !== start) { return; } else {
                 // avoid body include other ( condition )
@@ -348,23 +345,24 @@ var typeMarker = {
         }
         return _result;
     },
-    function: new AST_Type_Register({
-
-    }, {
+    function: new AST_Type_Register( {
         typeIndicator: 'function_Indicator',
         name: 'function',
         start: 'function',
         end: '}',
         block: true
     },{
-        name: (currentPush)=>{
+        name: function(currentPush){
+            console.log(this);
             
             if(this.prop.name !== undefined)return;
             if(this.body[this.body.length-1] == 'function'){
                 this.prop.name = currentPush;
+                console.log(this,this.prop.name);
+                
             }
         },
-        param: (currentPush)=>{
+        param: function(currentPush){
             
             typeMarker.conditionDetect.call(this,
                 'param',
@@ -373,7 +371,7 @@ var typeMarker = {
                   this.body[this.body.length - 2] == 'function',
                   currentPush);
         },
-        body: (currentPush)=>{
+        body:function (currentPush){
             
             typeMarker.conditionDetect.call(this,
                 'body',
@@ -398,7 +396,7 @@ var typeMarker = {
                 this.prop.name = currentPush;
             }
         },
-        param : (currentPush)=>{
+        param :function (currentPush){
             typeMarker.conditionDetect.call(this,'param',
             '(',
             ')',
@@ -484,9 +482,13 @@ class AST_Unit {
     }
 
     push(content) {
+        1
         if(this.type!==undefined){
-           this.type.prop&& this.type.prop.forEach((i)=>{
-               i.call(this,content);
+            console.log(this.type);
+            
+           this.type.prop&& Object.values(this.type.prop).forEach((i)=>{
+               
+               i(content);
         })}
         this.body.push(content);
         if (typeof (content) == 'string') {
