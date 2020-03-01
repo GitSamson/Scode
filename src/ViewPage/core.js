@@ -328,6 +328,7 @@ var typeMarker = {
         }
     },
     startCheck: function (input) {
+        
         let _in = input;
         let _result = false;
         for (const i in this) {
@@ -354,13 +355,19 @@ var typeMarker = {
     },{
         name: function(currentPush){
             console.log(this);
-            
-            if(this.prop.name !== undefined)return;
-            if(this.body[this.body.length-1] == 'function'){
-                this.prop.name = currentPush;
-                console.log(this,this.prop.name);
+            try {
+                if (this.prop.name !== undefined) return;
+                if (this.body[this.body.length - 1] == 'function') {
+                    this.prop.name = currentPush;
+                    console.log(this, this.prop.name);
+
+                }
+            } catch (error) {
+                console.log(this);
+                // console.log(error);
                 
             }
+       
         },
         param: function(currentPush){
             
@@ -482,14 +489,16 @@ class AST_Unit {
     }
 
     push(content) {
-        1
+        console.log('here is the push :   ',content);
+        
         if(this.type!==undefined){
             console.log(this.type);
             
            this.type.prop&& Object.values(this.type.prop).forEach((i)=>{
-               
+               console.log(i.name);
                i(content);
-        })}
+        },this)}
+
         this.body.push(content);
         if (typeof (content) == 'string') {
             this.body_content.push(content);
