@@ -308,7 +308,7 @@ class AST_Type_Register {
 var typeMarker = {
     conditionDetect: function (propName, start, end, condition, currentPush){
         
-        if (this.prop['param'] == undefined) {
+        if (this.prop[propName] == undefined) {
             // initial condition
             if (currentPush !== start) { return; } else {
                 // avoid body include other ( condition )
@@ -317,7 +317,8 @@ var typeMarker = {
                 }
             }
         } else {
-            if (this.prop[propName][this.prop[propName].length - 1] === null) {
+           
+            if (this.prop[propName].length - 1=== null) {
                 return;
             } else {
                 // use null as end mark for param list
@@ -354,20 +355,10 @@ var typeMarker = {
         block: true
     },{
         name: function(currentPush){
-            console.log(this);
-            try {
                 if (this.prop.name !== undefined) return;
                 if (this.body[this.body.length - 1] == 'function') {
                     this.prop.name = currentPush;
-                    console.log(this, this.prop.name);
-
                 }
-            } catch (error) {
-                console.log(this);
-                // console.log(error);
-                
-            }
-       
         },
         param: function(currentPush){
             
@@ -397,7 +388,7 @@ var typeMarker = {
         end: '}',
         block: true
     }, {
-        name: (currentPush)=>{
+        name: function(currentPush){
             if(this.prop.name !== undefined)return;
             if(this.body[this.body.length-1]=== 'class'){
                 this.prop.name = currentPush;
@@ -492,12 +483,10 @@ class AST_Unit {
         console.log('here is the push :   ',content);
         
         if(this.type!==undefined){
-            console.log(this.type);
-            
-           this.type.prop&& Object.values(this.type.prop).forEach((i)=>{
-               console.log(i.name);
-               i(content);
-        },this)}
+           this.type.prop&& Object.values(this.type.prop).forEach(function(i){
+               i.call(this,content);
+        },this)
+    }
 
         this.body.push(content);
         if (typeof (content) == 'string') {
