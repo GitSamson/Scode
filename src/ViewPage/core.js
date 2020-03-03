@@ -276,7 +276,7 @@ class AST_Type_Register {
         this.name = attr.name;
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
-        this.prop=prop;
+        this.prop = prop;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -306,8 +306,8 @@ class AST_Type_Register {
  * for generate AST unit, can be lines/ block
  */
 var typeMarker = {
-    conditionDetect: function (propName, start, end, condition, currentPush){
-        
+    conditionDetect: function (propName, start, end, condition, currentPush) {
+
         if (this.prop[propName] == undefined) {
             // initial condition
             if (currentPush !== start) { return; } else {
@@ -317,19 +317,37 @@ var typeMarker = {
                 }
             }
         } else {
-           
-            if (this.prop[propName].length - 1=== null) {
+
+            if (this.prop[propName].length - 1 === null) {
                 return;
             } else {
                 // use null as end mark for param list
-                currentPush ===end ?
+                currentPush === end ?
                     this.prop[propName].push(null) :
                     this.prop[propName].push(currentPush)
             }
         }
     },
+    nameDetect: function (keyword, currentPush) {
+
+        if (this.prop.name !== undefined) return;
+        if(Array.isArray(keyword)===true){
+            let _check = false;
+            for (let i = 0; i < keyword.length; i++) {
+                const element = keyword[i];
+                if (this.body[this.body.length - 1] == element) {
+                    this.prop.name = currentPush;
+                }
+            }
+        }
+        else{
+            if(this.body[this.body.length - 1] == keyword) {
+                this.prop.name = currentPush;
+            }
+        }
+    },
     startCheck: function (input) {
-        
+
         let _in = input;
         let _result = false;
         for (const i in this) {
@@ -347,35 +365,32 @@ var typeMarker = {
         }
         return _result;
     },
-    function: new AST_Type_Register( {
+    function: new AST_Type_Register({
         typeIndicator: 'function_Indicator',
         name: 'function',
         start: 'function',
         end: '}',
         block: true
-    },{
-        name: function(currentPush){
-                if (this.prop.name !== undefined) return;
-                if (this.body[this.body.length - 1] == 'function') {
-                    this.prop.name = currentPush;
-                }
+    }, {
+        name: function (currentPush) {
+            typeMarker.nameDetect.call(this, 'function', currentPush);
         },
-        param: function(currentPush){
-            
+        param: function (currentPush) {
+
             typeMarker.conditionDetect.call(this,
                 'param',
-                 '(',
-                  ')', 
-                  this.body[this.body.length - 2] == 'function',
-                  currentPush);
+                '(',
+                ')',
+                this.body[this.body.length - 2] == 'function',
+                currentPush);
         },
-        body:function (currentPush){
-            
+        body: function (currentPush) {
+
             typeMarker.conditionDetect.call(this,
                 'body',
                 '{',
                 '}',
-                this.body[this.body.length-1] === ')',
+                this.body[this.body.length - 1] === ')',
                 currentPush)
         },
 
@@ -388,18 +403,16 @@ var typeMarker = {
         end: '}',
         block: true
     }, {
-        name: function(currentPush){
-            if(this.prop.name !== undefined)return;
-            if(this.body[this.body.length-1]=== 'class'){
-                this.prop.name = currentPush;
-            }
-        },
-        param :function (currentPush){
-            typeMarker.conditionDetect.call(this,'param',
-            '(',
-            ')',
-            this.body&&this.body[this.body.length-2]==='constructor',
-            currentPush);
+        name: function (currentPush) {
+            typeMarker.nameDetect.call(this, this.prop.start, currentPush);
+        }
+        ,
+        param: function (currentPush) {
+            typeMarker.conditionDetect.call(this, 'param',
+                '(',
+                ')',
+                this.body && this.body[this.body.length - 2] === 'constructor',
+                currentPush);
         },
     }),
     variable: new AST_Type_Register({
@@ -408,6 +421,10 @@ var typeMarker = {
         start: ['var', 'let', 'const'],
         end: [';', '\n'],
         block: false
+    }, {
+        name: function (currentPush) {
+            typeMarker.nameDetect.call(this,this.prop.start,currentPush);
+        }
     }),
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
@@ -480,13 +497,13 @@ class AST_Unit {
     }
 
     push(content) {
-        console.log('here is the push :   ',content);
-        
-        if(this.type!==undefined){
-           this.type.prop&& Object.values(this.type.prop).forEach(function(i){
-               i.call(this,content);
-        },this)
-    }
+        console.log('here is the push :   ', content);
+
+        if (this.type !== undefined) {
+            this.type.prop && Object.values(this.type.prop).forEach(function (i) {
+                i.call(this, content);
+            }, this)
+        }
 
         this.body.push(content);
         if (typeof (content) == 'string') {
