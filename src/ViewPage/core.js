@@ -416,6 +416,7 @@ var typeMarker = {
         },
     }),
     variable: new AST_Type_Register({
+        
         typeIndicator: 'variable_Indicator',
         name: 'variable',
         start: ['var', 'let', 'const'],
@@ -429,7 +430,7 @@ var typeMarker = {
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
         name: 'annotation',
-        start: '//',
+        start: '//', 
         end: '\n',
         block: false
     }),
@@ -440,6 +441,7 @@ var typeMarker = {
         end: '',
         block: false
     })
+
 };
 
 class SymbolMark {
