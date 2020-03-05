@@ -499,8 +499,6 @@ class AST_Unit {
     }
 
     push(content) {
-        console.log('here is the push :   ', content);
-
         if (this.type !== undefined) {
             this.type.prop && Object.values(this.type.prop).forEach(function (i) {
                 i.call(this, content);
