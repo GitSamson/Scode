@@ -312,13 +312,13 @@ var typeMarker = {
             // initial condition
             if (currentPush !== start) { return; } else {
                 // avoid body include other ( condition )
-                if (condition) {
+                if (condition && currentPush==start) {
                     this.prop[propName] = [];
                 }
             }
         } else {
 
-            if (this.prop[propName].length - 1 === null) {
+            if (this.prop[propName][this.prop[propName].length -1] === null) {
                 return;
             } else {
                 // use null as end mark for param list
@@ -757,17 +757,20 @@ var unitRender = {
         if (!param) { return; }
         let _unitHeight = 20;
         let _result = draw.div(null, 'default');
-        _result.style.height = (param.length) * _unitHeight + 'px';
+        _result.style.height = (param.length-1) * _unitHeight + 'px';
+        // _result.style.width = '20px'
         _result.style.position = 'relative';
 
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
-            let _component = draw.div(element, 'component');
-            _component.style.top = _unitHeight * (i) + 'px';
-            _component.style.left = '0px';
-            i == 0 && (_component.style.borderTopStyle = 'none');
-            _result.appendChild(_component);
-
+                if(element!=null){ // exclude null in list end 
+                    
+                    let _component = draw.div(element, 'component');
+                    _component.style.top = _unitHeight * (i) + 'px';
+                    _component.style.left = '0px';
+                    i == 0 && (_component.style.borderTopStyle = 'none');
+                    _result.appendChild(_component);
+                }
         }
         return _result;
     }
@@ -777,7 +780,7 @@ var ASTRender = function (ASTunit) {
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.prop.name),
         body: unitRender.text(ASTunit.getText()),
-        param: unitRender.param(ASTunit.do('param'))
+        param: unitRender.param(ASTunit.prop['param'])
     }
 }
 //-------------------------------------------------------
@@ -980,7 +983,6 @@ sM.presentMode = new StateSet(
         frame.id = ASTunit.id;
         frame = eventBind.unitMode(frame);
         return frame;
-
     }),
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'default');
@@ -994,6 +996,7 @@ sM.presentMode = new StateSet(
                 'border-color': 'grey',
                 'border-style': 'solid'
             });
+
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
         let _parameters = draw.div(null, 'default');
@@ -1003,7 +1006,7 @@ sM.presentMode = new StateSet(
             top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
             left: '0px'
         });
-
+ 
         if (_unitHtml.param) {
             _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
             _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
