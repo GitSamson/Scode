@@ -1002,9 +1002,9 @@ sM.presentMode = new StateSet(
         let _parameters = draw.div(null, 'default');
         _parameters = htmlNodeStyleHandler(_parameters)({
             height: 'fit-content',
-            width: 'fit-content',
             top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
             left: '0px'
+            //remove width, otherwise cannot get width ??? make no sense
         });
  
         if (_unitHtml.param) {
