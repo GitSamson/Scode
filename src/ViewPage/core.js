@@ -759,7 +759,7 @@ var unitRender = {
         let _result = draw.div(null, 'default');
         _result.style.height = (param.length-1) * _unitHeight + 'px';
         // _result.style.width = '20px'
-        _result.style.position = 'relative';
+        _result.style.position = 'relative'; 
 
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
