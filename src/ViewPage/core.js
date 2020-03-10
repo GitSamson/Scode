@@ -332,10 +332,9 @@ var typeMarker = {
 
         if (this.prop.name !== undefined) return;
         if(Array.isArray(keyword)===true){
-            let _check = false;
             for (let i = 0; i < keyword.length; i++) {
                 const element = keyword[i];
-                if (this.body[this.body.length - 1] == element) {
+                if (this.body[this.body.length ] == element) {
                     this.prop.name = currentPush;
                 }
             }
@@ -404,7 +403,7 @@ var typeMarker = {
         block: true
     }, {
         name: function (currentPush) {
-            typeMarker.nameDetect.call(this, this.prop.start, currentPush);
+            typeMarker.nameDetect.call(this, this.type.start, currentPush);
         }
         ,
         param: function (currentPush) {
@@ -424,8 +423,15 @@ var typeMarker = {
         block: false
     }, {
         name: function (currentPush) {
-            typeMarker.nameDetect.call(this,this.prop.start,currentPush);
+            typeMarker.nameDetect.call(this,this.type.start,currentPush);
         }
+    }),
+    description: new AST_Type_Register({
+        typeIndicator: 'description',
+        name:'description',
+        start:'/**',
+        end:'*/',
+        
     }),
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
@@ -1064,10 +1070,12 @@ function a (asdasdx,asdasdasdasdy,x,y){
 var a = 12;   
 var b =13;
 let c = 14;}
-
+/**
+     * bravo
+     */
 class opps(){
 
-
+    
     function a (){
         class a () {
             asdasd
@@ -1075,7 +1083,7 @@ class opps(){
     }
 }
 
-function b() { asd}
+function b(a=12,b) { asd}
 function asd (){
     function a {}
 }function c (){ 
