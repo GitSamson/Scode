@@ -431,7 +431,10 @@ var typeMarker = {
         name:'description',
         start:'/**',
         end:'*/',
-        
+    },{
+        param : function(currentPush){
+            
+        }
     }),
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
