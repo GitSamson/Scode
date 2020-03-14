@@ -329,12 +329,12 @@ var typeMarker = {
         }
     },
     nameDetect: function (keyword, currentPush) {
-
+        var currentPush = currentPush;
         if (this.prop.name !== undefined) return;
         if(Array.isArray(keyword)===true){
             for (let i = 0; i < keyword.length; i++) {
                 const element = keyword[i];
-                if (this.body[this.body.length ] == element) {
+                if (this.body[this.body.length-1] == element) {
                     this.prop.name = currentPush;
                 }
             }
@@ -415,7 +415,6 @@ var typeMarker = {
         },
     }),
     variable: new AST_Type_Register({
-        
         typeIndicator: 'variable_Indicator',
         name: 'variable',
         start: ['var', 'let', 'const'],
@@ -432,8 +431,8 @@ var typeMarker = {
         start:'/**',
         end:'*/',
     },{
-        param : function(currentPush){
-            
+        name : function(currentPush){
+            typeMarker.nameDetect.call(this,'*',currentPush);
         }
     }),
     annotation: new AST_Type_Register({
@@ -450,20 +449,15 @@ var typeMarker = {
         end: '',
         block: false
     })
-
 };
-
 class SymbolMark {
     constructor(symbol = null) {
         this.symbol = symbol;
     }
 }
-
 var specialMarker = {
     start: new SymbolMark(),
     end: new SymbolMark(),
-
-
 }
 
 //-------------------------------------------------------
@@ -483,8 +477,6 @@ class AST_Unit {
         this.id = ASTPool.push(this);
         this.prop = {};
     }
-
-
     getBodyElements() {
 
         let _result = new String();
