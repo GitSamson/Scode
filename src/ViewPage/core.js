@@ -647,9 +647,17 @@ var AST = {
             _res.type = isStart;
             _res.push(_e);
 
+            let _index = 0;
             while (1) {
                 let _unit = this.readSource(s);
-                _unit instanceof AST_Unit && (_unit.parent = _res);
+                
+                _index = _index +1;
+                _unit instanceof AST_Unit && function() {
+                    _unit.parent = _res;
+                    _unit.index = _index;
+                    console.log(_index)
+                }();
+
                 _res.push(_unit);
                 if (_res.endCheck(s[0]) == true) {
                     break;
@@ -801,6 +809,7 @@ var eventBind = {
         // => show Source Text
         htmlNode.setAttribute('state', 'unit');
         htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e) });
+        _htmlNode.addEventListener('click',e=>{diagramEvent.click(e)})
 
         return htmlNode;
     },
@@ -810,7 +819,8 @@ var eventBind = {
         _htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, _htmlNode) });
         // => show Source Text
         _htmlNode.addEventListener('dblclick', e => { diagramEvent.appendSourceText(e) });
-        _htmlNode.addEventListener('onclick',e=>{diagramEvent.click(e)})
+        _htmlNode.addEventListener('click',e=>{diagramEvent.click(e)})
+
         return _htmlNode;
     }
 }
@@ -842,7 +852,12 @@ var diagramEvent = {
     placeHolder: null,
     click : function(event){
         event.cancelBubble = true;
-        console.log(ASTPool.get(event.target.id));
+        let _target = event.target;
+
+        while(_target.id==false ){
+            _target = _target.parentElement;
+        }
+        console.log('unit id = ',_target.id,ASTPool.get(_target.id))
     },
     drag: function (event) {
         event.cancelBubble = true;
@@ -917,7 +932,6 @@ var diagramEvent = {
         let htmlNode = e.currentTarget;
         let ASTunit = ASTPool.get(e.currentTarget.id);
         let _rend = ASTRender(ASTunit);
-        console.log(e.currentTarget, ASTunit.detail);
         ASTunit.detail === 0 ? function () {
             htmlNode.innerHTML = ''; //clear content
             htmlNode.innerHTML = sM.detail_text.fn(ASTunit).innerHTML;
