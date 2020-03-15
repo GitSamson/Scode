@@ -476,6 +476,8 @@ class AST_Unit {
         this.detail = 0;
         this.id = ASTPool.push(this);
         this.prop = {};
+        this.parent = null;
+        this.index = 0;
     }
     getBodyElements() {
 
@@ -646,7 +648,9 @@ var AST = {
             _res.push(_e);
 
             while (1) {
-                _res.push(this.readSource(s));
+                let _unit = this.readSource(s);
+                _unit instanceof AST_Unit && (_unit.parent = _res);
+                _res.push(_unit);
                 if (_res.endCheck(s[0]) == true) {
                     break;
                 };
@@ -806,6 +810,7 @@ var eventBind = {
         _htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, _htmlNode) });
         // => show Source Text
         _htmlNode.addEventListener('dblclick', e => { diagramEvent.appendSourceText(e) });
+        _htmlNode.addEventListener('onclick',e=>{diagramEvent.click(e)})
         return _htmlNode;
     }
 }
@@ -835,6 +840,10 @@ var diagramEvent = {
     // posX:0,
     // posY:0,
     placeHolder: null,
+    click : function(event){
+        event.cancelBubble = true;
+        console.log(ASTPool.get(event.target.id));
+    },
     drag: function (event) {
         event.cancelBubble = true;
         let htmlNode = event.target;
@@ -862,7 +871,6 @@ var diagramEvent = {
 
         document.onmouseup = function (event) {
             let htmlNode = diagramEvent.hostHtmlNode;
-            console.log(htmlNode);
 
             let _style = htmlNodeStyleHandler(htmlNode);
             event.cancelBubble = true;
@@ -884,7 +892,6 @@ var diagramEvent = {
                     margin: '15px'
                 })
             };
-            console.log(htmlNode.parentElement)
             htmlNode.parentElement.removeChild(diagramEvent.placeHolder);
             document.onmousemove = null;
             document.onmouseup = null;
