@@ -521,6 +521,13 @@ class AST_Unit {
      */
     analysis() {
 
+        if(this.parent){
+            this.previousUnit = this.index==0 ? 
+            this.parent.body[this.parent.body.length-2] :
+            this.parent.body[this.index-1];
+        }
+        
+        
     }
     do(command) {
         if (this.type[command]) {
