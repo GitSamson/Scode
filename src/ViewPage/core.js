@@ -657,12 +657,12 @@ var AST = {
             let _index = 0;
             while (1) {
                 let _unit = this.readSource(s);
-                
                 _index = _index +1;
                 _unit instanceof AST_Unit && function() {
                     _unit.parent = _res;
                     _unit.index = _index;
                     console.log(_index)
+                    _unit.previousUnit = _e;
                 }();
 
                 _res.push(_unit);
