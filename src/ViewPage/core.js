@@ -661,8 +661,6 @@ var AST = {
                 _unit instanceof AST_Unit && function() {
                     _unit.parent = _res;
                     _unit.index = _index;
-                    console.log(_index)
-                    _unit.previousUnit = _e;
                 }();
 
                 _res.push(_unit);
