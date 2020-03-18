@@ -623,7 +623,16 @@ var AST = {
         let _unit;
         while (_source != false) {
             _unit = this.readSource(_source, true);
-            _unit != false && _result.push(_unit);
+                        
+            _unit != false && function(){
+                if(_unit instanceof AST_Unit ){
+                    _unit.previousUnit = _result[_result.length-1]
+                    _unit
+                }
+                _result.push(_unit);
+                
+            
+            }();
         }
 
         // let _resultList = this.listAll(_regResult);
@@ -641,7 +650,6 @@ var AST = {
      * structure analysis
      * @param {[]} s souce text splted by space
      * @param {string} start start marker
-     * @param {string} end end marker 
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
