@@ -520,13 +520,18 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-
         if(this.parent){
             this.previousUnit = this.index==0 ? 
             this.parent.body[this.parent.body.length-2] :
             this.parent.body[this.index-1];
         }
-        
+        if(this.previousUnit==true){
+            
+            if(this.previousUnit.type instanceof typeMarker.description){
+                this.prop.description = this.previousUnit.getText();
+            }
+            
+        }
         
     }
     do(command) {
@@ -626,10 +631,11 @@ var AST = {
                         
             _unit != false && function(){
                 if(_unit instanceof AST_Unit ){
-                    _unit.previousUnit = _result[_result.length-1]
-                    _unit
+                    _unit.previousUnit = _result[_result.length-1];
                 }
+                _unit.analysis();
                 _result.push(_unit);
+
                 
             
             }();
@@ -677,7 +683,6 @@ var AST = {
                 };
             }
             _res.push(s.shift());
-            _res.analysis();
             return _res;
         }
         return _e;
