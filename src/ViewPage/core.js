@@ -525,9 +525,10 @@ class AST_Unit {
             this.parent.body[this.parent.body.length-2] :
             this.parent.body[this.index-1];
         }
-        if(this.previousUnit==true){
+        console.log(this.previousUnit)
+        if(this.previousUnit instanceof AST_Unit){
             
-            if(this.previousUnit.type instanceof typeMarker.description){
+            if(this.previousUnit.type == typeMarker.description){
                 this.prop.description = this.previousUnit.getText();
             }
             
