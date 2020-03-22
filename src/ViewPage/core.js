@@ -303,9 +303,23 @@ class AST_Type_Register {
 //-------------------------------------------------------
 
 /**
- * for generate AST unit, can be lines/ block
+ * Baisc unit to have instances for properties.
  */
-var typeMarker = {
+class Property {
+    constructor(){
+        this.content;
+    }
+    text(){}
+    push(input){}
+}
+
+var properties = {
+    arguements: new Property(),
+    body:new Property(),
+    description: new Property(),
+}
+
+var propDetect = {
     conditionDetect: function (propName, start, end, condition, currentPush) {
 
         if (this.prop[propName] == undefined) {
@@ -345,6 +359,17 @@ var typeMarker = {
             }
         }
     },
+    arguementsDetect: function(){
+
+    }
+}
+
+
+/**
+ * for generate AST unit, can be lines/ block
+ */
+var typeMarker = {
+    
     startCheck: function (input) {
 
         let _in = input;
@@ -505,7 +530,7 @@ class AST_Unit {
         if (this.type !== undefined) {
             this.type.prop && Object.values(this.type.prop).forEach(function (i) {
                 i.call(this, content);
-            }, this)
+            }, this);
         }
 
         this.body.push(content);
@@ -525,7 +550,6 @@ class AST_Unit {
             this.parent.body[this.parent.body.length-2] :
             this.parent.body[this.index-1];
         }
-        console.log(this.previousUnit)
         if(this.previousUnit instanceof AST_Unit){
             
             if(this.previousUnit.type == typeMarker.description){
@@ -602,7 +626,7 @@ var AST = {
     */
     tokenize: function (input) {
         let _result = input.replace(/\n/g, ' \n ');
-        _result = _result.replace(/,/g, ' ');
+        // _result = _result.replace(/,/g, ' ');
 
 
         let _symbol = this.breaker;
@@ -789,6 +813,7 @@ var unitRender = {
         if (!param) { return; }
         let _unitHeight = 20;
         let _result = draw.div(null, 'default');
+        _result.style.backgroundColor = 'white';
         _result.style.height = (param.length-1) * _unitHeight + 'px';
         // _result.style.width = '20px'
         _result.style.position = 'relative'; 
@@ -1048,10 +1073,10 @@ sM.presentMode = new StateSet(
                 left: '0px'
                 //remove width, otherwise cannot get width ??? make no sense
             });
-            if (_unitHtml.param) {
-                _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
-                _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
-                _parameters.appendChild(_unitHtml.param);
+            if (unitList) {
+                // unitList.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
+                // unitList.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
+                _parameters.appendChild(unitList);
             }
             frame.appendChild(_parameters);
         }
