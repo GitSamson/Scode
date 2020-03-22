@@ -529,7 +529,7 @@ class AST_Unit {
         if(this.previousUnit instanceof AST_Unit){
             
             if(this.previousUnit.type == typeMarker.description){
-                this.prop.description = this.previousUnit.getText();
+                this.prop.description = this.previousUnit;
             }
             
         }
@@ -1037,30 +1037,26 @@ sM.presentMode = new StateSet(
                 'border-color': 'grey',
                 'border-style': 'solid'
             });
+            let _unitHtml = ASTRender(ASTunit);
+            frame.appendChild(_unitHtml.head);
 
-        let _unitHtml = ASTRender(ASTunit);
-        frame.appendChild(_unitHtml.head);
-        let _parameters = draw.div(null, 'default');
-        _parameters = htmlNodeStyleHandler(_parameters)({
-            height: 'fit-content',
-            top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
-            left: '0px'
-            //remove width, otherwise cannot get width ??? make no sense
-        });
- 
-        if (_unitHtml.param) {
-            _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
-            _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
-            _parameters.appendChild(_unitHtml.param);
+        function subElement(unitList){
+            let _parameters = draw.div(null, 'default');
+            _parameters = htmlNodeStyleHandler(_parameters)({
+                height: 'fit-content',
+                top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
+                left: '0px'
+                //remove width, otherwise cannot get width ??? make no sense
+            });
+            if (_unitHtml.param) {
+                _unitHtml.param.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
+                _unitHtml.param.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
+                _parameters.appendChild(_unitHtml.param);
+            }
+            frame.appendChild(_parameters);
         }
-        if (_unitHtml.output) {
-            _unitHtml.output.style.top = _unitHtml.
-                _unitHtml.output.left = _unitHtml.param.offsetWidth;
-            _unitHtml.output.style.height = '100%';
-            _parameters.appendChild(_unitHtml.output)
-        }
-        frame.appendChild(_parameters);
 
+        subElement(_unitHtml.param)
 
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
