@@ -306,10 +306,16 @@ class Constructor{
 
     }
 }
-var syntax = {
+var types = {
+    variable: new Constructor(),
     name : new Constructor(),
     param : new Constructor(),
-    statement
+    statement : new Constructor()
+}
+var variable = {
+    var : new Constructor(),
+    let : new Constructor(),
+    const : new Constructor,
 }
 
 /**
