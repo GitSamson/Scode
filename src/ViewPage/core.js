@@ -301,18 +301,31 @@ class AST_Type_Register {
 //                  TYPEMARKER
 
 //-------------------------------------------------------
+class Constructor{
+    constructor(){
+
+    }
+}
+var syntax = {
+    name : new Constructor(),
+    param : new Constructor(),
+    statement
+}
 
 /**
  * Baisc unit to have instances for properties.
+ * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor(){
-        this.content;
+    constructor(startCheck, endCheck, ){
+        
     }
     text(){}
     push(input){}
 }
-
+/**
+ * Properties library 
+ */
 var properties = {
     arguements: new Property(),
     body:new Property(),
