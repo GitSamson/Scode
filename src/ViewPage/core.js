@@ -306,24 +306,38 @@ class Constructor{
 
     }
 }
+class SyntaxType{
+    constructor(structure){
+        this.structure = structure;
+    }
+}
 var types = {
-    variable: new Constructor(),
-    name : new Constructor(),
-    param : new Constructor(),
-    statement : new Constructor()
+    variable: new SyntaxType([properties.name , '=',properties.value]),
+
+    function : new SyntaxType([
+        properties.name,
+         '(', properties.param,')',
+         '{',properties.statement,'}'
+        ]),
+
+    class : new SyntaxType([
+        properties.name,
+        '{',properties.statement,'}'
+    ]),
+    expression : new SyntaxType([
+        '(',
+        properties.statement,
+        ')'
+    ])
 }
-var variable = {
-    var : new Constructor(),
-    let : new Constructor(),
-    const : new Constructor,
-}
+
 
 /**
  * Baisc unit to have instances for properties.
  * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor(startCheck, endCheck, ){
+    constructor(){
         
     }
     text(){}
@@ -336,6 +350,9 @@ var properties = {
     arguements: new Property(),
     body:new Property(),
     description: new Property(),
+    name : new Property(),
+    value : new Property(),
+    statement: new Property()
 }
 
 var propDetect = {
