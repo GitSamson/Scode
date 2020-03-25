@@ -311,6 +311,10 @@ class SyntaxType{
         this.structure = structure;
     }
 }
+
+/**
+ * types save all Syntax types structure.
+ */
 var types = {
     variable: new SyntaxType([properties.name , '=',properties.value]),
 
@@ -345,6 +349,7 @@ class Property {
 }
 /**
  * Properties library 
+ * basic unit for syntax 
  */
 var properties = {
     arguements: new Property(),
