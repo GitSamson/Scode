@@ -309,6 +309,16 @@ class Constructor{
 class SyntaxType{
     constructor(structure){
         this.structure = structure;
+        this.index = 0;
+    }
+    push(current){
+        if(current === this.structurt[this.index]){
+            this.index++;
+            return;
+        }
+        if(current instanceof ){
+            
+        }
     }
 }
 
