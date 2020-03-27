@@ -316,9 +316,10 @@ class SyntaxType{
             this.index++;
             return;
         }
-        if(current instanceof ){
-            
-        }
+        // Here should save into this property
+        // pushed current wont be string all the time, if have bracket should stack somehow.
+        
+
     }
 }
 
