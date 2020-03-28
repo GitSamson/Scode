@@ -306,7 +306,7 @@ class AST_Type_Register {
  * Handle the structure pushed into structure instance.
  */
 class SyntaxType{
-    
+
     constructor(structure){
         this.structure = structure;
         this.index = 0;
@@ -350,7 +350,7 @@ var properties = {
 
 
 /**
- * types save all Syntax types structure.
+ * reflect all types structure 
  */
 var types = {
     variable: new SyntaxType([properties.name , '=',properties.value]),
@@ -451,20 +451,20 @@ var typeMarker = {
             // typeMarker.nameDetect.call(this, 'function', currentPush);
         },
         param: function (currentPush) {
-            typeMarker.conditionDetect.call(this,
-                'param',
-                '(',
-                ')',
-                this.body[this.body.length - 2] == 'function',
-                currentPush);
+            // typeMarker.conditionDetect.call(this,
+            //     'param',
+            //     '(',
+            //     ')',
+            //     this.body[this.body.length - 2] == 'function',
+            //     currentPush);
         },
         body: function (currentPush) {
-            typeMarker.conditionDetect.call(this,
-                'body',
-                '{',
-                '}',
-                this.body[this.body.length - 1] === ')',
-                currentPush)
+            // typeMarker.conditionDetect.call(this,
+            //     'body',
+            //     '{',
+            //     '}',
+            //     this.body[this.body.length - 1] === ')',
+            //     currentPush)
         },
     }),
 
@@ -476,15 +476,15 @@ var typeMarker = {
         block: true
     }, {
         name: function (currentPush) {
-            typeMarker.nameDetect.call(this, this.type.start, currentPush);
+            // typeMarker.nameDetect.call(this, this.type.start, currentPush);
         }
         ,
         param: function (currentPush) {
-            typeMarker.conditionDetect.call(this, 'param',
-                '(',
-                ')',
-                this.body && this.body[this.body.length - 2] === 'constructor',
-                currentPush);
+            // typeMarker.conditionDetect.call(this, 'param',
+            //     '(',
+            //     ')',
+            //     this.body && this.body[this.body.length - 2] === 'constructor',
+            //     currentPush);
         },
     }),
 
@@ -508,7 +508,7 @@ var typeMarker = {
         end:'*/',
     },{
         name : function(currentPush){
-            typeMarker.nameDetect.call(this,'*',currentPush);
+            // typeMarker.nameDetect.call(this,'*',currentPush);
         }
     }),
 
