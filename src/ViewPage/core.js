@@ -301,12 +301,12 @@ class AST_Type_Register {
 //                  TYPEMARKER
 
 //-------------------------------------------------------
-class Constructor{
-    constructor(){
 
-    }
-}
+/**
+ * Handle the structure pushed into structure instance.
+ */
 class SyntaxType{
+    
     constructor(structure){
         this.structure = structure;
         this.index = 0;
@@ -321,29 +321,6 @@ class SyntaxType{
         
 
     }
-}
-
-/**
- * types save all Syntax types structure.
- */
-var types = {
-    variable: new SyntaxType([properties.name , '=',properties.value]),
-
-    function : new SyntaxType([
-        properties.name,
-         '(', properties.param,')',
-         '{',properties.statement,'}'
-        ]),
-
-    class : new SyntaxType([
-        properties.name,
-        '{',properties.statement,'}'
-    ]),
-    expression : new SyntaxType([
-        '(',
-        properties.statement,
-        ')'
-    ])
 }
 
 
@@ -371,6 +348,29 @@ var properties = {
     statement: new Property()
 }
 
+
+/**
+ * types save all Syntax types structure.
+ */
+var types = {
+    variable: new SyntaxType([properties.name , '=',properties.value]),
+
+    function : new SyntaxType([
+        properties.name,
+         properties.arguements,
+         properties.statement
+        ]),
+
+    class : new SyntaxType([
+        properties.name,
+        properties.statement
+    ]),
+    expression : new SyntaxType([
+        properties.statement,
+    ])
+}
+
+
 var propDetect = {
     conditionDetect: function (propName, start, end, condition, currentPush) {
 
@@ -383,7 +383,6 @@ var propDetect = {
                 }
             }
         } else {
-
             if (this.prop[propName][this.prop[propName].length -1] === null) {
                 return;
             } else {
@@ -423,7 +422,6 @@ var propDetect = {
 var typeMarker = {
     
     startCheck: function (input) {
-
         let _in = input;
         let _result = false;
         for (const i in this) {
@@ -441,6 +439,7 @@ var typeMarker = {
         }
         return _result;
     },
+
     function: new AST_Type_Register({
         typeIndicator: 'function_Indicator',
         name: 'function',
@@ -449,10 +448,9 @@ var typeMarker = {
         block: true
     }, {
         name: function (currentPush) {
-            typeMarker.nameDetect.call(this, 'function', currentPush);
+            // typeMarker.nameDetect.call(this, 'function', currentPush);
         },
         param: function (currentPush) {
-
             typeMarker.conditionDetect.call(this,
                 'param',
                 '(',
@@ -461,7 +459,6 @@ var typeMarker = {
                 currentPush);
         },
         body: function (currentPush) {
-
             typeMarker.conditionDetect.call(this,
                 'body',
                 '{',
@@ -469,7 +466,6 @@ var typeMarker = {
                 this.body[this.body.length - 1] === ')',
                 currentPush)
         },
-
     }),
 
     class: new AST_Type_Register({
@@ -491,6 +487,7 @@ var typeMarker = {
                 currentPush);
         },
     }),
+
     variable: new AST_Type_Register({
         typeIndicator: 'variable_Indicator',
         name: 'variable',
@@ -499,9 +496,11 @@ var typeMarker = {
         block: false
     }, {
         name: function (currentPush) {
-            typeMarker.nameDetect.call(this,this.type.start,currentPush);
+            // typeMarker.nameDetect.call(this,this.type.start,currentPush);
         }
     }),
+
+
     description: new AST_Type_Register({
         typeIndicator: 'description',
         name:'description',
@@ -512,6 +511,8 @@ var typeMarker = {
             typeMarker.nameDetect.call(this,'*',currentPush);
         }
     }),
+
+
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
         name: 'annotation',
@@ -519,12 +520,20 @@ var typeMarker = {
         end: '\n',
         block: false
     }),
+
     expression: new AST_Type_Register({
         typeIndicator: 'command',
         name: 'command',
-        start: false,
-        end: '',
+        start: '(',
+        end: ')',
         block: false
+    }),
+
+    statement : new AST_Type_Register({
+        typeIndicator:'statement',
+        name:'statement',
+        start:'{',
+        end:'}'
     })
 };
 class SymbolMark {
@@ -673,7 +682,7 @@ class AST_Unit {
 
 
 var AST = {
-    breaker: ['{', '}', ';', '(', ')', '='],
+    breaker: ['{', '}', ';', '='],
     /** replace key symbol with space
     */
     tokenize: function (input) {
