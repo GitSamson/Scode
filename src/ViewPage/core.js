@@ -1,10 +1,12 @@
-
 'use strict';
 
 
 function postMsg(line, character) {
     const vscode = acquireVsCodeApi();
-    vscode.postMessage({ line, character });
+    vscode.postMessage({
+        line,
+        character
+    });
 }
 
 // Handle the message inside the webview
@@ -37,11 +39,11 @@ function setup(content) {
  */
 var reg = {
     /**
-    * search regExp in whole string, will return a list for all information
-    * @param {string} source source input text
-    * @param {RegExp} k searching keyword.
-    * @retrun {[]} list for all information in sourceText.['result-1','result-2',...]
-    */
+     * search regExp in whole string, will return a list for all information
+     * @param {string} source source input text
+     * @param {RegExp} k searching keyword.
+     * @retrun {[]} list for all information in sourceText.['result-1','result-2',...]
+     */
     list: function (source, k) {
         let _key = new RegExp(k, 'g');
         //Attention: Here must be 'g' as attr, otherwise only output first result;
@@ -53,13 +55,19 @@ var reg = {
             _check -= 1;
             // _result.push(_item);
             _result.push(_item);
-            _item = _key.exec(_s);// Attention sequence with push.
+            _item = _key.exec(_s); // Attention sequence with push.
         }
         return _result;
     },
     keyList: function (source, k) {
         let _fullList = this.list(source, k);
-        let _result = { result: [], groups: [], index: [], input: [], length: [] };
+        let _result = {
+            result: [],
+            groups: [],
+            index: [],
+            input: [],
+            length: []
+        };
         _fullList.forEach(element => {
 
             _result.result.push(element[0])
@@ -94,17 +102,17 @@ var lineHandler = {
     lineMarker: '\n',
     list: [],
     /** reset line marker pool. 
-    * @returns return marker list.
-    */
+     * @returns return marker list.
+     */
     refresh: function () {
         this.list = [];
         return this.list;
     },
     /** update line marker list pool
-    * @param {number} beginning updating start index of source text.
-    * @param {number} end updating end index in source text.
-    * @return {[]} return lineHandler.list.
-    */
+     * @param {number} beginning updating start index of source text.
+     * @param {number} end updating end index in source text.
+     * @return {[]} return lineHandler.list.
+     */
     update: function (source, beginning = 0, end = null) {
 
         let _source = end != null ? source.slice(beginning, end) : source;
@@ -152,7 +160,9 @@ var indexLocate = {
     @returns {number} index where the key is or where it should be.
     */
     divisionFind: function (list, key) {
-        if (list.length == 0) { return; }
+        if (list.length == 0) {
+            return;
+        }
 
         let _l = list;
 
@@ -162,7 +172,9 @@ var indexLocate = {
         }
 
         let _OverRange = (key > _l[_l.length - 1] && _l.length) || (key < _l[0] && 0);
-        if (_OverRange !== false) { return _OverRange; }
+        if (_OverRange !== false) {
+            return _OverRange;
+        }
         let _left = 0; // left pointer 
         let _over = 12;
         let _right = _l.length - 1; // right pointer
@@ -201,7 +213,9 @@ var indexLocate = {
     },
     beginningFind: function (list, key) {
         let _resultIndex = 0;
-        if (this.list.length == 0) { return 0; }
+        if (this.list.length == 0) {
+            return 0;
+        }
 
         while (_resultIndex < list.length) {
             if (element == key) {
@@ -214,7 +228,9 @@ var indexLocate = {
             }
 
             // if 2th of last still not match, means result should in the last of list. return last index +1/
-            if (_resultIndex == list.length - 2) { return list.length }
+            if (_resultIndex == list.length - 2) {
+                return list.length
+            }
 
             _resultIndex += 1;
         }
@@ -286,7 +302,9 @@ class AST_Type_Register {
         return input == this.end;
     }
     startCheck(input) {
-        if (!this.start) { return; }
+        if (!this.start) {
+            return;
+        }
         if (Array.isArray(this.start)) {
             let _r = this.start.includes(input);
             return (_r);
@@ -305,20 +323,20 @@ class AST_Type_Register {
 /**
  * Handle the structure pushed into structure instance.
  */
-class SyntaxType{
+class SyntaxType {
 
-    constructor(structure){
+    constructor(structure) {
         this.structure = structure;
         this.index = 0;
     }
-    push(current){
-        if(current === this.structurt[this.index]){
+    push(current) {
+        if (current === this.structurt[this.index]) {
             this.index++;
             return;
         }
         // Here should save into this property
         // pushed current wont be string all the time, if have bracket should stack somehow.
-        
+
 
     }
 }
@@ -329,11 +347,11 @@ class SyntaxType{
  * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor(){
-        
+    constructor() {
+
     }
-    text(){}
-    push(input){}
+    text() {}
+    push(input) {}
 }
 /**
  * Properties library 
@@ -341,10 +359,10 @@ class Property {
  */
 var properties = {
     arguements: new Property(),
-    body:new Property(),
+    body: new Property(),
     description: new Property(),
-    name : new Property(),
-    value : new Property(),
+    name: new Property(),
+    value: new Property(),
     statement: new Property()
 }
 
@@ -353,21 +371,11 @@ var properties = {
  * reflect all types structure 
  */
 var types = {
-    variable: new SyntaxType([properties.name , '=',properties.value]),
+    variable: new SyntaxType(),
 
-    function : new SyntaxType([
-        properties.name,
-         properties.arguements,
-         properties.statement
-        ]),
 
-    class : new SyntaxType([
-        properties.name,
-        properties.statement
-    ]),
-    expression : new SyntaxType([
-        properties.statement,
-    ])
+    class: new SyntaxType(),
+    expression: new SyntaxType()
 }
 
 
@@ -376,14 +384,16 @@ var propDetect = {
 
         if (this.prop[propName] == undefined) {
             // initial condition
-            if (currentPush !== start) { return; } else {
+            if (currentPush !== start) {
+                return;
+            } else {
                 // avoid body include other ( condition )
-                if (condition && currentPush==start) {
+                if (condition && currentPush == start) {
                     this.prop[propName] = [];
                 }
             }
         } else {
-            if (this.prop[propName][this.prop[propName].length -1] === null) {
+            if (this.prop[propName][this.prop[propName].length - 1] === null) {
                 return;
             } else {
                 // use null as end mark for param list
@@ -396,21 +406,20 @@ var propDetect = {
     nameDetect: function (keyword, currentPush) {
         var currentPush = currentPush;
         if (this.prop.name !== undefined) return;
-        if(Array.isArray(keyword)===true){
+        if (Array.isArray(keyword) === true) {
             for (let i = 0; i < keyword.length; i++) {
                 const element = keyword[i];
-                if (this.body[this.body.length-1] == element) {
+                if (this.body[this.body.length - 1] == element) {
                     this.prop.name = currentPush;
                 }
             }
-        }
-        else{
-            if(this.body[this.body.length - 1] == keyword) {
+        } else {
+            if (this.body[this.body.length - 1] == keyword) {
                 this.prop.name = currentPush;
             }
         }
     },
-    arguementsDetect: function(){
+    arguementsDetect: function () {
 
     }
 }
@@ -420,7 +429,7 @@ var propDetect = {
  * for generate AST unit, can be lines/ block
  */
 var typeMarker = {
-    
+
     startCheck: function (input) {
         let _in = input;
         let _result = false;
@@ -445,27 +454,11 @@ var typeMarker = {
         name: 'function',
         start: 'function',
         end: '}',
-        block: true
-    }, {
-        name: function (currentPush) {
-            // typeMarker.nameDetect.call(this, 'function', currentPush);
-        },
-        param: function (currentPush) {
-            // typeMarker.conditionDetect.call(this,
-            //     'param',
-            //     '(',
-            //     ')',
-            //     this.body[this.body.length - 2] == 'function',
-            //     currentPush);
-        },
-        body: function (currentPush) {
-            // typeMarker.conditionDetect.call(this,
-            //     'body',
-            //     '{',
-            //     '}',
-            //     this.body[this.body.length - 1] === ')',
-            //     currentPush)
-        },
+        structure: [
+            properties.name,
+            properties.arguements,
+            properties.statement
+        ]
     }),
 
     class: new AST_Type_Register({
@@ -473,19 +466,10 @@ var typeMarker = {
         name: 'class',
         start: 'class',
         end: '}',
-        block: true
-    }, {
-        name: function (currentPush) {
-            // typeMarker.nameDetect.call(this, this.type.start, currentPush);
-        }
-        ,
-        param: function (currentPush) {
-            // typeMarker.conditionDetect.call(this, 'param',
-            //     '(',
-            //     ')',
-            //     this.body && this.body[this.body.length - 2] === 'constructor',
-            //     currentPush);
-        },
+        structure: [
+            properties.name,
+            properties.statement
+        ]
     }),
 
     variable: new AST_Type_Register({
@@ -493,30 +477,25 @@ var typeMarker = {
         name: 'variable',
         start: ['var', 'let', 'const'],
         end: [';', '\n'],
-        block: false
-    }, {
-        name: function (currentPush) {
-            // typeMarker.nameDetect.call(this,this.type.start,currentPush);
-        }
+        structure: [properties.name, '=', properties.value]
     }),
 
 
     description: new AST_Type_Register({
         typeIndicator: 'description',
-        name:'description',
-        start:'/**',
-        end:'*/',
-    },{
-        name : function(currentPush){
-            // typeMarker.nameDetect.call(this,'*',currentPush);
-        }
+        name: 'description',
+        start: '/**',
+        end: '*/',
+        structure: [
+            properties.statement,
+        ]
     }),
 
 
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
         name: 'annotation',
-        start: '//', 
+        start: '//',
         end: '\n',
         block: false
     }),
@@ -529,11 +508,11 @@ var typeMarker = {
         block: false
     }),
 
-    statement : new AST_Type_Register({
-        typeIndicator:'statement',
-        name:'statement',
-        start:'{',
-        end:'}'
+    statement: new AST_Type_Register({
+        typeIndicator: 'statement',
+        name: 'statement',
+        start: '{',
+        end: '}'
     })
 };
 class SymbolMark {
@@ -606,19 +585,19 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-        if(this.parent){
-            this.previousUnit = this.index==0 ? 
-            this.parent.body[this.parent.body.length-2] :
-            this.parent.body[this.index-1];
+        if (this.parent) {
+            this.previousUnit = this.index == 0 ?
+                this.parent.body[this.parent.body.length - 2] :
+                this.parent.body[this.index - 1];
         }
-        if(this.previousUnit instanceof AST_Unit){
-            
-            if(this.previousUnit.type == typeMarker.description){
+        if (this.previousUnit instanceof AST_Unit) {
+
+            if (this.previousUnit.type == typeMarker.description) {
                 this.prop.description = this.previousUnit;
             }
-            
+
         }
-        
+
     }
     do(command) {
         if (this.type[command]) {
@@ -631,7 +610,9 @@ class AST_Unit {
     getType(content = null) {
 
 
-        if (!content) { return typeMarker.expression }
+        if (!content) {
+            return typeMarker.expression
+        }
 
         let _type = typeMarker.expression;
 
@@ -672,6 +653,10 @@ class AST_Unit {
         });
         return _result;
     }
+
+    propRead(propertyName) {
+        this.type.SyntaxType
+    }
 }
 
 //-------------------------------------------------------
@@ -684,7 +669,7 @@ class AST_Unit {
 var AST = {
     breaker: ['{', '}', ';', '='],
     /** replace key symbol with space
-    */
+     */
     tokenize: function (input) {
         let _result = input.replace(/\n/g, ' \n ');
         // _result = _result.replace(/,/g, ' ');
@@ -714,16 +699,16 @@ var AST = {
         let _unit;
         while (_source != false) {
             _unit = this.readSource(_source, true);
-                        
-            _unit != false && function(){
-                if(_unit instanceof AST_Unit ){
-                    _unit.previousUnit = _result[_result.length-1];
+
+            _unit != false && function () {
+                if (_unit instanceof AST_Unit) {
+                    _unit.previousUnit = _result[_result.length - 1];
                 }
                 _unit.analysis();
                 _result.push(_unit);
 
-                
-            
+
+
             }();
         }
 
@@ -745,7 +730,9 @@ var AST = {
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
-        if (!s) { return; }
+        if (!s) {
+            return;
+        }
         let _e = s.shift();
 
         let isStart = typeMarker.startCheck(_e);
@@ -757,8 +744,8 @@ var AST = {
             let _index = 0;
             while (1) {
                 let _unit = this.readSource(s);
-                _index = _index +1;
-                _unit instanceof AST_Unit && function() {
+                _index = _index + 1;
+                _unit instanceof AST_Unit && function () {
                     _unit.parent = _res;
                     _unit.index = _index;
                 }();
@@ -823,7 +810,9 @@ var draw = {
         let _result = document.createElement('div');
         _result.className = className;
 
-        if (content) { _result.innerHTML = content }
+        if (content) {
+            _result.innerHTML = content
+        }
         return _result;
     },
     break: function () {
@@ -871,24 +860,26 @@ var unitRender = {
         return _result;
     },
     param: function (param) {
-        if (!param) { return; }
+        if (!param) {
+            return;
+        }
         let _unitHeight = 20;
         let _result = draw.div(null, 'default');
         _result.style.backgroundColor = 'white';
-        _result.style.height = (param.length-1) * _unitHeight + 'px';
+        _result.style.height = (param.length - 1) * _unitHeight + 'px';
         // _result.style.width = '20px'
-        _result.style.position = 'relative'; 
+        _result.style.position = 'relative';
 
         for (let i = 0; i < param.length; i++) {
             const element = param[i];
-                if(element!=null){ // exclude null in list end 
-                    
-                    let _component = draw.div(element, 'component');
-                    _component.style.top = _unitHeight * (i) + 'px';
-                    _component.style.left = '0px';
-                    i == 0 && (_component.style.borderTopStyle = 'none');
-                    _result.appendChild(_component);
-                }
+            if (element != null) { // exclude null in list end 
+
+                let _component = draw.div(element, 'component');
+                _component.style.top = _unitHeight * (i) + 'px';
+                _component.style.left = '0px';
+                i == 0 && (_component.style.borderTopStyle = 'none');
+                _result.appendChild(_component);
+            }
         }
         return _result;
     }
@@ -910,21 +901,33 @@ var eventBind = {
     unitMode: function (htmlNode) {
         // => draggable
         htmlNode.draggable = true;
-        htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, htmlNode) });
+        htmlNode.addEventListener('dragstart', e => {
+            diagramEvent.drag(e, htmlNode)
+        });
         // => show Source Text
         htmlNode.setAttribute('state', 'unit');
-        htmlNode.addEventListener('dblclick', e => { diagramEvent.showSourceText(e) });
-        _htmlNode.addEventListener('click',e=>{diagramEvent.click(e)})
+        htmlNode.addEventListener('dblclick', e => {
+            diagramEvent.showSourceText(e)
+        });
+        _htmlNode.addEventListener('click', e => {
+            diagramEvent.click(e)
+        })
 
         return htmlNode;
     },
     batteryMode: function (htmlNode) {
         let _htmlNode = htmlNode;
         _htmlNode.draggable = true;
-        _htmlNode.addEventListener('dragstart', e => { diagramEvent.drag(e, _htmlNode) });
+        _htmlNode.addEventListener('dragstart', e => {
+            diagramEvent.drag(e, _htmlNode)
+        });
         // => show Source Text
-        _htmlNode.addEventListener('dblclick', e => { diagramEvent.appendSourceText(e) });
-        _htmlNode.addEventListener('click',e=>{diagramEvent.click(e)})
+        _htmlNode.addEventListener('dblclick', e => {
+            diagramEvent.appendSourceText(e)
+        });
+        _htmlNode.addEventListener('click', e => {
+            diagramEvent.click(e)
+        })
 
         return _htmlNode;
     }
@@ -955,14 +958,14 @@ var diagramEvent = {
     // posX:0,
     // posY:0,
     placeHolder: null,
-    click : function(event){
+    click: function (event) {
         event.cancelBubble = true;
         let _target = event.target;
 
-        while(_target.id==false ){
+        while (_target.id == false) {
             _target = _target.parentElement;
         }
-        console.log('unit id = ',_target.id,ASTPool.get(_target.id))
+        console.log('unit id = ', _target.id, ASTPool.get(_target.id))
     },
     drag: function (event) {
         event.cancelBubble = true;
@@ -1021,7 +1024,9 @@ var diagramEvent = {
         e.cancelBubble = true;
         let htmlNode = e.currentTarget;
         let ASTunit = ASTPool.get(e.target.id);
-        if (e.target.id === undefined) { return }
+        if (e.target.id === undefined) {
+            return
+        }
         ASTunit.detail === 0 && function () {
             htmlNode.innerHTML = unitRender.text(ASTunit.getText()).innerHTML;
             ASTunit.detail = !ASTunit.detail;
@@ -1075,7 +1080,9 @@ class StateSet {
         this.setA = setA;
         this.setB = setB;
         [this.setA.set, this.setB.set] = [this, this];
-        if (this.setA.on === this.setB.on) { this.setB.on = !this.setB.on }
+        if (this.setA.on === this.setB.on) {
+            this.setB.on = !this.setB.on
+        }
     }
     active() {
         if (this.setA.on === true) return this.setA;
@@ -1123,10 +1130,10 @@ sM.presentMode = new StateSet(
                 'border-color': 'grey',
                 'border-style': 'solid'
             });
-            let _unitHtml = ASTRender(ASTunit);
-            frame.appendChild(_unitHtml.head);
+        let _unitHtml = ASTRender(ASTunit);
+        frame.appendChild(_unitHtml.head);
 
-        function subElement(unitList){
+        function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
             _parameters = htmlNodeStyleHandler(_parameters)({
                 height: 'fit-content',
