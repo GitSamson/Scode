@@ -312,6 +312,9 @@ class AST_Type_Register {
 
         return (input == this.start);
     }
+    propRead(propertyName){
+        
+    }
 
 }
 //-------------------------------------------------------
