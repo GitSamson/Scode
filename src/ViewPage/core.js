@@ -284,15 +284,13 @@ class AST_Type_Register {
             name: 'unknown',
             start: '',
             end: '\n'
-        },
-        prop = {},
+        }
     ) {
         this.index = {};
         this.typeIndicator = attr.typeIndicator;
         this.name = attr.name;
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
-        this.prop = prop;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -312,11 +310,22 @@ class AST_Type_Register {
 
         return (input == this.start);
     }
-    propRead(propertyName){
-        
+    propRead(propertyName) {
+        let _strc = this.attr.structure;
+        if (_strc == undefined) return;
+        let _prop;
+        _strc.forEach(i => {
+            (i instanceof Property) && (
+                i.name == propertyName && (
+                    _prop = i
+                )
+            );
+        });
+        return _prop.toString();
     }
 
 }
+
 //-------------------------------------------------------
 
 //                  TYPEMARKER
@@ -350,23 +359,31 @@ class SyntaxType {
  * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor() {
-
+    constructor(name) {
+        this.name = name;
+        this.body;
     }
     text() {}
     push(input) {}
+    toString(){
+        let _result = false;
+        if(this.body){
+            Array.isArray(this.body)&&(_result = this.body.join(' '));
+        }
+        return _result;
+    }
 }
 /**
  * Properties library 
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property(),
-    body: new Property(),
-    description: new Property(),
-    name: new Property(),
-    value: new Property(),
-    statement: new Property()
+    arguements: new Property('arguements'),
+    body: new Property('body'),
+    description: new Property('description'),
+    name: new Property('name'),
+    value: new Property('value'),
+    statement: new Property('statement')
 }
 
 
@@ -588,6 +605,7 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
+        console.log(this.body)
         if (this.parent) {
             this.previousUnit = this.index == 0 ?
                 this.parent.body[this.parent.body.length - 2] :
