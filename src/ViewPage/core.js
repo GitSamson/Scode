@@ -386,19 +386,6 @@ var properties = {
     statement: new Property('statement')
 }
 
-
-/**
- * reflect all types structure 
- */
-var types = {
-    variable: new SyntaxType(),
-
-
-    class: new SyntaxType(),
-    expression: new SyntaxType()
-}
-
-
 var propDetect = {
     conditionDetect: function (propName, start, end, condition, currentPush) {
 
@@ -905,12 +892,15 @@ var unitRender = {
         return _result;
     }
 }
-
+/**
+ * render parts of unit
+ * @param {Object} ASTunit 
+ */
 var ASTRender = function (ASTunit) {
     return {
-        head: unitRender.head(ASTunit.type.name, ASTunit.prop.name),
-        body: unitRender.text(ASTunit.getText()),
-        param: unitRender.param(ASTunit.prop['param'])
+        head: unitRender.head(ASTunit.type.name, ASTunit.propRead('name')),
+        body: unitRender.text(ASTunit.propRead('statement')),
+        param: unitRender.param(ASTunit.propRead('arguements'))
     }
 }
 //-------------------------------------------------------
@@ -1062,14 +1052,10 @@ var diagramEvent = {
     appendSourceText: function (e) {
         let htmlNode = e.currentTarget;
         let ASTunit = ASTPool.get(e.currentTarget.id);
-        let _rend = ASTRender(ASTunit);
         ASTunit.detail === 0 ? function () {
             htmlNode.innerHTML = ''; //clear content
             htmlNode.innerHTML = sM.detail_text.fn(ASTunit).innerHTML;
-
-
             // body frame div
-
             ASTunit.detail = 1;
         }() : function () {
             htmlNode.innerHTML = '';
@@ -1163,8 +1149,6 @@ sM.presentMode = new StateSet(
                 //remove width, otherwise cannot get width ??? make no sense
             });
             if (unitList) {
-                // unitList.top = tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px';
-                // unitList.left = tool.toPx(_unitHtml.head.left) - tool.toPx(_unitHtml.head.margin) + 'px';
                 _parameters.appendChild(unitList);
             }
             frame.appendChild(_parameters);
