@@ -709,22 +709,23 @@ var AST = {
         let _source = input;
         let _result = [];
         let _unit;
-        if(_source == false){
-            throw('asdasd')
-        }
-        while (_source != false ) {
+
+        let i = 100;
+        while (_source != false && i <0) {
+            i--;
+            console.log(i);
+            
             _unit = this.readSource(_source, true);
+            
             _unit != false && function () {
                 if (_unit instanceof AST_Unit) {
                     _unit.previousUnit = _result[_result.length - 1];
                 }
-                // _unit.analysis();
+                _unit.analysis();
                 _result.push(_unit);
 
             }();
         }
-        console.log(3);
-        
 
         // let _resultList = this.listAll(_regResult);
 
@@ -750,17 +751,11 @@ var AST = {
         }
         let _e = s.shift();
         s.length==1&&(
-            console.log(hi)
+            console.log('hi')
             
         )
         let isStart = typeMarker.startCheck(_e);
         console.log(isStart);
-                if(s.length==1 ){
-                    console.log(s);
-                    console.log(isStart);
-                    
-                    // throw ('asd');
-                } 
         
         if (isStart != false) {
             let _res = new AST_Unit();
@@ -768,7 +763,7 @@ var AST = {
             _res.push(_e);
 
             let _index = 0;
-            while (1) {
+            while (1 && isStart!=false) {
                 let _unit = this.readSource(s);
                 _index = _index + 1;
                 _unit instanceof AST_Unit && function () {
@@ -777,9 +772,7 @@ var AST = {
                 }();
 
                 _res.push(_unit);
-                console.log(s[0]);
 
-                
                 if (_res.endCheck(s[0]) == true) {
                     break;
                 };
@@ -1216,7 +1209,6 @@ var tool = {
     },
 }
 
-
 setup(`var a = 12;
 function a (asdasdx,asdasdasdasdy,x,y){
 var a = 12;   
@@ -1230,7 +1222,6 @@ class opps(){
     
     function a (){
         class a () {
-            asdasd
         }
     }
 }
@@ -1243,4 +1234,3 @@ function asd (){
 }
 var a = 13;
 var asd  = 111;`);
-console.log(a.do('param'));
