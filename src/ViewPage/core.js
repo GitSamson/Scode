@@ -251,7 +251,7 @@ function ASThandler(input) {
     let _result = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-
+    
     let diagram = new Diagram(document.getElementById('container'));
     diagram.update(_result);
 
@@ -301,7 +301,7 @@ class AST_Type_Register {
     }
     startCheck(input) {
         if (!this.start) {
-            return;
+            return false;
         }
         if (Array.isArray(this.start)) {
             let _r = this.start.includes(input);
@@ -483,7 +483,7 @@ var typeMarker = {
         typeIndicator: 'variable_Indicator',
         name: 'variable',
         start: ['var', 'let', 'const'],
-        end: [';', '\n'],
+        end: ';',
         structure: [properties.name, '=', properties.value]
     }),
 
@@ -552,12 +552,8 @@ class AST_Unit {
         this.index = 0;
     }
     getBodyElements() {
-
         let _result = new String();
-
-
         for (let i = 0; i < this.body.length; i++) {
-
             let element = this.body[i];
             if (typeof (element) == 'object') {
                 _result = _result + (element.getBodyElements());
@@ -565,11 +561,9 @@ class AST_Unit {
                 if (_result[_result.length - 1] != '\n') {
                     _result += ' '
                 }
-
                 _result += element;
             }
         }
-
         return _result;
     }
 
@@ -605,6 +599,8 @@ class AST_Unit {
             }
 
         }
+        console.log(4);
+        
 
     }
     do(command) {
@@ -663,7 +659,15 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        this.type.SyntaxType
+        let _str = this.type.attr;
+        let _result;
+        _str.forEach(i=>{
+            i.name == propertyName&&(
+                _result = i
+            )
+        });
+        console.log(_result);
+        return _result.toString();
     }
 }
 
@@ -675,7 +679,7 @@ class AST_Unit {
 
 
 var AST = {
-    breaker: ['{', '}', ';', '='],
+    breaker: ['{', '}', '(',')',';', '='],
     /** replace key symbol with space
      */
     tokenize: function (input) {
@@ -691,8 +695,9 @@ var AST = {
             // attention here, need double \ to make it works.
             _result = _result.replace(_replace, ' ' + element + ' ');
         };
+        
         _result = _result.split(' ');
-
+        
         _result = _result.filter(i => i);
         return _result;
     },
@@ -701,24 +706,25 @@ var AST = {
      * @param {[]} input expect result from tokenize
      */
     onionize: function (input) {
-
         let _source = input;
         let _result = [];
         let _unit;
-        while (_source != false) {
+        if(_source == false){
+            throw('asdasd')
+        }
+        while (_source != false ) {
             _unit = this.readSource(_source, true);
-
             _unit != false && function () {
                 if (_unit instanceof AST_Unit) {
                     _unit.previousUnit = _result[_result.length - 1];
                 }
-                _unit.analysis();
+                // _unit.analysis();
                 _result.push(_unit);
-
-
 
             }();
         }
+        console.log(3);
+        
 
         // let _resultList = this.listAll(_regResult);
 
@@ -738,12 +744,24 @@ var AST = {
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
-        if (!s) {
+        
+        if (!s || s.length==0) {
             return;
         }
         let _e = s.shift();
-
+        s.length==1&&(
+            console.log(hi)
+            
+        )
         let isStart = typeMarker.startCheck(_e);
+        console.log(isStart);
+                if(s.length==1 ){
+                    console.log(s);
+                    console.log(isStart);
+                    
+                    // throw ('asd');
+                } 
+        
         if (isStart != false) {
             let _res = new AST_Unit();
             _res.type = isStart;
@@ -759,6 +777,9 @@ var AST = {
                 }();
 
                 _res.push(_unit);
+                console.log(s[0]);
+
+                
                 if (_res.endCheck(s[0]) == true) {
                     break;
                 };
@@ -897,6 +918,8 @@ var unitRender = {
  * @param {Object} ASTunit 
  */
 var ASTRender = function (ASTunit) {
+
+
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.propRead('name')),
         body: unitRender.text(ASTunit.propRead('statement')),
@@ -1219,6 +1242,5 @@ function asd (){
     var c =13;
 }
 var a = 13;
-var asd asd = 111;`);
-var a = ASTPool.list[1];
+var asd  = 111;`);
 console.log(a.do('param'));
