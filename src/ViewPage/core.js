@@ -433,6 +433,7 @@ var propDetect = {
 
 
 /**
+ * TYPEMARKER
  * for generate AST unit, can be lines/ block
  */
 var typeMarker = {
@@ -491,11 +492,11 @@ var typeMarker = {
     description: new AST_Type_Register({
         typeIndicator: 'description',
         name: 'description',
-        start: '/**',
-        end: '*/',
-        structure: [
-            properties.statement,
-        ]
+        start: "/**",
+        end: "*/",
+        // structure: [
+        //     properties.statement,
+        // ]
     }),
 
 
@@ -507,20 +508,20 @@ var typeMarker = {
         block: false
     }),
 
-    expression: new AST_Type_Register({
-        typeIndicator: 'command',
-        name: 'command',
-        start: '(',
-        end: ')',
-        block: false
-    }),
+    // expression: new AST_Type_Register({
+    //     typeIndicator: 'command',
+    //     name: 'command',
+    //     start: '(',
+    //     end: ')',
+    //     block: false
+    // }),
 
-    statement: new AST_Type_Register({
-        typeIndicator: 'statement',
-        name: 'statement',
-        start: '{',
-        end: '}'
-    })
+    // statement: new AST_Type_Register({
+    //     typeIndicator: 'statement',
+    //     name: 'statement',
+    //     start: '{',
+    //     end: '}'
+    // })
 };
 class SymbolMark {
     constructor(symbol = null) {
@@ -586,7 +587,6 @@ class AST_Unit {
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
-        console.log(this.body)
         if (this.parent) {
             this.previousUnit = this.index == 0 ?
                 this.parent.body[this.parent.body.length - 2] :
@@ -599,9 +599,6 @@ class AST_Unit {
             }
 
         }
-        console.log(4);
-        
-
     }
     do(command) {
         if (this.type[command]) {
@@ -661,6 +658,9 @@ class AST_Unit {
     propRead(propertyName) {
         let _str = this.type.attr;
         let _result;
+        if(!this.type.attr){
+            return
+        }
         _str.forEach(i=>{
             i.name == propertyName&&(
                 _result = i
@@ -709,21 +709,24 @@ var AST = {
         let _source = input;
         let _result = [];
         let _unit;
+        
+        if(_source.length==1){
+            console.log(_source);
+            console.log(_source.shift());
+            console.log(_source);
+            console.log(_source == false);
 
-        let i = 100;
-        while (_source != false && i <0) {
-            i--;
-            console.log(i);
+        }
+
+        while (_source != false) {
             
             _unit = this.readSource(_source, true);
-            
             _unit != false && function () {
                 if (_unit instanceof AST_Unit) {
                     _unit.previousUnit = _result[_result.length - 1];
                 }
                 _unit.analysis();
                 _result.push(_unit);
-
             }();
         }
 
@@ -750,12 +753,8 @@ var AST = {
             return;
         }
         let _e = s.shift();
-        s.length==1&&(
-            console.log('hi')
-            
-        )
+        
         let isStart = typeMarker.startCheck(_e);
-        console.log(isStart);
         
         if (isStart != false) {
             let _res = new AST_Unit();
@@ -764,7 +763,7 @@ var AST = {
 
             let _index = 0;
             while (1 && isStart!=false) {
-                let _unit = this.readSource(s);
+                let _unit = this.readSource(s,_e);
                 _index = _index + 1;
                 _unit instanceof AST_Unit && function () {
                     _unit.parent = _res;
@@ -866,8 +865,11 @@ var unitRender = {
         return _result;
     },
     text: function (textArray) {
+        if(!textArray){
+            return;
+        }
         let _result = this.divFrame();
-        _result.style.margin = '5px'
+        _result.style.margin = '5px';
         textArray.forEach(i => {
             _result.appendChild(draw.span(i, 'text'));
         });
@@ -915,7 +917,7 @@ var ASTRender = function (ASTunit) {
 
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.propRead('name')),
-        body: unitRender.text(ASTunit.propRead('statement')),
+        body: unitRender.text(ASTunit.getText()),
         param: unitRender.param(ASTunit.propRead('arguements'))
     }
 }
@@ -992,7 +994,8 @@ var diagramEvent = {
         while (_target.id == false) {
             _target = _target.parentElement;
         }
-        console.log('unit id = ', _target.id, ASTPool.get(_target.id))
+        console.log('unit id = ', _target.id, ASTPool.get(_target.id));
+        a = ASTPool.get(_target.id);
     },
     drag: function (event) {
         event.cancelBubble = true;
@@ -1210,27 +1213,26 @@ var tool = {
 }
 
 setup(`var a = 12;
-function a (asdasdx,asdasdasdasdy,x,y){
+function a (){
 var a = 12;   
 var b =13;
-let c = 14;}
+let c = 14;
+}
 /**
      * bravo
-     */
+*/
 class opps(){
 
-    
-    function a (){
-        class a () {
-        }
-    }
+
 }
 
 function b(a=12,b) { asd}
 function asd (){
     function a {}
-}function c (){ 
+}
+function c (){ 
     var c =13;
 }
 var a = 13;
-var asd  = 111;`);
+var asd  = 111 ;
+`);
