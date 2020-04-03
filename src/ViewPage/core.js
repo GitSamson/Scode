@@ -291,6 +291,7 @@ class AST_Type_Register {
         this.name = attr.name;
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
+        this.attr = attr;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -311,6 +312,7 @@ class AST_Type_Register {
         return (input == this.start);
     }
     propRead(propertyName) {
+        
         let _strc = this.attr.structure;
         if (_strc == undefined) return;
         let _prop;
@@ -321,6 +323,8 @@ class AST_Type_Register {
                 )
             );
         });
+        console.log(_prop);
+        
         return _prop.toString();
     }
 
@@ -331,27 +335,6 @@ class AST_Type_Register {
 //                  TYPEMARKER
 
 //-------------------------------------------------------
-
-/**
- * Handle the structure pushed into structure instance.
- */
-class SyntaxType {
-
-    constructor(structure) {
-        this.structure = structure;
-        this.index = 0;
-    }
-    push(current) {
-        if (current === this.structurt[this.index]) {
-            this.index++;
-            return;
-        }
-        // Here should save into this property
-        // pushed current wont be string all the time, if have bracket should stack somehow.
-
-
-    }
-}
 
 
 /**
@@ -494,9 +477,9 @@ var typeMarker = {
         name: 'description',
         start: "/**",
         end: "*/",
-        // structure: [
-        //     properties.statement,
-        // ]
+        structure: [
+            properties.statement,
+        ]
     }),
 
 
@@ -811,6 +794,10 @@ class Diagram {
         this.canv = canv;
         this.contentList = [];
     }
+    /**
+     * 
+     * @param {AST_Unit} list 
+     */
     update(list) {
         list.forEach(i => {
             let _node = i.renderNode();
@@ -876,6 +863,8 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
+        console.log(textArray);
+        
         let _result = draw.div(null, 'frame_title');
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
@@ -910,11 +899,9 @@ var unitRender = {
 }
 /**
  * render parts of unit
- * @param {Object} ASTunit 
+ * @param {AST_Unit} ASTunit 
  */
 var ASTRender = function (ASTunit) {
-
-
     return {
         head: unitRender.head(ASTunit.type.name, ASTunit.propRead('name')),
         body: unitRender.text(ASTunit.getText()),
@@ -1125,7 +1112,7 @@ class StateSet {
 var sM = new Set();
 sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
-
+        
         let frame = draw.div(null, 'frame');
         frame.appendChild(ASTRender(ASTunit).head);
         let _body = draw.div(null, 'body');
@@ -1144,6 +1131,9 @@ sM.presentMode = new StateSet(
         frame = eventBind.unitMode(frame);
         return frame;
     }),
+    
+    // CURRENT MODE:
+
     new State('batteryMode', false, function (ASTunit) {
         let frame = draw.div(null, 'default');
         frame = htmlNodeStyleHandler(frame)
@@ -1158,7 +1148,7 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
-
+            
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
             _parameters = htmlNodeStyleHandler(_parameters)({
