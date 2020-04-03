@@ -315,7 +315,7 @@ class AST_Type_Register {
         
         let _strc = this.attr.structure;
         if (_strc == undefined) return;
-        let _prop;
+        let _prop = false;
         _strc.forEach(i => {
             (i instanceof Property) && (
                 i.name == propertyName && (
@@ -324,7 +324,6 @@ class AST_Type_Register {
             );
         });
         console.log(_prop);
-        
         return _prop.toString();
     }
 
@@ -639,7 +638,9 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        let _str = this.type.attr;
+        let _str = this.type.attr.structure;
+        console.log(_str);
+        
         let _result;
         if(!this.type.attr){
             return
@@ -649,7 +650,7 @@ class AST_Unit {
                 _result = i
             )
         });
-        console.log(_result);
+        if(!_result){return '*';}
         return _result.toString();
     }
 }
