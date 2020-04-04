@@ -341,12 +341,25 @@ class AST_Type_Register {
  * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor(name) {
-        this.name = name;
-        this.body;
+    constructor(startMark=null,endMark=null) {
+        this.startMark = startMark;
+        this.endMark = endMark;
+        this.body=[];
     }
-    text() {}
-    push(input) {}
+    /**
+     * push current content, each string will check == endMark;
+     * if == endMark will return false. no continue.
+     * @param {string} input 
+     */
+    push(input) {
+        if(!this.endMark){
+            if(input == this.endMark){
+                return false;
+            }
+            this.body.push(input);
+            return true
+        }
+    }
     toString(){
         let _result = false;
         if(this.body){
@@ -360,12 +373,11 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('arguements'),
-    body: new Property('body'),
-    description: new Property('description'),
-    name: new Property('name'),
+    arguements: new Property('(',')'),
+    description: new Property('//','\n'),
+    name: new Property(),
     value: new Property('value'),
-    statement: new Property('statement')
+    statement: new Property('{','}')
 }
 
 var propDetect = {
