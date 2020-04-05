@@ -335,7 +335,6 @@ class AST_Type_Register {
 
 //-------------------------------------------------------
 
-
 /**
  * Baisc unit to have instances for properties.
  * each Property has own syntax analysis/ state check / manage input..
@@ -354,10 +353,9 @@ class Property {
     push(input) {
         if(!this.endMark){
             if(input == this.endMark){
-                return false;
-            }
+                return false; }
             this.body.push(input);
-            return true
+            return true;
         }
     }
     toString(){
@@ -382,7 +380,6 @@ var properties = {
 
 var propDetect = {
     conditionDetect: function (propName, start, end, condition, currentPush) {
-
         if (this.prop[propName] == undefined) {
             // initial condition
             if (currentPush !== start) {
@@ -444,9 +441,7 @@ var typeMarker = {
                         break;
                     }
                 }
-
             }
-
         }
         return _result;
     },
@@ -482,7 +477,6 @@ var typeMarker = {
         structure: [properties.name, '=', properties.value]
     }),
 
-
     description: new AST_Type_Register({
         typeIndicator: 'description',
         name: 'description',
@@ -492,7 +486,6 @@ var typeMarker = {
             properties.statement,
         ]
     }),
-
 
     annotation: new AST_Type_Register({
         typeIndicator: 'annotation',
@@ -575,24 +568,25 @@ class AST_Unit {
         } else if (content instanceof AST_Unit == true) {
             this.body_units.push(content);
         }
-
     };
+
     /**
      * analysis is for content analysis after whole body finish;
      */
     analysis() {
+        //parent link method
         if (this.parent) {
             this.previousUnit = this.index == 0 ?
                 this.parent.body[this.parent.body.length - 2] :
                 this.parent.body[this.index - 1];
         }
+        //previous description link method. 
         if (this.previousUnit instanceof AST_Unit) {
-
             if (this.previousUnit.type == typeMarker.description) {
                 this.prop.description = this.previousUnit;
             }
-
         }
+        
     }
     do(command) {
         if (this.type[command]) {
