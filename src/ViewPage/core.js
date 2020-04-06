@@ -345,6 +345,7 @@ class Property {
         this.endMark = endMark;
         this.body=[];
     }
+
     /**
      * push current content, each string will check == endMark;
      * if == endMark will return false. no continue.
@@ -358,6 +359,7 @@ class Property {
             return true;
         }
     }
+
     toString(){
         let _result = false;
         if(this.body){
@@ -366,6 +368,7 @@ class Property {
         return _result;
     }
 }
+
 /**
  * Properties library 
  * basic unit for syntax 
@@ -537,6 +540,7 @@ class AST_Unit {
         this.id = ASTPool.push(this);
         this.prop = {};
         this.parent = null;
+        this.propField ={};
         this.index = 0;
     }
     getBodyElements() {
@@ -569,7 +573,9 @@ class AST_Unit {
             this.body_units.push(content);
         }
     };
+    bodyBlockSplit(){
 
+    }
     /**
      * analysis is for content analysis after whole body finish;
      */
@@ -580,6 +586,9 @@ class AST_Unit {
                 this.parent.body[this.parent.body.length - 2] :
                 this.parent.body[this.index - 1];
         }
+        
+        this.propField = this.bodyBlockSplit();
+        
         //previous description link method. 
         if (this.previousUnit instanceof AST_Unit) {
             if (this.previousUnit.type == typeMarker.description) {
@@ -588,6 +597,7 @@ class AST_Unit {
         }
         
     }
+
     do(command) {
         if (this.type[command]) {
             return this.type[command].call(this);
@@ -644,20 +654,10 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        let _str = this.type.attr.structure;
-        console.log(_str);
-        
-        let _result;
-        if(!this.type.attr){
-            return
+        if(this.type.prop.hasOwnProperty(propertyName)){
+            let _field = this.propField[propertyName]
+            return 
         }
-        _str.forEach(i=>{
-            i.name == propertyName&&(
-                _result = i
-            )
-        });
-        if(!_result){return '*';}
-        return _result.toString();
     }
 }
 
@@ -1209,6 +1209,28 @@ var tool = {
     },
 }
 
+class Field {
+    /**
+     * 
+     * @param {Number} from beginning index(include)
+     * @param {Number} to end index(include)
+     */
+    constructor(from,to){
+        this.from = from;
+        this.to = to;
+    }
+/**
+ * 
+ * @param {Array} operator to be operate object.
+ */
+    reflectOn(operator){
+        return operator[this.from,this.to];
+    }
+    update(newFrom,newTo){
+        this.from = newFrom;
+        this.to = newTo;
+    }
+}
 setup(`var a = 12;
 function a (){
 var a = 12;   
