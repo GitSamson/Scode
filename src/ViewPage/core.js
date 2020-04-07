@@ -574,7 +574,18 @@ class AST_Unit {
         }
     };
     bodyBlockSplit(){
+        let _body = this.body;
+        let _str = this.type.prop.structure;
+        let _currentPieceIndex = 0;
 
+        // read each string in _body
+        for (let i = 0; i < _body.length; i++) {
+            const element = _body[i];
+            
+            _body
+
+
+        }
     }
     /**
      * analysis is for content analysis after whole body finish;
@@ -587,7 +598,9 @@ class AST_Unit {
                 this.parent.body[this.index - 1];
         }
         
+        // detail construct all pieces.
         this.propField = this.bodyBlockSplit();
+
         
         //previous description link method. 
         if (this.previousUnit instanceof AST_Unit) {
