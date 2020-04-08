@@ -251,7 +251,7 @@ function ASThandler(input) {
     let _result = AST.tokenize(input);
 
     _result = AST.onionize(_result);
-    
+
     let diagram = new Diagram(document.getElementById('container'));
     diagram.update(_result);
 
@@ -312,7 +312,7 @@ class AST_Type_Register {
         return (input == this.start);
     }
     propRead(propertyName) {
-        
+
         let _strc = this.attr.structure;
         if (_strc == undefined) return;
         let _prop = false;
@@ -336,14 +336,15 @@ class AST_Type_Register {
 //-------------------------------------------------------
 
 /**
+ * PROPERTY
  * Baisc unit to have instances for properties.
  * each Property has own syntax analysis/ state check / manage input..
  */
 class Property {
-    constructor(startMark=null,endMark=null) {
+    constructor(startMark = null, endMark = null) {
         this.startMark = startMark;
         this.endMark = endMark;
-        this.body=[];
+        this.body = [];
     }
 
     /**
@@ -352,18 +353,19 @@ class Property {
      * @param {string} input 
      */
     push(input) {
-        if(!this.endMark){
-            if(input == this.endMark){
-                return false; }
+        if (!this.endMark) {
+            if (input == this.endMark) {
+                return false;
+            }
             this.body.push(input);
             return true;
         }
     }
 
-    toString(){
+    toString() {
         let _result = false;
-        if(this.body){
-            Array.isArray(this.body)&&(_result = this.body.join(' '));
+        if (this.body) {
+            Array.isArray(this.body) && (_result = this.body.join(' '));
         }
         return _result;
     }
@@ -374,11 +376,11 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('(',')'),
-    description: new Property('//','\n'),
+    arguements: new Property('(', ')'),
+    description: new Property('//', '\n'),
     name: new Property(),
     value: new Property('value'),
-    statement: new Property('{','}')
+    statement: new Property('{', '}')
 }
 
 var propDetect = {
@@ -540,7 +542,7 @@ class AST_Unit {
         this.id = ASTPool.push(this);
         this.prop = {};
         this.parent = null;
-        this.propField ={};
+        this.propField = {};
         this.index = 0;
     }
     getBodyElements() {
@@ -573,16 +575,33 @@ class AST_Unit {
             this.body_units.push(content);
         }
     };
-    bodyBlockSplit(){
+    bodyBlockSplit() {
         let _body = this.body;
         let _str = this.type.prop.structure;
         let _currentPieceIndex = 0;
+        let _s;
+        let _e;
 
         // read each string in _body
         for (let i = 0; i < _body.length; i++) {
             const element = _body[i];
-            
-            _body
+            if (!_str[_currentPieceIndex]) {
+                throw ('overread properties:',
+                    'which line: /n' +
+                    _body, '\n type: \n' +
+                    this.type,
+                    '\n structure: \n',
+                    this.type[_currentPieceIndex]
+                );
+            }
+
+            if (!_s && _str[_currentPieceIndex].startMark == element) {
+                _s = i;
+            }
+            if (_s && _str.endMark == element) {
+                _e = i;
+                _currentPieceIndex++;
+            }
 
 
         }
@@ -597,18 +616,18 @@ class AST_Unit {
                 this.parent.body[this.parent.body.length - 2] :
                 this.parent.body[this.index - 1];
         }
-        
+
         // detail construct all pieces.
         this.propField = this.bodyBlockSplit();
 
-        
+
         //previous description link method. 
         if (this.previousUnit instanceof AST_Unit) {
             if (this.previousUnit.type == typeMarker.description) {
                 this.prop.description = this.previousUnit;
             }
         }
-        
+
     }
 
     do(command) {
@@ -667,9 +686,9 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        if(this.type.prop.hasOwnProperty(propertyName)){
+        if (this.type.prop.hasOwnProperty(propertyName)) {
             let _field = this.propField[propertyName]
-            return 
+            return
         }
     }
 }
@@ -682,7 +701,7 @@ class AST_Unit {
 
 
 var AST = {
-    breaker: ['{', '}', '(',')',';', '='],
+    breaker: ['{', '}', '(', ')', ';', '='],
     /** replace key symbol with space
      */
     tokenize: function (input) {
@@ -698,9 +717,9 @@ var AST = {
             // attention here, need double \ to make it works.
             _result = _result.replace(_replace, ' ' + element + ' ');
         };
-        
+
         _result = _result.split(' ');
-        
+
         _result = _result.filter(i => i);
         return _result;
     },
@@ -712,8 +731,8 @@ var AST = {
         let _source = input;
         let _result = [];
         let _unit;
-        
-        if(_source.length==1){
+
+        if (_source.length == 1) {
             console.log(_source);
             console.log(_source.shift());
             console.log(_source);
@@ -722,7 +741,7 @@ var AST = {
         }
 
         while (_source != false) {
-            
+
             _unit = this.readSource(_source, true);
             _unit != false && function () {
                 if (_unit instanceof AST_Unit) {
@@ -751,22 +770,22 @@ var AST = {
      */
     readSource: function (s, start = false) {
         // for source have to have start and end for all. like {function...}
-        
-        if (!s || s.length==0) {
+
+        if (!s || s.length == 0) {
             return;
         }
         let _e = s.shift();
-        
+
         let isStart = typeMarker.startCheck(_e);
-        
+
         if (isStart != false) {
             let _res = new AST_Unit();
             _res.type = isStart;
             _res.push(_e);
 
             let _index = 0;
-            while (1 && isStart!=false) {
-                let _unit = this.readSource(s,_e);
+            while (1 && isStart != false) {
+                let _unit = this.readSource(s, _e);
                 _index = _index + 1;
                 _unit instanceof AST_Unit && function () {
                     _unit.parent = _res;
@@ -872,7 +891,7 @@ var unitRender = {
         return _result;
     },
     text: function (textArray) {
-        if(!textArray){
+        if (!textArray) {
             return;
         }
         let _result = this.divFrame();
@@ -884,7 +903,7 @@ var unitRender = {
     },
     head: function (...textArray) {
         console.log(textArray);
-        
+
         let _result = draw.div(null, 'frame_title');
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
@@ -1132,7 +1151,7 @@ class StateSet {
 var sM = new Set();
 sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
-        
+
         let frame = draw.div(null, 'frame');
         frame.appendChild(ASTRender(ASTunit).head);
         let _body = draw.div(null, 'body');
@@ -1151,7 +1170,7 @@ sM.presentMode = new StateSet(
         frame = eventBind.unitMode(frame);
         return frame;
     }),
-    
+
     // CURRENT MODE:
 
     new State('batteryMode', false, function (ASTunit) {
@@ -1168,7 +1187,7 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
-            
+
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
             _parameters = htmlNodeStyleHandler(_parameters)({
@@ -1228,18 +1247,18 @@ class Field {
      * @param {Number} from beginning index(include)
      * @param {Number} to end index(include)
      */
-    constructor(from,to){
+    constructor(from, to) {
         this.from = from;
         this.to = to;
     }
-/**
- * 
- * @param {Array} operator to be operate object.
- */
-    reflectOn(operator){
-        return operator[this.from,this.to];
+    /**
+     * 
+     * @param {Array} operator to be operate object.
+     */
+    reflectOn(operator) {
+        return operator[this.from, this.to];
     }
-    update(newFrom,newTo){
+    update(newFrom, newTo) {
         this.from = newFrom;
         this.to = newTo;
     }
