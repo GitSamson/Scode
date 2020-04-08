@@ -577,7 +577,7 @@ class AST_Unit {
     };
     bodyBlockSplit() {
         let _body = this.body;
-        let _str = this.type.prop.structure;
+        let _str = this.type.attr.structure;
         let _currentPieceIndex = 0;
         let _s;
         let _e;
@@ -601,9 +601,9 @@ class AST_Unit {
             if (_s && _str.endMark == element) {
                 _e = i;
                 _currentPieceIndex++;
+                this.propField[_str[_currentPieceIndex].name] = new Field(_s,_e);
+                _s = false; _e = false; // reset temp _s _e;
             }
-
-
         }
     }
     /**
@@ -686,9 +686,9 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        if (this.type.prop.hasOwnProperty(propertyName)) {
-            let _field = this.propField[propertyName]
-            return
+        if (this.type.attr.hasOwnProperty(propertyName)) {
+            // let _field = this.propField[propertyName]
+            return;
         }
     }
 }
