@@ -339,9 +339,11 @@ class AST_Type_Register {
  * PROPERTY
  * Baisc unit to have instances for properties.
  * each Property has own syntax analysis/ state check / manage input..
+ *
  */
 class Property {
-    constructor(startMark = null, endMark = null) {
+    constructor(type, startMark = null, endMark = null) {
+        this.type = type;
         this.startMark = startMark;
         this.endMark = endMark;
         this.body = [];
@@ -363,6 +365,7 @@ class Property {
     }
 
     toString() {
+        // TODO : ONCE GET THIS HOW TO RETURN LIST FOR ITS CONTENT TO NEXT OPERATION 
         let _result = false;
         if (this.body) {
             Array.isArray(this.body) && (_result = this.body.join(' '));
@@ -376,11 +379,11 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('(', ')'),
-    description: new Property('//', '\n'),
-    name: new Property(),
+    arguements: new Property('arguements', '(', ')'),
+    description: new Property('decription', '//', '\n'),
+    name: new Property('name'),
     value: new Property('value'),
-    statement: new Property('{', '}')
+    statement: new Property('statement', '{', '}')
 }
 
 var propDetect = {
@@ -601,8 +604,9 @@ class AST_Unit {
             if (_s && _str.endMark == element) {
                 _e = i;
                 _currentPieceIndex++;
-                this.propField[_str[_currentPieceIndex].name] = new Field(_s,_e);
-                _s = false; _e = false; // reset temp _s _e;
+                this.propField[_str[_currentPieceIndex].name] = new Field(_s, _e);
+                _s = false;
+                _e = false; // reset temp _s _e;
             }
         }
     }
@@ -686,11 +690,15 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
-        console.log(this.type.attr.structure[0])
-        if (this.type.attr.hasOwnProperty(propertyName)) {
-            // let _field = this.propField[propertyName]
-            return;
+        // check structure list then return property toString function.
+        let _strList = (this.type.attr.structure);
+        for (let i = 0; i < _strList.length; i++) {
+            const element = _strList[i];
+            if (element.type == propertyName) {
+                return element.toString(this);
+            }
         }
+        return ['empty'];
     }
 }
 
