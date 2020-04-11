@@ -686,6 +686,7 @@ class AST_Unit {
     }
 
     propRead(propertyName) {
+        console.log(this.type.attr.structure[0])
         if (this.type.attr.hasOwnProperty(propertyName)) {
             // let _field = this.propField[propertyName]
             return;
@@ -902,7 +903,7 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        console.log(textArray);
+        // console.log(textArray);
 
         let _result = draw.div(null, 'frame_title');
         textArray.forEach(i => {
