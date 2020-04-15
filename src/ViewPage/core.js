@@ -70,7 +70,7 @@ var reg = {
         };
         _fullList.forEach(element => {
 
-            _result.result.push(element[0])
+            _result.result.push(element[0]);
             _result.groups.push(element.groups);
             _result.index.push(element.index);
             _result.input.push(element.input);
@@ -88,14 +88,14 @@ var reg = {
         let _source = '(?<=' + beginning + ').*?(?=' + end + ')';
         return new RegExp(_source, 'g');
     }
-}
+};
 /** content comparison function
  * 
  */
 var contentComparison = {
 
 
-}
+};
 /** get line from block.
  */
 var lineHandler = {
@@ -204,7 +204,7 @@ var indexLocate = {
         if (key == _l[_left] | key == _l[_right] | key == _l[_indexPointer]) {
 
             _result = key == _l[_left] ? _left : key == _l[_right] ? _right : _indexPointer;
-            return _result
+            return _result;
         }
 
         _result = key < _l[_indexPointer] ? _indexPointer : _right;
@@ -229,14 +229,14 @@ var indexLocate = {
 
             // if 2th of last still not match, means result should in the last of list. return last index +1/
             if (_resultIndex == list.length - 2) {
-                return list.length
+                return list.length;
             }
 
             _resultIndex += 1;
         }
     }
 
-}
+};
 
 //-------------------------------------------------------
 
@@ -283,7 +283,8 @@ class AST_Type_Register {
             typeIndicator: 'unknown',
             name: 'unknown',
             start: '',
-            end: '\n'
+            end: '\n',
+            structure: []
         }
     ) {
         this.index = {};
@@ -311,6 +312,10 @@ class AST_Type_Register {
 
         return (input == this.start);
     }
+    /**
+     * 
+     * @param {string} propertyName 
+     */
     propRead(propertyName) {
 
         let _strc = this.attr.structure;
