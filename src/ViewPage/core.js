@@ -317,7 +317,7 @@ class AST_Type_Register {
      * @param {string} propertyName 
      */
     propRead(propertyName) {
-
+        console.log(2)
         let _strc = this.attr.structure;
         if (_strc == undefined) return;
         let _prop = false;
@@ -372,6 +372,7 @@ class Property {
     toString() {
         // TODO : ONCE GET THIS HOW TO RETURN LIST FOR ITS CONTENT TO NEXT OPERATION 
         let _result = false;
+        console.log(this.body);
         if (this.body) {
             Array.isArray(this.body) && (_result = this.body.join(' '));
         }
