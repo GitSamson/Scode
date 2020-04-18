@@ -368,15 +368,17 @@ class Property {
             return true;
         }
     }
+    /**
+     * 
+     * @param {AST_Unit} ASTunit Ast unit.
+     */
+    toString(ASTunit) {
+        // read ASTunit's field for current property.
+        let _unit = ASTunit;
+        let _field = _unit.propField[this.name]; // class field.
 
-    toString() {
-        // TODO : ONCE GET THIS HOW TO RETURN LIST FOR ITS CONTENT TO NEXT OPERATION 
-        let _result = false;
-        console.log(this.body);
-        if (this.body) {
-            Array.isArray(this.body) && (_result = this.body.join(' '));
-        }
-        return _result;
+        return _field.reflectOn(ASTunit);
+
     }
 }
 
@@ -628,7 +630,7 @@ class AST_Unit {
         }
 
         // detail construct all pieces.
-        this.propField = this.bodyBlockSplit();
+        this.bodyBlockSplit();
 
 
         //previous description link method. 
