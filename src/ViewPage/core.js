@@ -376,7 +376,8 @@ class Property {
         // read ASTunit's field for current property.
         let _unit = ASTunit;
         let _field = _unit.propField[this.name]; // class field.
-
+        console.log(_unit);
+        
         return _field.reflectOn(ASTunit);
 
     }
