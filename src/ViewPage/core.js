@@ -377,7 +377,7 @@ class Property {
         let _unit = ASTunit;
         let _field = _unit.propField[this.name]; // class field.
         console.log(_unit);
-        
+        if(!_field){return ['none']}
         return _field.reflectOn(ASTunit);
 
     }
