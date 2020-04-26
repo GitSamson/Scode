@@ -376,7 +376,6 @@ class Property {
         // read ASTunit's field for current property.
         let _unit = ASTunit;
         let _field = _unit.propField[this.name]; // class field.
-        console.log(_unit);
         if(!_field){return ['none']}
         return _field.reflectOn(ASTunit);
 
@@ -390,8 +389,8 @@ class Property {
 var properties = {
     arguements: new Property('arguements', '(', ')'),
     description: new Property('decription', '//', '\n'),
-    name: new Property('name'),
-    value: new Property('value'),
+    name: new Property('name','function'),
+    value: new Property('value','='),
     statement: new Property('statement', '{', '}')
 }
 
@@ -590,10 +589,13 @@ class AST_Unit {
     bodyBlockSplit() {
         let _body = this.body;
         let _str = this.type.attr.structure;
+        console.log(_str[0].startMark);
+        
         let _currentPieceIndex = 0;
-        let _s;
+        let _s = false;
         let _e;
-
+        console.log(_str[_currentPieceIndex]);
+        
         // read each string in _body
         for (let i = 0; i < _body.length; i++) {
             const element = _body[i];
@@ -609,11 +611,16 @@ class AST_Unit {
 
             if (!_s && _str[_currentPieceIndex].startMark == element) {
                 _s = i;
-            }
-            if (_s && _str.endMark == element) {
+                console.log(_s);
+            };
+            
+            if (_s===false && (_str[_currentPieceIndex].endMark == element || _str[_currentPieceIndex].endMark == null)) {
+                console.log(1);
+                
                 _e = i;
                 _currentPieceIndex++;
                 this.propField[_str[_currentPieceIndex].name] = new Field(_s, _e);
+                console.log(this.body[_s,_e]);
                 _s = false;
                 _e = false; // reset temp _s _e;
             }
