@@ -593,6 +593,7 @@ class AST_Unit {
         
         let _currentPieceIndex = 0;
         let _s = false;
+        
         let _e;
         console.log(_str[_currentPieceIndex]);
         
