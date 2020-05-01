@@ -616,8 +616,6 @@ class AST_Unit {
             };
             
             if (_s===false && (_str[_currentPieceIndex].endMark == element || _str[_currentPieceIndex].endMark == null)) {
-                console.log(1);
-                
                 _e = i;
                 _currentPieceIndex++;
                 this.propField[_str[_currentPieceIndex].name] = new Field(_s, _e);
