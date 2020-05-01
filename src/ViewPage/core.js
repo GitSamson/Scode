@@ -353,21 +353,6 @@ class Property {
         this.endMark = endMark;
         this.body = [];
     }
-
-    /**
-     * push current content, each string will check == endMark;
-     * if == endMark will return false. no continue.
-     * @param {string} input 
-     */
-    push(input) {
-        if (!this.endMark) {
-            if (input == this.endMark) {
-                return false;
-            }
-            this.body.push(input);
-            return true;
-        }
-    }
     /**
      * 
      * @param {AST_Unit} ASTunit Ast unit.
@@ -375,7 +360,10 @@ class Property {
     toString(ASTunit) {
         // read ASTunit's field for current property.
         let _unit = ASTunit;
-        let _field = _unit.propField[this.name]; // class field.
+        let _field = _unit.propField[this.type]; // class field.
+        if (_field) {
+            console.log(_unit.propField[this.type])
+        }
         if(!_field){return ['none']}
         return _field.reflectOn(ASTunit);
 
@@ -589,14 +577,11 @@ class AST_Unit {
     bodyBlockSplit() {
         let _body = this.body;
         let _str = this.type.attr.structure;
-        console.log(_str[0].startMark);
-        
         let _currentPieceIndex = 0;
         let _s = false;
-        
         let _e;
         console.log(_str[_currentPieceIndex]);
-        
+        if(!_str){return}
         // read each string in _body
         for (let i = 0; i < _body.length; i++) {
             const element = _body[i];
@@ -611,15 +596,14 @@ class AST_Unit {
             }
 
             if (!_s && _str[_currentPieceIndex].startMark == element) {
-                _s = i;
-                console.log(_s);
-            };
+                _s = i; };
             
             if (_s===false && (_str[_currentPieceIndex].endMark == element || _str[_currentPieceIndex].endMark == null)) {
                 _e = i;
                 _currentPieceIndex++;
-                this.propField[_str[_currentPieceIndex].name] = new Field(_s, _e);
-                console.log(this.body[_s,_e]);
+                this.propField[_str[_currentPieceIndex].type] = new Field(_s, _e);
+                console.log(_str, _currentPieceIndex,_str[_currentPieceIndex].type);
+                
                 _s = false;
                 _e = false; // reset temp _s _e;
             }
@@ -743,7 +727,6 @@ var AST = {
         };
 
         _result = _result.split(' ');
-
         _result = _result.filter(i => i);
         return _result;
     },
