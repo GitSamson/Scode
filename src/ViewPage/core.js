@@ -379,7 +379,8 @@ var properties = {
     description: new Property('decription', '//', '\n'),
     name: new Property('name','function'),
     value: new Property('value','='),
-    statement: new Property('statement', '{', '}')
+    statement: new Property('statement', '{', '}'),
+    assignment: new Property('assignment','=')
 }
 
 var propDetect = {
@@ -478,7 +479,7 @@ var typeMarker = {
         name: 'variable',
         start: ['var', 'let', 'const'],
         end: ';',
-        structure: [properties.name, '=', properties.value]
+        structure: [properties.name, properties.value]
     }),
 
     description: new AST_Type_Register({
@@ -580,29 +581,29 @@ class AST_Unit {
         let _currentPieceIndex = 0;
         let _s = false;
         let _e;
-        console.log(_str[_currentPieceIndex]);
         if(!_str){return}
         // read each string in _body
         for (let i = 0; i < _body.length; i++) {
             const element = _body[i];
-            if (!_str[_currentPieceIndex]) {
-                throw ('overread properties:',
-                    'which line: /n' +
-                    _body, '\n type: \n' +
-                    this.type,
-                    '\n structure: \n',
-                    this.type[_currentPieceIndex]
-                );
+
+
+            if (_str[_currentPieceIndex]===undefined) {
+                return;
             }
 
             if (!_s && _str[_currentPieceIndex].startMark == element) {
+                console.log('here start',i);
+                
                 _s = i; };
             
-            if (_s===false && (_str[_currentPieceIndex].endMark == element || _str[_currentPieceIndex].endMark == null)) {
+            if (_s!==false && (_str[_currentPieceIndex].endMark === element || _str[_currentPieceIndex].endMark === null)) {
                 _e = i;
-                _currentPieceIndex++;
+                console.log('end',_s,_e);
+                
                 this.propField[_str[_currentPieceIndex].type] = new Field(_s, _e);
-                console.log(_str, _currentPieceIndex,_str[_currentPieceIndex].type);
+                _currentPieceIndex++;
+                
+                // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
                 
                 _s = false;
                 _e = false; // reset temp _s _e;
