@@ -361,10 +361,10 @@ class Property {
         // read ASTunit's field for current property.
         let _unit = ASTunit;
         let _field = _unit.propField[this.type]; // class field.
-        if (_field) {
-            console.log(_unit.propField[this.type], _unit.propField[this.type].reflectOn(_unit.body),_unit)
+
+        if (!_field) {
+            return ['none']
         }
-        if(!_field){return ['none']}
         return _field.reflectOn(_unit.body);
 
     }
@@ -377,10 +377,10 @@ class Property {
 var properties = {
     arguements: new Property('arguements', '(', ')'),
     description: new Property('decription', '//', '\n'),
-    name: new Property('name',true),
-    value: new Property('value','='),
+    name: new Property('name', true,null),
+    value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
-    assignment: new Property('assignment','=')
+    assignment: new Property('assignment', '=')
 }
 
 var propDetect = {
@@ -579,35 +579,37 @@ class AST_Unit {
         let _body = this.body;
         let _str = this.type.attr.structure;
         let _currentPieceIndex = 0;
+        let _currentStr;
         let _s = false;
         let _e;
-        if(!_str){return}
+        if (!_str) {
+            return
+        }
+
         // read each string in _body
         for (let i = 0; i < _body.length; i++) {
             const element = _body[i];
+            _currentStr = _str[_currentPieceIndex]; // current Structure unit.
 
-
-            if (_str[_currentPieceIndex]===undefined) {
+            if (_currentStr === undefined) {
                 return;
             }
-
-            if (!_s && (_str[_currentPieceIndex].startMark == element || _str[_currentPieceIndex].startMark===true)) {
-                console.log('here start',i);
-                
-                _s = i; };
-            
-            if (_s!==false && (_str[_currentPieceIndex].endMark === element || _str[_currentPieceIndex].endMark === null)) {
-                _e = i;
-                console.log('end',_s,_e);
-                
-                this.propField[_str[_currentPieceIndex].type] = new Field(_s+1, _e+1);
+            if (_s ===false && (_currentStr.startMark === element || _currentStr.startMark === true)) {
+                _s = i;
+            }
+            else if (_currentStr.endMark === element || _currentStr.endMark === null){
+                _e = _currentStr.endMark === null ? i-1 : i;
+                this.propField[_currentStr.type] = new Field(_s, _e);
+                if (_currentStr.type == 'arguements') {
+                    console.log(this.body)
+                    console.log(this.propField[_currentStr.type].from, this.propField[_currentStr.type].to, this.body.slice(this.propField[_currentStr.type].from, this.propField[_currentStr.type].to));
+                }
                 _currentPieceIndex++;
-                
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
-                
                 _s = false;
                 _e = false; // reset temp _s _e;
             }
+
         }
     }
     /**  
@@ -711,7 +713,7 @@ class AST_Unit {
 
 
 var AST = {
-    breaker: ['{', '}', '(', ')', ';', '='],
+    breaker: ['{', '}', '(', ')', ';', '=',','],
     /** replace key symbol with space
      */
     tokenize: function (input) {
@@ -1265,8 +1267,14 @@ class Field {
      * @param {Array} operator to be operate object.
      */
     reflectOn(operator) {
-        if(this.from == this.to){return operator[this.from]}
-        return operator[this.from, this.to];
+        if (this.to - this.from == 1){
+            return ['empty']
+        }
+        if (this.to-this.from ==0 ) {
+            
+            return operator[this.from+1]
+        }
+        return operator.slice(this.from+1, this.to);
     }
     update(newFrom, newTo) {
         this.from = newFrom;
@@ -1288,10 +1296,10 @@ class opps(){
 }
 
 function b(a=12,b) { asd}
-function asd (){
+function asd (a,b){
     function a {}
 }
-function c (){ 
+function c (11){ 
     var c =13;
 }
 var a = 13;
