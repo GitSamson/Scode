@@ -362,10 +362,10 @@ class Property {
         let _unit = ASTunit;
         let _field = _unit.propField[this.type]; // class field.
         if (_field) {
-            console.log(_unit.propField[this.type])
+            console.log(_unit.propField[this.type], _unit.propField[this.type].reflectOn(_unit.body),_unit)
         }
         if(!_field){return ['none']}
-        return _field.reflectOn(ASTunit);
+        return _field.reflectOn(_unit.body);
 
     }
 }
@@ -377,7 +377,7 @@ class Property {
 var properties = {
     arguements: new Property('arguements', '(', ')'),
     description: new Property('decription', '//', '\n'),
-    name: new Property('name','function'),
+    name: new Property('name',true),
     value: new Property('value','='),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment','=')
@@ -591,7 +591,7 @@ class AST_Unit {
                 return;
             }
 
-            if (!_s && _str[_currentPieceIndex].startMark == element) {
+            if (!_s && (_str[_currentPieceIndex].startMark == element || _str[_currentPieceIndex].startMark===true)) {
                 console.log('here start',i);
                 
                 _s = i; };
@@ -600,7 +600,7 @@ class AST_Unit {
                 _e = i;
                 console.log('end',_s,_e);
                 
-                this.propField[_str[_currentPieceIndex].type] = new Field(_s, _e);
+                this.propField[_str[_currentPieceIndex].type] = new Field(_s+1, _e+1);
                 _currentPieceIndex++;
                 
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
@@ -1265,6 +1265,7 @@ class Field {
      * @param {Array} operator to be operate object.
      */
     reflectOn(operator) {
+        if(this.from == this.to){return operator[this.from]}
         return operator[this.from, this.to];
     }
     update(newFrom, newTo) {
