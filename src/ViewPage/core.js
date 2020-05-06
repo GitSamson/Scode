@@ -923,13 +923,15 @@ var unitRender = {
         return _result;
     },
     param: function (param) {
-        if (!param) {
+        console.log(param);
+        
+        if ((!param )|| param[0]=='empty') {
             return;
         }
         let _unitHeight = 20;
         let _result = draw.div(null, 'default');
         _result.style.backgroundColor = 'white';
-        _result.style.height = (param.length - 1) * _unitHeight + 'px';
+        _result.style.height = (param.length ) * _unitHeight + 'px';
         // _result.style.width = '20px'
         _result.style.position = 'relative';
 
