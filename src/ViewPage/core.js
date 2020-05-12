@@ -397,7 +397,10 @@ var properties = {
         _output.push(_stack);
         return _output;
     }),
-    description: new Property('decription', '//', '\n'),
+    description: new Property('decription', '//', '\n', function (input) {
+        if (!input) return;
+        return input.slice(2);
+    }),
     name: new Property('name', true, null),
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
@@ -479,20 +482,6 @@ var typeMarker = {
         block: false
     }),
 
-    // expression: new AST_Type_Register({
-    //     typeIndicator: 'command',
-    //     name: 'command',
-    //     start: '(',
-    //     end: ')',
-    //     block: false
-    // }),
-
-    // statement: new AST_Type_Register({
-    //     typeIndicator: 'statement',
-    //     name: 'statement',
-    //     start: '{',
-    //     end: '}'
-    // })
 };
 class SymbolMark {
     constructor(symbol = null) {
@@ -898,7 +887,7 @@ var unitRender = {
     },
     param: function (param) {
         let _param = param
-        if ((!_param) || _param[0] == 'empty')return;
+        if ((!_param) || _param[0] == 'empty') return;
 
         // content rebuild.
         _param = properties['arguements'].codeFormat(_param);
