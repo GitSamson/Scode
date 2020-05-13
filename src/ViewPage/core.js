@@ -876,9 +876,13 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        // console.log(textArray);
-
+        
         let _result = draw.div(null, 'frame_title');
+        if (textArray[1][0] == "empty") {
+            return _result.appendChild(draw.span(textArray[0], 'title'));
+        }
+
+
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
             _result.appendChild(draw.span(' ', 'default'));
