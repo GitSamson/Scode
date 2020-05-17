@@ -380,7 +380,8 @@ var properties = {
     name: new Property('name', true,null),
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
-    assignment: new Property('assignment', '=')
+    assignment: new Property('assignment', '='),
+    annotation: new Property('annotation', '/**', '*/')
 }
 
 var propDetect = {
@@ -421,9 +422,6 @@ var propDetect = {
                 this.prop.name = currentPush;
             }
         }
-    },
-    arguementsDetect: function () {
-
     }
 }
 
@@ -488,7 +486,7 @@ var typeMarker = {
         start: "/**",
         end: "*/",
         structure: [
-            properties.statement,
+            properties.annotation,
         ]
     }),
 
@@ -600,10 +598,6 @@ class AST_Unit {
             else if (_currentStr.endMark === element || _currentStr.endMark === null){
                 _e = _currentStr.endMark === null ? i-1 : i;
                 this.propField[_currentStr.type] = new Field(_s, _e);
-                if (_currentStr.type == 'arguements') {
-                    console.log(this.body)
-                    console.log(this.propField[_currentStr.type].from, this.propField[_currentStr.type].to, this.body.slice(this.propField[_currentStr.type].from, this.propField[_currentStr.type].to));
-                }
                 _currentPieceIndex++;
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
                 _s = false;
@@ -923,7 +917,6 @@ var unitRender = {
         return _result;
     },
     param: function (param) {
-        console.log(param);
         
         if ((!param )|| param[0]=='empty') {
             return;
