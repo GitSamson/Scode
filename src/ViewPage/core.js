@@ -284,7 +284,10 @@ class AST_Type_Register {
             name: 'unknown',
             start: '',
             end: '\n',
-            structure: []
+            structure: [],
+            rend: function(unit){
+
+            }
         }
     ) {
         this.index = {};
@@ -293,6 +296,7 @@ class AST_Type_Register {
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
         this.attr = attr;
+        this.rend = attr.rend;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -347,7 +351,7 @@ class AST_Type_Register {
  *
  */
 class Property {
-    constructor(type, startMark = null, endMark = null, codeFormat) {
+    constructor(type, startMark = null, endMark = null, codeFormat,renderNode) {
         this.type = type;
         this.startMark = startMark;
         this.endMark = endMark;
@@ -355,6 +359,9 @@ class Property {
         this.codeFormat = codeFormat ? codeFormat : function (input) {
             return input
         };
+        this.renderNode = renderNode? renderNode : function(ASTunit){
+            return draw.div('unregist property render style','default');
+        }
     }
     /**
      * 
@@ -382,7 +389,6 @@ var properties = {
         if (input.length <= 1) {
             return input
         } // single input process
-
         let _output = []; // output array
         let _stack = ''; // single stack 
         for (let i = 0; i < input.length; i++) {
@@ -443,7 +449,8 @@ var typeMarker = {
             properties.arguements,
             properties.statement
         ]
-    }),
+    },
+    ),
 
     class: new AST_Type_Register({
         typeIndicator: 'class_Indicator',
@@ -904,8 +911,6 @@ var unitRender = {
         // _result.style.width = '20px'
         _result.style.position = 'relative';
 
-
-
         for (let i = 0; i < _param.length; i++) {
             const element = _param[i];
             if (element != null) { // exclude null in list end 
@@ -921,6 +926,7 @@ var unitRender = {
 }
 /**
  * render parts of unit
+ * TODO: HERE SHOULD BE HAVE PROPERTIES RETURN FROM PROPERTIES STRUCTURE.
  * @param {AST_Unit} ASTunit 
  */
 var ASTRender = function (ASTunit) {
