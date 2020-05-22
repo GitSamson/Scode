@@ -338,11 +338,6 @@ class AST_Type_Register {
 
 }
 
-//-------------------------------------------------------
-
-//                  TYPEMARKER
-
-//-------------------------------------------------------
 
 /**
  * PROPERTY
@@ -385,7 +380,9 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('arguements', '(', ')', function (input) {
+    arguements: new Property('arguements', '(', ')', 
+    
+    function (input) {
         if (input.length <= 1) {
             return input
         } // single input process
@@ -402,7 +399,37 @@ var properties = {
         }
         _output.push(_stack);
         return _output;
-    }),
+    }
+    , 
+    function(ASTnode){
+
+            let _param = param
+            if ((!_param) || _param[0] == 'empty') return;
+
+            // content rebuild.
+            _param = properties['arguements'].codeFormat(_param);
+
+            // each grid style pre handle 
+            let _unitHeight = 20;
+            let _result = draw.div(null, 'default');
+            _result.style.backgroundColor = 'white';
+            _result.style.height = (_param.length) * _unitHeight + 'px';
+            // _result.style.width = '20px'
+            _result.style.position = 'relative';
+
+            for (let i = 0; i < _param.length; i++) {
+                const element = _param[i];
+                if (element != null) { // exclude null in list end 
+                    let _component = draw.div(element, 'component');
+                    _component.style.top = _unitHeight * (i) + 'px';
+                    _component.style.left = '0px';
+                    i == 0 && (_component.style.borderTopStyle = 'none');
+                    _result.appendChild(_component);
+                }
+            }
+            return _result;
+        }
+    ),
     description: new Property('decription', '//', '\n', function (input) {
         if (!input) return;
         return input.slice(2);
@@ -414,6 +441,11 @@ var properties = {
 }
 
 
+//-------------------------------------------------------
+
+//                  TYPEMARKER
+
+//-------------------------------------------------------
 
 
 /**
@@ -1176,6 +1208,7 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
+console.log(1);
 
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
