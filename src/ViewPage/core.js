@@ -284,7 +284,10 @@ class AST_Type_Register {
             name: 'unknown',
             start: '',
             end: '\n',
-            structure: []
+            structure: [],
+            rend: function(unit){
+
+            }
         }
     ) {
         this.index = {};
@@ -293,6 +296,7 @@ class AST_Type_Register {
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
         this.attr = attr;
+        this.rend = attr.rend;
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -334,11 +338,6 @@ class AST_Type_Register {
 
 }
 
-//-------------------------------------------------------
-
-//                  TYPEMARKER
-
-//-------------------------------------------------------
 
 /**
  * PROPERTY
@@ -347,11 +346,17 @@ class AST_Type_Register {
  *
  */
 class Property {
-    constructor(type, startMark = null, endMark = null) {
+    constructor(type, startMark = null, endMark = null, codeFormat,renderNode) {
         this.type = type;
         this.startMark = startMark;
         this.endMark = endMark;
         this.body = [];
+        this.codeFormat = codeFormat ? codeFormat : function (input) {
+            return input
+        };
+        this.renderNode = renderNode? renderNode : function(ASTunit){
+            return draw.div('unregist property render style','default');
+        }
     }
     /**
      * 
@@ -375,55 +380,72 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('arguements', '(', ')'),
-    description: new Property('decription', '//', '\n'),
-    name: new Property('name', true,null),
+    arguements: new Property('arguements', '(', ')', 
+    
+    function (input) {
+        if (input.length <= 1) {
+            return input
+        } // single input process
+        let _output = []; // output array
+        let _stack = ''; // single stack 
+        for (let i = 0; i < input.length; i++) {
+            const element = input[i];
+            if (element === ',') {
+                _output.push(_stack);
+                _stack = '';
+            } else {
+                _stack = _stack + ' ' + element;
+            }
+        }
+        _output.push(_stack);
+        return _output;
+    }
+    , 
+    function(ASTnode){
+
+            let _param = param
+            if ((!_param) || _param[0] == 'empty') return;
+
+            // content rebuild.
+            _param = properties['arguements'].codeFormat(_param);
+
+            // each grid style pre handle 
+            let _unitHeight = 20;
+            let _result = draw.div(null, 'default');
+            _result.style.backgroundColor = 'white';
+            _result.style.height = (_param.length) * _unitHeight + 'px';
+            // _result.style.width = '20px'
+            _result.style.position = 'relative';
+
+            for (let i = 0; i < _param.length; i++) {
+                const element = _param[i];
+                if (element != null) { // exclude null in list end 
+                    let _component = draw.div(element, 'component');
+                    _component.style.top = _unitHeight * (i) + 'px';
+                    _component.style.left = '0px';
+                    i == 0 && (_component.style.borderTopStyle = 'none');
+                    _result.appendChild(_component);
+                }
+            }
+            return _result;
+        }
+    ),
+    description: new Property('decription', '//', '\n', function (input) {
+        if (!input) return;
+        return input.slice(2);
+    }),
+    name: new Property('name', true, null),
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
-    assignment: new Property('assignment', '='),
-    annotation: new Property('annotation', '/**', '*/')
+    assignment: new Property('assignment', '=')
 }
 
-var propDetect = {
-    conditionDetect: function (propName, start, end, condition, currentPush) {
-        if (this.prop[propName] == undefined) {
-            // initial condition
-            if (currentPush !== start) {
-                return;
-            } else {
-                // avoid body include other ( condition )
-                if (condition && currentPush == start) {
-                    this.prop[propName] = [];
-                }
-            }
-        } else {
-            if (this.prop[propName][this.prop[propName].length - 1] === null) {
-                return;
-            } else {
-                // use null as end mark for param list
-                currentPush === end ?
-                    this.prop[propName].push(null) :
-                    this.prop[propName].push(currentPush)
-            }
-        }
-    },
-    nameDetect: function (keyword, currentPush) {
-        var currentPush = currentPush;
-        if (this.prop.name !== undefined) return;
-        if (Array.isArray(keyword) === true) {
-            for (let i = 0; i < keyword.length; i++) {
-                const element = keyword[i];
-                if (this.body[this.body.length - 1] == element) {
-                    this.prop.name = currentPush;
-                }
-            }
-        } else {
-            if (this.body[this.body.length - 1] == keyword) {
-                this.prop.name = currentPush;
-            }
-        }
-    }
-}
+
+//-------------------------------------------------------
+
+//                  TYPEMARKER
+
+//-------------------------------------------------------
 
 
 /**
@@ -459,7 +481,8 @@ var typeMarker = {
             properties.arguements,
             properties.statement
         ]
-    }),
+    },
+    ),
 
     class: new AST_Type_Register({
         typeIndicator: 'class_Indicator',
@@ -498,20 +521,6 @@ var typeMarker = {
         block: false
     }),
 
-    // expression: new AST_Type_Register({
-    //     typeIndicator: 'command',
-    //     name: 'command',
-    //     start: '(',
-    //     end: ')',
-    //     block: false
-    // }),
-
-    // statement: new AST_Type_Register({
-    //     typeIndicator: 'statement',
-    //     name: 'statement',
-    //     start: '{',
-    //     end: '}'
-    // })
 };
 class SymbolMark {
     constructor(symbol = null) {
@@ -592,11 +601,10 @@ class AST_Unit {
             if (_currentStr === undefined) {
                 return;
             }
-            if (_s ===false && (_currentStr.startMark === element || _currentStr.startMark === true)) {
+            if (_s === false && (_currentStr.startMark === element || _currentStr.startMark === true)) {
                 _s = i;
-            }
-            else if (_currentStr.endMark === element || _currentStr.endMark === null){
-                _e = _currentStr.endMark === null ? i-1 : i;
+            } else if (_currentStr.endMark === element || _currentStr.endMark === null) {
+                _e = _currentStr.endMark === null ? i - 1 : i;
                 this.propField[_currentStr.type] = new Field(_s, _e);
                 _currentPieceIndex++;
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
@@ -707,7 +715,7 @@ class AST_Unit {
 
 
 var AST = {
-    breaker: ['{', '}', '(', ')', ';', '=',','],
+    breaker: ['{', '}', '(', ')', ';', '=', ','],
     /** replace key symbol with space
      */
     tokenize: function (input) {
@@ -907,9 +915,13 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        // console.log(textArray);
-
+        
         let _result = draw.div(null, 'frame_title');
+        if (textArray[1][0] == "empty") {
+            return _result.appendChild(draw.span(textArray[0], 'title'));
+        }
+
+
         textArray.forEach(i => {
             i !== undefined && _result.appendChild(draw.span(i, 'title'));
             _result.appendChild(draw.span(' ', 'default'));
@@ -917,21 +929,23 @@ var unitRender = {
         return _result;
     },
     param: function (param) {
-        
-        if ((!param )|| param[0]=='empty') {
-            return;
-        }
+        let _param = param
+        if ((!_param) || _param[0] == 'empty') return;
+
+        // content rebuild.
+        _param = properties['arguements'].codeFormat(_param);
+
+        // each grid style pre handle 
         let _unitHeight = 20;
         let _result = draw.div(null, 'default');
         _result.style.backgroundColor = 'white';
-        _result.style.height = (param.length ) * _unitHeight + 'px';
+        _result.style.height = (_param.length) * _unitHeight + 'px';
         // _result.style.width = '20px'
         _result.style.position = 'relative';
 
-        for (let i = 0; i < param.length; i++) {
-            const element = param[i];
+        for (let i = 0; i < _param.length; i++) {
+            const element = _param[i];
             if (element != null) { // exclude null in list end 
-
                 let _component = draw.div(element, 'component');
                 _component.style.top = _unitHeight * (i) + 'px';
                 _component.style.left = '0px';
@@ -944,6 +958,7 @@ var unitRender = {
 }
 /**
  * render parts of unit
+ * TODO: HERE SHOULD BE HAVE PROPERTIES RETURN FROM PROPERTIES STRUCTURE.
  * @param {AST_Unit} ASTunit 
  */
 var ASTRender = function (ASTunit) {
@@ -1193,6 +1208,7 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
+console.log(1);
 
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
@@ -1262,14 +1278,14 @@ class Field {
      * @param {Array} operator to be operate object.
      */
     reflectOn(operator) {
-        if (this.to - this.from == 1){
+        if (this.to - this.from == 1) {
             return ['empty']
         }
-        if (this.to-this.from ==0 ) {
-            
-            return operator[this.from+1]
+        if (this.to - this.from == 0) {
+
+            return operator[this.from + 1]
         }
-        return operator.slice(this.from+1, this.to);
+        return operator.slice(this.from + 1, this.to);
     }
     update(newFrom, newTo) {
         this.from = newFrom;
