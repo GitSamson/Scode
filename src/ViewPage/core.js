@@ -285,9 +285,6 @@ class AST_Type_Register {
             start: '',
             end: '\n',
             structure: [],
-            rend: function(unit){
-
-            }
         }
     ) {
         this.index = {};
@@ -296,7 +293,14 @@ class AST_Type_Register {
         this.end = toArray(attr.end) || [';', '\n'];
         this.start = attr.start;
         this.attr = attr;
-        this.rend = attr.rend;
+    }
+    renderNode(ASTunit) {
+        // DELETE
+
+        for (let i = 0; i < this.attr.structure.length; i++) {
+            const element = this.attr.structure[i];
+            frame.appendChild(element.renderNode())
+        }
     }
     endCheck(input) {
         if (Array.isArray(this.end)) {
@@ -346,7 +350,7 @@ class AST_Type_Register {
  *
  */
 class Property {
-    constructor(type, startMark = null, endMark = null, codeFormat,renderNode) {
+    constructor(type, startMark = null, endMark = null, codeFormat, renderNode) {
         this.type = type;
         this.startMark = startMark;
         this.endMark = endMark;
@@ -354,8 +358,8 @@ class Property {
         this.codeFormat = codeFormat ? codeFormat : function (input) {
             return input
         };
-        this.renderNode = renderNode? renderNode : function(ASTunit){
-            return draw.div('unregist property render style','default');
+        this.renderNode = renderNode ? renderNode : function (ASTunit) {
+            return draw.div('unregist property render style', 'default');
         }
     }
     /**
@@ -371,7 +375,6 @@ class Property {
             return ['none']
         }
         return _field.reflectOn(_unit.body);
-
     }
 }
 
@@ -380,29 +383,27 @@ class Property {
  * basic unit for syntax 
  */
 var properties = {
-    arguements: new Property('arguements', '(', ')', 
-    
-    function (input) {
-        if (input.length <= 1) {
-            return input
-        } // single input process
-        let _output = []; // output array
-        let _stack = ''; // single stack 
-        for (let i = 0; i < input.length; i++) {
-            const element = input[i];
-            if (element === ',') {
-                _output.push(_stack);
-                _stack = '';
-            } else {
-                _stack = _stack + ' ' + element;
-            }
-        }
-        _output.push(_stack);
-        return _output;
-    }
-    , 
-    function(ASTnode){
+    arguements: new Property('arguements', '(', ')',
 
+        function (input) {
+            if (input.length <= 1) {
+                return input
+            } // single input process
+            let _output = []; // output array
+            let _stack = ''; // single stack 
+            for (let i = 0; i < input.length; i++) {
+                const element = input[i];
+                if (element === ',') {
+                    _output.push(_stack);
+                    _stack = '';
+                } else {
+                    _stack = _stack + ' ' + element;
+                }
+            }
+            _output.push(_stack);
+            return _output;
+        },
+        function (ASTnode) {
             let _param = param
             if ((!_param) || _param[0] == 'empty') return;
 
@@ -428,6 +429,9 @@ var properties = {
                 }
             }
             return _result;
+        },
+        function (ASTunit) {
+
         }
     ),
     description: new Property('decription', '//', '\n', function (input) {
@@ -481,8 +485,7 @@ var typeMarker = {
             properties.arguements,
             properties.statement
         ]
-    },
-    ),
+    }, ),
 
     class: new AST_Type_Register({
         typeIndicator: 'class_Indicator',
@@ -531,6 +534,29 @@ var specialMarker = {
     start: new SymbolMark(),
     end: new SymbolMark(),
 }
+/**
+ * PROPMAPPER
+ * @param {Property} property 
+ * @param {Field} field
+ * @param {AST_unit} ASTunit
+ */
+class PropMapper {
+    constructor(property, field, ASTunit) {
+        this.property = property;
+        this.field = field;
+        this.unit = ASTunit;
+    }
+    reflect = {
+        content: function () {
+            return this.property.toString(this.unit);
+        },
+        nodeRend: function () {
+            return this.property.renderNode(this.unit);
+        }
+    }
+}
+
+
 
 //-------------------------------------------------------
 
@@ -548,6 +574,7 @@ class AST_Unit {
         this.detail = 0;
         this.id = ASTPool.push(this);
         this.prop = {};
+        this.propMapperList = [];
         this.parent = null;
         this.propField = {};
         this.index = 0;
@@ -605,7 +632,9 @@ class AST_Unit {
                 _s = i;
             } else if (_currentStr.endMark === element || _currentStr.endMark === null) {
                 _e = _currentStr.endMark === null ? i - 1 : i;
-                this.propField[_currentStr.type] = new Field(_s, _e);
+                var _field = new Field(_s, _e)
+                this.propField[_currentStr.type] = _field;
+                this.propMapperList.push(new PropMapper(_currentStr, _field));
                 _currentPieceIndex++;
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
                 _s = false;
@@ -679,7 +708,38 @@ class AST_Unit {
     }
 
     renderNode() {
+        // RECOVER:
         return sM.presentMode.active().fn(this);
+
+        let frame = draw.div(null, 'frame');
+
+        for (let i = 0; i < this.propMapperList.length; i++) {
+            const element = this.propMapperList[i];
+            frame.appendChild(element.reflect.nodeRend());
+        }
+        frame.id = this.id;
+        frame = eventBind.unitMode(frame);
+        return frame;
+        /*
+      
+        frame.appendChild(ASTRender(ASTunit).head);
+        let _body = draw.div(null, 'body');
+        for (let i = 0; i < ASTunit.body.length; i++) {
+            if (typeof (ASTunit.body[i]) == 'string') {
+                _body.appendChild(draw.span(ASTunit.body[i]));
+
+            } else if (typeof (ASTunit.body[i]) == 'object') {
+                let _node = ASTunit.body[i].renderNode()
+                _node.style.top = (_body.lastChild.offsetTop + _body.lastChild.offsetHeight) + 'px';
+                _body.appendChild(_node);
+            }
+        }
+        frame.appendChild(_body);
+        frame.id = ASTunit.id;
+        frame = eventBind.unitMode(frame);
+        return frame;
+        */
+
     }
     getText() {
         let _result = [];
@@ -699,6 +759,7 @@ class AST_Unit {
         let _strList = (this.type.attr.structure);
         for (let i = 0; i < _strList.length; i++) {
             const element = _strList[i];
+            if(element==undefined){continue;}
             if (element.type == propertyName) {
                 return element.toString(this);
             }
@@ -915,7 +976,7 @@ var unitRender = {
         return _result;
     },
     head: function (...textArray) {
-        
+
         let _result = draw.div(null, 'frame_title');
         if (textArray[1][0] == "empty") {
             return _result.appendChild(draw.span(textArray[0], 'title'));
@@ -1172,8 +1233,9 @@ class StateSet {
 var sM = new Set();
 sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
-
         let frame = draw.div(null, 'frame');
+        console.log('this is unit Mode');
+        
         frame.appendChild(ASTRender(ASTunit).head);
         let _body = draw.div(null, 'body');
         for (let i = 0; i < ASTunit.body.length; i++) {
@@ -1195,6 +1257,8 @@ sM.presentMode = new StateSet(
     // CURRENT MODE:
 
     new State('batteryMode', false, function (ASTunit) {
+        console.log('this is battery Mode');
+
         let frame = draw.div(null, 'default');
         frame = htmlNodeStyleHandler(frame)
             ({
@@ -1208,7 +1272,6 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
-console.log(1);
 
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
@@ -1224,6 +1287,7 @@ console.log(1);
             frame.appendChild(_parameters);
         }
 
+        
         subElement(_unitHtml.param)
 
         frame.id = ASTunit.id;
