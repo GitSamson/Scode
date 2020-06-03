@@ -1208,7 +1208,6 @@ sM.presentMode = new StateSet(
             });
         let _unitHtml = ASTRender(ASTunit);
         frame.appendChild(_unitHtml.head);
-console.log(1);
 
         function subElement(unitList) {
             let _parameters = draw.div(null, 'default');
