@@ -403,19 +403,26 @@ var properties = {
             _output.push(_stack);
             return _output;
         },
-        // code format
-        function (ASTnode) {
-            let _param = param
-            if ((!_param) || _param[0] == 'empty') return;
+        // rendernode
+        function (ASTunit) {
+            let _param = ASTunit.propRead('arguements');
+            let _result = draw.div(null, 'default');
+            //empty check:
+            // _result.style.borderWidth = '10px';
+            // _result.style.height = '15px';
+            // if ((!_param) || _param[0] == 'empty') return _result;
+
             // content rebuild.
-            _param = properties['arguements'].codeFormat(_param);
+            _param = this.codeFormat(_param);
+
             // each grid style pre handle 
             let _unitHeight = 20;
-            let _result = draw.div(null, 'default');
-            _result.style.backgroundColor = 'white';
-            _result.style.height = (_param.length) * _unitHeight + 'px';
-            // _result.style.width = '20px'
-            _result.style.position = 'relative';
+            _result = htmlNodeStyleHandler(_result)({
+                backgroundColor: 'white',
+                height: (_param.length) * _unitHeight + 'px',
+                left: '0px',
+                position: 'relative',
+            });
 
             for (let i = 0; i < _param.length; i++) {
                 const element = _param[i];
@@ -427,41 +434,6 @@ var properties = {
                     _result.appendChild(_component);
                 }
             }
-            return _result;
-        },
-        // rendernode
-        function (ASTunit) {
-            ///////
-             let _param = ASTunit.propRead('arguements');
-             if ((!_param) || _param[0] == 'empty') return;
-
-             // content rebuild.
-             _param = this.codeFormat(_param);
-
-             // each grid style pre handle 
-             let _unitHeight = 20;
-             let _result = draw.div(null, 'default');
-             _result = htmlNodeStyleHandler(_result)({
-                 backgroundColor :'white',
-                 height: (_param.length) * _unitHeight + 'px',
-                 left:'0px',
-                 position : 'relative',
-                 
-                // top : tool.toPx(PARENT.LASTNODE.top) - tool.toPx(PARENT.LASTNODE.margin) + 'px',
-             });
-
-             for (let i = 0; i < _param.length; i++) {
-                 const element = _param[i];
-                 if (element != null) { // exclude null in list end 
-                     let _component = draw.div(element, 'component');
-                     _component.style.top = _unitHeight * (i) + 'px';
-                     _component.style.left = '0px';
-                     i == 0 && (_component.style.borderTopStyle = 'none');
-                     _result.appendChild(_component);
-                 }
-             }
-             ////
-
             return (_result);
         }
     ),
@@ -469,7 +441,22 @@ var properties = {
         if (!input) return;
         return input.slice(2);
     }),
-    name: new Property('name', true, null),
+    name: new Property('name', true, null, null, 
+    //renderNode
+    function (ASTunit) {
+
+        let _result = draw.div(null, 'frame_title');
+
+        if (Array.isArray(this.toString(ASTunit)) === true) {
+            return _result.appendChild(draw.span(ASTunit.type.name, 'title'));
+        }
+
+        _result.appendChild(draw.span(ASTunit.type.name, 'title'));
+        _result.appendChild(draw.span(' ', 'default'));
+        _result.appendChild(draw.span(this.toString(ASTunit), 'title'));
+
+        return _result;
+    }),
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment', '=')
@@ -740,6 +727,7 @@ class AST_Unit {
 
     renderNode() {
         // RECOVER:
+
         return sM.presentMode.active().fn(this);
 
         let frame = draw.div(null, 'frame');
@@ -790,7 +778,9 @@ class AST_Unit {
         let _strList = (this.type.attr.structure);
         for (let i = 0; i < _strList.length; i++) {
             const element = _strList[i];
-            if(element==undefined){continue;}
+            if (element == undefined) {
+                continue;
+            }
             if (element.type == propertyName) {
                 return element.toString(this);
             }
@@ -1260,13 +1250,12 @@ class StateSet {
     }
 }
 
-// SM
 var sM = new Set();
 sM.presentMode = new StateSet(
     new State('unitMode', false, function (ASTunit) {
         let frame = draw.div(null, 'frame');
         console.log('this is unit Mode');
-        
+
         frame.appendChild(ASTRender(ASTunit).head);
         let _body = draw.div(null, 'body');
         for (let i = 0; i < ASTunit.body.length; i++) {
@@ -1285,7 +1274,7 @@ sM.presentMode = new StateSet(
         return frame;
     }),
 
-    // CURRENT MODE:
+    // SM:
 
     new State('batteryMode', false, function (ASTunit) {
         console.log('this is battery Mode');
@@ -1302,25 +1291,13 @@ sM.presentMode = new StateSet(
                 'border-style': 'solid'
             });
         let _unitHtml = ASTRender(ASTunit);
-        frame.appendChild(_unitHtml.head);
+        frame.appendChild(properties.name.renderNode(ASTunit));
 
-        function subElement(unitList) {
-            // unitList = unitRender.param(ASTunit.propRead('arguements'))
-            let _parameters = draw.div(null, 'default');
-            _parameters = htmlNodeStyleHandler(_parameters)({
-                height: 'fit-content',
-                top: tool.toPx(_unitHtml.head.top) - tool.toPx(_unitHtml.head.margin) + 'px',
-                left: '0px'
-                //remove width, otherwise cannot get width ??? make no sense
-            });
-            if (unitList) {
-                _parameters.appendChild(unitList);
-            }
-            return(_parameters);
-        }
 
-        
-        frame.appendChild(subElement(_unitHtml.param))
+        let param = properties.arguements.renderNode(ASTunit);
+
+        frame.appendChild(param);
+
 
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
