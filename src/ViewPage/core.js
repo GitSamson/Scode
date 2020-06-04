@@ -359,7 +359,7 @@ class Property {
             return input
         };
         this.renderNode = renderNode ? renderNode : function (ASTunit) {
-            return draw.div('unregist property render style', 'default');
+            return draw.div('','default');
         }
     }
     /**
@@ -440,6 +440,11 @@ var properties = {
     description: new Property('decription', '//', '\n', function (input) {
         if (!input) return;
         return input.slice(2);
+    },function(ASTunit){
+        console.log(2);
+        console.log(this.toString(ASTunit));
+        let _draw = draw.div(this.toString(ASTunit), 'default');
+        return _draw;
     }),
     name: new Property('name', true, null, null, 
     //renderNode
@@ -564,14 +569,14 @@ class PropMapper {
         this.field = field;
         this.unit = ASTunit;
     }
-    reflect = {
-        content: function () {
+   
+          reflectContent () {
             return this.property.toString(this.unit);
-        },
-        nodeRend: function () {
+        }
+         reflectNodeRend () {
             return this.property.renderNode(this.unit);
         }
-    }
+    
 }
 
 
@@ -652,7 +657,8 @@ class AST_Unit {
                 _e = _currentStr.endMark === null ? i - 1 : i;
                 var _field = new Field(_s, _e)
                 this.propField[_currentStr.type] = _field;
-                this.propMapperList.push(new PropMapper(_currentStr, _field));
+                this.propMapperList.push(new PropMapper(_currentStr, _field,this));
+                
                 _currentPieceIndex++;
                 // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
                 _s = false;
@@ -1277,7 +1283,6 @@ sM.presentMode = new StateSet(
     // SM:
 
     new State('batteryMode', false, function (ASTunit) {
-        console.log('this is battery Mode');
 
         let frame = draw.div(null, 'default');
         frame = htmlNodeStyleHandler(frame)
@@ -1291,13 +1296,15 @@ sM.presentMode = new StateSet(
                 'border-style': 'solid'
             });
         let _unitHtml = ASTRender(ASTunit);
-        frame.appendChild(properties.name.renderNode(ASTunit));
-
-
-        let param = properties.arguements.renderNode(ASTunit);
-
-        frame.appendChild(param);
-
+        let a = ASTunit.propMapperList;
+        if(a){
+            for (let i = 0; i < a.length; i++) {
+                const element = a[i];
+                console.log(element.property.type);
+                
+                frame.appendChild(element.reflectNodeRend());
+            }
+        }
 
         frame.id = ASTunit.id;
         frame = eventBind.batteryMode(frame);
