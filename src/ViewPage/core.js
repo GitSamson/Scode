@@ -1300,8 +1300,6 @@ sM.presentMode = new StateSet(
         if(_propList){
             for (let i = 0; i < _propList.length; i++) {
                 const element = _propList[i];
-                console.log(element.property.type);
-                
                 frame.appendChild(element.reflectNodeRend());
             }
         }
