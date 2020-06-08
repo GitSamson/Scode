@@ -1296,10 +1296,10 @@ sM.presentMode = new StateSet(
                 'border-style': 'solid'
             });
         let _unitHtml = ASTRender(ASTunit);
-        let a = ASTunit.propMapperList;
-        if(a){
-            for (let i = 0; i < a.length; i++) {
-                const element = a[i];
+        let _propList = ASTunit.propMapperList;
+        if(_propList){
+            for (let i = 0; i < _propList.length; i++) {
+                const element = _propList[i];
                 console.log(element.property.type);
                 
                 frame.appendChild(element.reflectNodeRend());
