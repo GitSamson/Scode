@@ -455,7 +455,6 @@ var properties = {
         if (Array.isArray(this.toString(ASTunit)) === true) {
             return _result.appendChild(draw.span(ASTunit.type.name, 'title'));
         }
-
         _result.appendChild(draw.span(ASTunit.type.name, 'title'));
         _result.appendChild(draw.span(' ', 'default'));
         _result.appendChild(draw.span(this.toString(ASTunit), 'title'));
@@ -464,7 +463,8 @@ var properties = {
     }),
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
-    assignment: new Property('assignment', '=')
+    assignment: new Property('assignment', '='),
+    JSDoc: new Property('JSDoc','/**','*/')
 }
 
 
@@ -529,22 +529,22 @@ var typeMarker = {
         structure: [properties.name, properties.value]
     }),
 
-    description: new AST_Type_Register({
-        typeIndicator: 'description',
-        name: 'description',
-        start: "/**",
-        end: "*/",
+    annotation: new AST_Type_Register({
+        typeIndicator: 'annotation',
+        name: 'annotation',
+        start: "//",
+        end: "\n",
         structure: [
             properties.annotation,
         ]
     }),
 
-    annotation: new AST_Type_Register({
-        typeIndicator: 'annotation',
-        name: 'annotation',
-        start: '//',
-        end: '\n',
-        block: false
+    JSDoc: new AST_Type_Register({
+        typeIndicator: 'JSDoc',
+        name: 'JSDoc',
+        start: '/**',
+        end: '*/',
+        structure: [properties.JSDoc]
     }),
 
 };
