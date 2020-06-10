@@ -356,7 +356,7 @@ class Property {
         this.endMark = endMark;
         this.body = [];
         this.codeFormat = codeFormat ? codeFormat : function (input) {
-            return input
+            return input;
         };
         this.renderNode = renderNode ? renderNode : function (ASTunit) {
             return draw.div('','default');
@@ -441,7 +441,6 @@ var properties = {
         if (!input) return;
         return input.slice(2);
     },function(ASTunit){
-        console.log(2);
         console.log(this.toString(ASTunit));
         let _draw = draw.div(this.toString(ASTunit), 'default');
         return _draw;
@@ -464,7 +463,14 @@ var properties = {
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment', '='),
-    JSDoc: new Property('JSDoc','/**','*/')
+    JSDoc: new Property('JSDoc','/**','*/',null,function(ASTunit){
+        let _body = draw.div(null,'default');
+        for (let i = 0; i < ASTunit.body.length; i++) {
+            const element = ASTunit.body[i];
+            _body.appendChild(draw.span(element,'text'));
+        }
+        return _body;
+    })
 }
 
 
@@ -574,7 +580,9 @@ class PropMapper {
             return this.property.toString(this.unit);
         }
          reflectNodeRend () {
+             
             return this.property.renderNode(this.unit);
+
         }
     
 }
@@ -655,12 +663,11 @@ class AST_Unit {
                 _s = i;
             } else if (_currentStr.endMark === element || _currentStr.endMark === null) {
                 _e = _currentStr.endMark === null ? i - 1 : i;
-                var _field = new Field(_s, _e)
+                var _field = new Field(_s, _e);
                 this.propField[_currentStr.type] = _field;
                 this.propMapperList.push(new PropMapper(_currentStr, _field,this));
                 
                 _currentPieceIndex++;
-                // console.log(_str, _currentPieceIndex,_str[_currentPieceIndex]);
                 _s = false;
                 _e = false; // reset temp _s _e;
             }
@@ -733,7 +740,7 @@ class AST_Unit {
 
     renderNode() {
         // RECOVER:
-
+        
         return sM.presentMode.active().fn(this);
 
         let frame = draw.div(null, 'frame');
@@ -833,13 +840,6 @@ var AST = {
         let _result = [];
         let _unit;
 
-        if (_source.length == 1) {
-            console.log(_source);
-            console.log(_source.shift());
-            console.log(_source);
-            console.log(_source == false);
-
-        }
 
         while (_source != false) {
 
@@ -1378,6 +1378,7 @@ let c = 14;
 }
 /**
      * bravo
+     * @param asdasdasd
 */
 class opps(){
 
