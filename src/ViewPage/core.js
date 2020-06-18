@@ -260,6 +260,7 @@ function ASThandler(input) {
 }
 
 function toArray(input) {
+    if(!input){return false}
     let result = input;
     if (!result) {
         return false;
@@ -460,7 +461,14 @@ var properties = {
 
         return _result;
     }),
-    value: new Property('value', '='),
+    value: new Property('value', '=',null,function(ASTunit){
+// code formate
+return null
+
+    },function(ASTunit){
+        return null
+// render Node
+    }),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment', '='),
     annotation: new Property('annotation','//',null,null,function(ASTunit){
@@ -528,7 +536,7 @@ var typeMarker = {
         typeIndicator: 'class_Indicator',
         name: 'class',
         start: 'class',
-        end: '}',
+        end: false,
         structure: [
             properties.name,
             properties.statement
@@ -810,6 +818,37 @@ class AST_Unit {
 
 //-------------------------------------------------------
 
+/**
+ * seperate string structure
+ */
+class AST_block {
+    constructor(startMark, endMark, analysis) {
+        this.startMark = startMark;
+        this.endMark = endMark;
+        this.analysis = analysis;
+        this.body;
+    }
+}
+
+var AST_blockLibrary = {
+
+}
+/**
+ * handle markers in source string
+ */
+class AST_Tag {
+    constructor(tag) {
+        this.tag = tag;
+    }
+}
+
+var AST_markLibrary = {
+    nextLine: new AST_Tag('\n'),
+    commond
+}
+
+
+
 
 var AST = {
     breaker: ['{', '}', '(', ')', ';', '=', ','],
@@ -833,6 +872,9 @@ var AST = {
         _result = _result.filter(i => i);
         return _result;
     },
+
+
+
     /**
      * make cuted string have array structure
      * @param {[]} input expect result from tokenize
@@ -884,6 +926,7 @@ var AST = {
         if (isStart != false) {
             let _res = new AST_Unit();
             _res.type = isStart;
+            console.log(_e)
             _res.push(_e);
 
             let _index = 0;
@@ -1301,7 +1344,6 @@ sM.presentMode = new StateSet(
             let _whiteBoardList = [_tm.JSDoc, _tm.annotation];
             
         if (_whiteBoardList.includes(ASTunit.type)) {
-            
         }else{
             frame.style.borderStyle = 'Solid';
         }
@@ -1386,6 +1428,11 @@ function a (){
 var a = 12;   
 var b =13;
 let c = 14;
+}
+var a = {
+    1: asd,
+    2: asdasdasd,
+    3: asdasdasd
 }
 // this is good 
 // hello world
