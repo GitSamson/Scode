@@ -463,6 +463,14 @@ var properties = {
     value: new Property('value', '='),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment', '='),
+    annotation: new Property('annotation','//',null,null,function(ASTunit){
+        let _body = draw.div(null,'default');
+         for (let i = 0; i < ASTunit.body.length; i++) {
+             const element = ASTunit.body[i];
+             _body.appendChild(draw.span(element, 'text'));
+         }
+        return _body
+    }),
     JSDoc: new Property('JSDoc','/**','*/',null,function(ASTunit){
         let _body = draw.div(null,'default');
         for (let i = 0; i < ASTunit.body.length; i++) {
@@ -699,16 +707,10 @@ class AST_Unit {
 
     }
 
-    do(command) {
-        if (this.type[command]) {
-            return this.type[command].call(this);
-        }
-    }
     /** type check prototype function
      * @returns false | type
      */
     getType(content = null) {
-
 
         if (!content) {
             return typeMarker.expression
@@ -1293,9 +1295,18 @@ sM.presentMode = new StateSet(
                 padding: '0px',
                 margin: '15px',
                 'border-color': 'grey',
-                'border-style': 'solid'
+                // 'border-style': 'solid'
             });
-        let _unitHtml = ASTRender(ASTunit);
+            let _tm = typeMarker;
+            let _whiteBoardList = [_tm.JSDoc, _tm.annotation];
+            
+        if (_whiteBoardList.includes(ASTunit.type)) {
+            
+        }else{
+            frame.style.borderStyle = 'Solid';
+        }
+ 
+        
         let _propList = ASTunit.propMapperList;
         if(_propList){
             for (let i = 0; i < _propList.length; i++) {
@@ -1376,11 +1387,15 @@ var a = 12;
 var b =13;
 let c = 14;
 }
+// this is good 
+// hello world
 /**
      * bravo
      * @param asdasdasd
 */
 class opps(){
+asdasd
+asdasd
 
 
 }
