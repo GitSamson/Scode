@@ -818,21 +818,7 @@ class AST_Unit {
 
 //-------------------------------------------------------
 
-/**
- * seperate string structure
- */
-class AST_block {
-    constructor(startMark, endMark, analysis) {
-        this.startMark = startMark;
-        this.endMark = endMark;
-        this.analysis = analysis;
-        this.body;
-    }
-}
 
-var AST_blockLibrary = {
-
-}
 /**
  * handle markers in source string
  */
@@ -844,11 +830,26 @@ class AST_Tag {
 
 var AST_markLibrary = {
     nextLine: new AST_Tag('\n'),
-    commond
+    semicolon: new AST_Tag(';'),
+    space: new AST_Tag(' '),
+
 }
 
+/**
+ * seperate string structure
+ */
+class AST_block {
+    constructor(startMark, endMark) {
+        this.startMark = startMark;
+        this.endMark = endMark;
+    }
+}
 
-
+var AST_blockLibrary = {
+    domain : new AST_block('{',"}"),
+    array: new AST_block('[',']')
+}
+// TODO
 
 var AST = {
     breaker: ['{', '}', '(', ')', ';', '=', ','],
