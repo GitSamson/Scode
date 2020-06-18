@@ -1126,7 +1126,7 @@ var diagramEvent = {
         event.cancelBubble = true;
         let _target = event.target;
 
-        while (_target.id == false) {
+        while (_target.id === false) {
             _target = _target.parentElement;
         }
         console.log('unit id = ', _target.id, ASTPool.get(_target.id));
