@@ -842,12 +842,16 @@ class AST_block {
     constructor(startMark, endMark) {
         this.startMark = startMark;
         this.endMark = endMark;
+        this.body;
     }
 }
 
 var AST_blockLibrary = {
-    domain : new AST_block('{',"}"),
-    array: new AST_block('[',']')
+    parentheses: new AST_block('(', ')'),
+    brackets: new AST_block('[',']'),
+    brace : new AST_block('{',"}"),
+    note_singleText: new AST_block('//',AST_markLibrary.nextLine),
+    note_multiText: new AST_block('/*','*/')
 }
 // TODO
 
