@@ -1,5 +1,8 @@
 'use strict';
 
+/*
+INDEX WITH _ + NAME
+*/
 
 function postMsg(line, character) {
     const vscode = acquireVsCodeApi();
@@ -380,7 +383,7 @@ class Property {
 }
 
 /**
- * PROPERTIES library 
+ * _PROPERTIES library 
  * basic unit for syntax 
  */
 var properties = {
