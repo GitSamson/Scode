@@ -466,12 +466,9 @@ var properties = {
     }),
     value: new Property('value', '=',null,function(ASTunit){
 // code formate
-return null
+        return ASTunit.body;
 
-    },function(ASTunit){
-        return null
-// render Node
-    }),
+    },null),
     statement: new Property('statement', '{', '}'),
     assignment: new Property('assignment', '='),
     annotation: new Property('annotation','//',null,null,function(ASTunit){
@@ -894,19 +891,20 @@ var AST = {
 
 
         while (_source != false) {
-
+            
             _unit = this.readSource(_source, true);
             _unit != false && function () {
                 if (_unit instanceof AST_Unit) {
                     _unit.previousUnit = _result[_result.length - 1];
+                    _unit.analysis();
                 }
-                _unit.analysis();
+                
                 _result.push(_unit);
             }();
         }
 
         // let _resultList = this.listAll(_regResult);
-
+        
         return _result;
     },
     /**
@@ -928,17 +926,18 @@ var AST = {
             return;
         }
         let _e = s.shift();
-
+        
         let isStart = typeMarker.startCheck(_e);
 
         if (isStart != false) {
             let _res = new AST_Unit();
+            let _overFlowCheck = false;
             _res.type = isStart;
-            console.log(_e)
             _res.push(_e);
 
             let _index = 0;
-            while (1 && isStart != false) {
+            while (isStart != false && !_overFlowCheck) {
+                
                 let _unit = this.readSource(s, _e);
                 _index = _index + 1;
                 _unit instanceof AST_Unit && function () {
@@ -947,12 +946,21 @@ var AST = {
                 }();
 
                 _res.push(_unit);
+                
 
                 if (_res.endCheck(s[0]) == true) {
                     break;
                 };
+                if(s.length <= 0){
+                    
+                    console.log('Code in Error(can not close block) : ');
+                    console.log(_e);
+
+                    break;
+                }
             }
             _res.push(s.shift());
+            
             return _res;
         }
         return _e;
@@ -1358,9 +1366,12 @@ sM.presentMode = new StateSet(
  
         
         let _propList = ASTunit.propMapperList;
+        console.log(ASTunit);
         if(_propList){
             for (let i = 0; i < _propList.length; i++) {
                 const element = _propList[i];
+                console.log(element);
+                
                 frame.appendChild(element.reflectNodeRend());
             }
         }
@@ -1431,37 +1442,34 @@ class Field {
         this.to = newTo;
     }
 }
-setup(`var a = 12;
+setup(`
+
 function a (){
 var a = 12;   
 var b =13;
 let c = 14;
 }
-var a = {
-    1: asd,
-    2: asdasdasd,
-    3: asdasdasd
-}
-// this is good 
-// hello world
-/**
-     * bravo
-     * @param asdasdasd
-*/
-class opps(){
-asdasd
-asdasd
-
-
+function b() {
+    asd
 }
 
-function b(a=12,b) { asd}
-function asd (a,b){
+function asd(a, b) {
     function a {}
 }
+
+
+
+/**
+ * bravo
+ * @param asdasdasd
+ */
+
 function c (11){ 
     var c =13;
 }
 var a = 13;
 var asd  = 111 ;
+// this is good 
+// hello world
+
 `);
