@@ -818,6 +818,39 @@ class AST_Unit {
 
 //-------------------------------------------------------
 
+/**
+ * _STRUCTURE BUILDER is a function will take out first element in input(directly)
+ * then put into return. 
+ * relative functino/class : Block 
+ * @param {Array} input 
+ */
+function structureBuilder(input) {
+    let _export;
+    let _cacher = input;
+    for (let i = 0; i < _source.length; i++) {
+        const element = _source[i];
+        
+
+    }
+}
+
+/**
+ * _BLOCK SPLITER
+ * @param {string} sourceArray splited source text  
+ * @returns {Array} return a array include all input Object [AST_unit, AST_unit , ... ]
+ */
+function blockSpliter (sourceArray){
+    let _source  = sourceArray;
+    let _cacher;
+    _cacher = _source.split(' ');
+
+
+    
+
+
+    console.log(_cacher);
+    
+}
 
 /**
  * handle markers in source string
@@ -842,7 +875,6 @@ class AST_block {
     constructor(startMark, endMark) {
         this.startMark = startMark;
         this.endMark = endMark;
-        this.body;
     }
 }
 
@@ -851,9 +883,27 @@ var AST_blockLibrary = {
     brackets: new AST_block('[',']'),
     brace : new AST_block('{',"}"),
     note_singleText: new AST_block('//',AST_markLibrary.nextLine),
-    note_multiText: new AST_block('/*','*/')
+    note_multiText: new AST_block('/*','*/'),
+    JSDoc : new AST_block ('/**', '*/')
 }
-// TODO
+
+/**
+ * _BLOCK is high level of AST_block.
+ * @class 
+ */
+class Block {
+    /**
+     * @param {String} stringTypeInBlockLibrary 
+     */
+    constructor (stringTypeInBlockLibrary){
+        this.blockType = AST_blockLibrary[stringTypeInBlockLibrary];
+        this.body = new Array();
+    }
+    push(input){
+        this.body.push(input);
+    }
+}
+
 
 var AST = {
     breaker: ['{', '}', '(', ')', ';', '=', ','],
@@ -1366,12 +1416,9 @@ sM.presentMode = new StateSet(
  
         
         let _propList = ASTunit.propMapperList;
-        console.log(ASTunit);
         if(_propList){
             for (let i = 0; i < _propList.length; i++) {
                 const element = _propList[i];
-                console.log(element);
-                
                 frame.appendChild(element.reflectNodeRend());
             }
         }
