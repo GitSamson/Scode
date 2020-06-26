@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2020-06-26T08:35:13.705Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36" etag="Z8JBRJ-wmAt4-JkacV3B" version="13.3.4" type="github">
+<mxfile host="app.diagrams.net" modified="2020-06-26T08:52:23.226Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36" etag="s0KGYXIzTDslRRV7PatN" version="13.3.4" type="github">
   <diagram id="4qqjbFpk3uk04aFmDsoZ" name="Page-1">
-    <mxGraphModel dx="395" dy="282" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2336" pageHeight="1654" math="0" shadow="0">
+    <mxGraphModel dx="1546" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2336" pageHeight="1654" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -128,40 +128,70 @@
           <mxGeometry y="926" width="250" height="26" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-74" value="return new Node(this.toks, this.toks.start, this.tok.loc.start/null)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="659" width="350" height="20" as="geometry" />
+          <mxGeometry x="313" y="660" width="350" height="20" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-76" value="return this.toks.options.locations? [this.tok.start, this.tok.loc.start] : this.tok.start" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="685" width="430" height="20" as="geometry" />
+          <mxGeometry x="313" y="686" width="430" height="20" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-78" value="return this.options.locations? new Node(this.toks, pos[0], pos[1] : new Node(this.toks, pos))" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="711" width="500" height="20" as="geometry" />
+          <mxGeometry x="313" y="712" width="500" height="20" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-80" value="return node : node.type, node.end = this.last.end;&amp;nbsp;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="740" width="280" height="20" as="geometry" />
+          <mxGeometry x="313" y="738" width="280" height="20" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-81" value="dummy = this.startNode() ... retrun dummy&amp;nbsp;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="765" width="240" height="20" as="geometry" />
+          <mxGeometry x="313" y="765" width="240" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-82" value="dummy = this.dummyNode(&#39;Identifier&#39;) return dummy" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="341" y="790" width="290" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-82" value="dummy = this.dummyNode(&#39;Identifier&#39;) return dummy" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="791" width="290" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-83" value="dummy = this.dummyNode(&#39;Literal&#39; return dummy)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="817" width="280" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-83" value="dummy = this.dummyNode(&#39;Literal&#39; return dummy)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="817" width="280" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-84" value="return this.tok.type === type ? this.next(); true : false" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="841" width="290" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-84" value="return this.tok.type === type ? this.next(); true : false" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="844" width="290" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-85" value="return this.tok.type === tt.name &amp;amp;&amp;amp; this.tok.value ===name" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="870" width="330" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-85" value="return this.tok.type === tt.name &amp;amp;&amp;amp; this.tok.value ===name" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="870" width="330" height="20" as="geometry" />
         </mxCell>
         <mxCell id="QZDMvHGMlxYq4nrmo8u0-86" value="tokTypes as tt" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
           <mxGeometry x="356" y="216" width="90" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-87" value="return this.tok.value === name &amp;amp;&amp;amp; this.eat (tt.name)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="346" y="890" width="290" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-87" value="return this.tok.value === name &amp;amp;&amp;amp; this.eat (tt.name)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="896" width="290" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="QZDMvHGMlxYq4nrmo8u0-88" value="return this.tok.type === tt.eof || this.tok.type === tt.braceR || lineBrea" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
-          <mxGeometry x="356" y="920" width="380" height="20" as="geometry" />
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-88" value="return this.tok.type === tt.eof || this.tok.type === tt.braceR || lineBrea" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="922" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-89" value="return this.eat(tt.semi)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="948" width="130" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-90" value="this.eat(type) &amp;amp;&amp;amp; return true;&amp;nbsp; this.lookAhead(i).type === type? this.next() return true.&amp;nbsp;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="974" width="470" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-91" value="this. context.push(this.curIndent)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1000" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-92" value="this.curIndent = this.context.pop()" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1026" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-93" value="for check &#39;/n&#39; return pos" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1052" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-94" value="check space and tab afterward" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1078" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-95" value="this.tok.type = closeTok || this.tok.type = tt.eof ? true; return line is on current line?" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1104" width="450" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-96" value="check first character is type indentation&amp;nbsp;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1130" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-97" value="this[name] = f(this[name])" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1156" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="QZDMvHGMlxYq4nrmo8u0-98" value="this.next() retrun this.parseTopLevel()" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="313" y="1182" width="210" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
