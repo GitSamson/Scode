@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2020-06-28T10:09:02.487Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36" etag="dPxW1uf3Bhu41SIi7Huc" version="13.3.5" type="github">
+<mxfile host="app.diagrams.net" modified="2020-06-28T10:58:47.620Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36" etag="fDz8nQQbcWr0EzBDxwHg" version="13.3.5" type="github">
   <diagram id="4qqjbFpk3uk04aFmDsoZ" name="Page-1">
     <mxGraphModel dx="636" dy="584" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2336" pageHeight="1654" math="0" shadow="0">
       <root>
@@ -589,6 +589,30 @@
         </mxCell>
         <mxCell id="z4fC7LmuJ2Jv04XwkDk1-123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;align=right;" edge="1" parent="1" source="z4fC7LmuJ2Jv04XwkDk1-85" target="z4fC7LmuJ2Jv04XwkDk1-120">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-125" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;align=right;" edge="1" parent="1" source="z4fC7LmuJ2Jv04XwkDk1-124" target="z4fC7LmuJ2Jv04XwkDk1-101">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-124" value="check marker&lt;br&gt;() ; , [] {} :&amp;nbsp;&lt;br&gt;this.pos, return this.finishToken(token instance)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="1990" y="1042" width="270" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-127" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;align=right;" edge="1" parent="1" source="z4fC7LmuJ2Jv04XwkDk1-126" target="z4fC7LmuJ2Jv04XwkDk1-102">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-126" value="return this.finishToken(type, &#39;input.slice&#39;)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="1990" y="1098" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-130" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;align=right;" edge="1" parent="1" source="z4fC7LmuJ2Jv04XwkDk1-128" target="z4fC7LmuJ2Jv04XwkDk1-91">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-128" value="called at end of every token, update Context(this.type)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="2010" y="801.5" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-132" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;align=right;" edge="1" parent="1" source="z4fC7LmuJ2Jv04XwkDk1-131" target="z4fC7LmuJ2Jv04XwkDk1-116">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="z4fC7LmuJ2Jv04XwkDk1-131" value="read an identifier, return as string" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="1950" y="1460" width="190" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
