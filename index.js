@@ -1,13 +1,12 @@
-console.log(1);
-var Hi = /** @class */ (function () {
-    function Hi(b) {
+console.log('bravo');
+class Hi {
+    constructor(b) {
         this.content = b;
     }
-    Hi.prototype.yo = function () {
+    yo() {
         return " " + this.content;
-    };
-    return Hi;
-}());
-var a = new Hi('assssd');
-document.body.innerHTML = a.yo();
+    }
+}
+let a = new Hi('if this is success! hello??');
+document.body.innerHTML = a.yo() + "bitch";
 //# sourceMappingURL=index.js.map

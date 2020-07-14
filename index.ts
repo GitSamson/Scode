@@ -1,4 +1,4 @@
-console.log(1);
+console.log('bravo');
 class Hi {
     content : string
     constructor(b : string){
@@ -11,5 +11,5 @@ class Hi {
     
 }
 
-let a = new Hi('assssd');
-document.body.innerHTML = a.yo();
+let a = new Hi('if this is success! hello??');
+document.body.innerHTML = a.yo()+"bitch!";
