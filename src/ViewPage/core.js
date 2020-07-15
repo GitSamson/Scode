@@ -2,7 +2,7 @@
 
 import { parse } from "Acorn.0.1.js";
 parse('this is good');
-```
+
 function postMsg(line, character) {
     const vscode = acquireVsCodeApi();
     vscode.postMessage({
