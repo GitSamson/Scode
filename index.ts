@@ -1,15 +1,12 @@
-console.log('bravo');
-class Hi {
-    content : string
-    constructor(b : string){
-        this.content = b;
-        
+class Parse {
+    node : object;
+        constructor (input : object){
+            this.node = input;
+            return any: this.node && node_Read(this.node)
     }
-    yo(){
-        return " " + this.content;
-    }
-    
+
 }
 
-let a = new Hi('if this is success! hello??');
-document.body.innerHTML = a.yo()+"bitch!";
+function node_Read(){
+
+}
