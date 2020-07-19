@@ -7,8 +7,11 @@ class Main {
 
 }
 
+// debug function. 
+// run sc.input / sc.read(input) 
+// here is the property list you can access to :
+// nodeRead | here restore all node processed in sequence
 var Sinfo = function () {
-
 };
 Sinfo.prototype.createList = function (listName, content = null) {
     this[listName] = [];
@@ -20,11 +23,11 @@ Sinfo.prototype.push = function (listName, content) {
     return;
 };
 Sinfo.prototype.read = function (listName) {
+    if(!listName){return;}
     this[listName].forEach(element => {
         console.log(element);
     });
 };
-
 var sc = new Sinfo();
 
 
@@ -32,7 +35,6 @@ var sc = new Sinfo();
 function node_Read(node) {
     //state check
     sc.push('nodeRead', node);
-
 
     node.id && document.body.appendChild(canvas_build('p', node.id.name));
     node.declarations && node_Read(node.declarations[0]);
@@ -44,10 +46,17 @@ function node_Read(node) {
     }
 }
 
+
 function canvas_build(type, content) {
     let _element = document.createElement(type);
     _element.innerText = content;
     return _element;
+}
+
+// bind property with element
+function canvas_bindProperty(element,propertyName,value){
+    element[propertyName] = value;
+    return;
 }
 
 
