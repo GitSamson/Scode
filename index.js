@@ -1,3 +1,4 @@
+import parse from './lib/babel_Parser.js';
 class Main {
     constructor() {}
     // parse(input) {
@@ -68,7 +69,7 @@ function canvas_bindProperty(element,propertyName,value){
     element[propertyName] = value;
     return;
 }
-
+console.log(2);
 
 // run test
 // var main = new Main();
@@ -77,3 +78,9 @@ function canvas_bindProperty(element,propertyName,value){
 //     var a = 12; 
 //     `
 // );
+function hi (){
+    console.log(11);
+}
+export{
+    hi();
+}
