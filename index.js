@@ -1,9 +1,9 @@
 class Main {
     constructor() {}
-    parse(input) {
-        let input_object = acorn.parse(input);
-        node_Read(input_object);
-    }
+    // parse(input) {
+    //     let input_object = acorn.parse(input);
+    //     node_Read(input_object);
+    // }
 
 }
 
@@ -33,24 +33,34 @@ var sc = new Sinfo();
 
 
 function node_Read(node) {
-    //state check
+    //record processed node to Sinfo-sc. type sc.nodeRead  to check 
     sc.push('nodeRead', node);
 
     node.id && document.body.appendChild(canvas_build('p', node.id.name));
+
     node.declarations && node_Read(node.declarations[0]);
-    if (node.body) {
-        for (let i = 0; i < node.body.length; i++) {
-            const element = node.body[i];
-            node_Read(element);
-        };
-    }
+    // node.body : Arrary | object | undefined 
+    // node.body = Arrary?
+    Array.isArray (node.body)?
+    node.body.forEach(i => {
+        node_Read(i);
+    }):(
+        // node.body == object ?
+        node.body && node_Read(node.body)
+    );
+
 }
 
 
 function canvas_build(type, content) {
     let _element = document.createElement(type);
     _element.innerText = content;
-    return _element;
+    return canvas_eventBind(_element);
+}
+function canvas_eventBind(element){
+    element.addEventListener('dblclick', e => {
+        console.log(element.innerText);
+    })
 }
 
 // bind property with element
@@ -61,11 +71,9 @@ function canvas_bindProperty(element,propertyName,value){
 
 
 // run test
-var main = new Main();
-main.parse(
-    `function a(){}; function b(){}; 
-    var aa = 12;
-    var sb = 13;
-    let test = 111;
-    `
-);
+// var main = new Main();
+// main.parse(
+//     `// hi
+//     var a = 12; 
+//     `
+// );
