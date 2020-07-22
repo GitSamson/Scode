@@ -1,10 +1,10 @@
-import parse from './lib/babel_Parser.js';
 class Main {
     constructor() {}
-    // parse(input) {
-    //     let input_object = acorn.parse(input);
-    //     node_Read(input_object);
-    // }
+    parse(input) {
+        let input_object = BP(input);
+        console.log(input_object);
+        node_Read(input_object);
+    }
 
 }
 
@@ -69,18 +69,11 @@ function canvas_bindProperty(element,propertyName,value){
     element[propertyName] = value;
     return;
 }
-console.log(2);
 
 // run test
-// var main = new Main();
-// main.parse(
-//     `// hi
-//     var a = 12; 
-//     `
-// );
-function hi (){
-    console.log(11);
-}
-export{
-    hi();
-}
+var main = new Main();
+main.parse(
+    `// hi
+    var a = 12; 
+    `
+);
