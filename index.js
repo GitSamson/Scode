@@ -1,9 +1,15 @@
 class Main {
-    constructor() {}
+    constructor() {
+        this.sourceText;
+    }
     parse(input) {
+        if(!input){return;}
+        this.sourceText = input;
         let input_object = BP(input);
-        console.log(input_object);
         node_Read(input_object.program);
+    }
+    getSourceText(loc_start, loc_end){
+        return this.sourceText.slice(loc_start,loc_end);
     }
 
 }

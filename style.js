@@ -1,17 +1,24 @@
 var styleLib = {
-    placeHolder : {
-        type : 'div',
-        css : 'placeholer',
-        events : []
+    placeHolder: {
+        type: 'div',
+        css: 'placeholer',
+        events: []
     },
     unit: {
         type: 'div',
-        css : 'default',
-        events: ['drag','dblClick']
+        css: 'frame_title',
+        events: ['drag', 'dblClick']
     },
-    title : {
-        type: 'span',
-        css: 'title',
+    title: {
+        type: 'div',
+        css: 'frame_title',
+        events: ['drag', 'dblClick']
+
+    },
+    note: {
+        type: 'div',
+        css: 'default',
         events: []
     }
+
 }

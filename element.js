@@ -10,6 +10,19 @@ function pt_e(style_name, value) {
 }
 
 /**
+ * @param {HTMLElement} element input element
+ * @param {string} propertyName property name  
+ * @param {string} propertyVaule property value 
+ */
+function element_bindProperty(element, propertyName, propertyVaule) {
+    
+    if(!element || !propertyVaule ) {return ;}
+
+    element[propertyName] = propertyVaule;
+    return element;
+}
+
+/**
  * get element
  * @param {string} style_name html type {'unit' | 'placeholder'} : please refer to style.js    
  * @param {string | number } content  input value
@@ -23,22 +36,18 @@ function element_build(style_name, content) {
 }
 
 function element_eventBind(style_name, element) {
+    if (!styleLib[style_name].events) return;
+
     let _element = element;
     let _s = styleLib[style_name];
 
-    _s.events && _s.events.forEach(i=>{
+   _s.events.forEach(i=>{
         _element = eventBinder[i](_element);
     });
 
     return _element;
 }
 
-// bind property with element
-function element_bindProperty(element, propertyName, value) {
-    element[propertyName] = value;
-
-    return;
-}
 
 
 var elementNodeStyleHandler = function (Node) {
