@@ -5,6 +5,7 @@
  */
 function pt_e(style_name, value) {
     let _e = element_build(style_name, value);
+    _e.draggable = true;
     document.body.appendChild(_e);
     return _e;
 }

@@ -1,7 +1,7 @@
 var styleLib = {
     placeHolder: {
         type: 'div',
-        css: 'placeholer',
+        css: 'placeHolder',
         events: []
     },
     unit: {

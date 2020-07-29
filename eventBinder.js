@@ -1,3 +1,5 @@
+var posX, posY;
+
 var eventBinder = {
     hostHtmlNode: null,
     // posX:0,
@@ -24,11 +26,12 @@ var eventBinder = {
         let _element = element;
         _element.draggable = true;
 
+
         _element.addEventListener('dragstart', event => {
             console.log('dragstart');
-            // event.cancelBubble = true;
+            event.cancelBubble = true;
             eventBinder.hostHtmlNode = _element;
-            eventBinder.placeHolder = element_build('placeHolder', element.innerText);
+            eventBinder.placeHolder = element_build('placeHolder', '');
             eventBinder.placeHolder && console.log('placeHolder created');
 
             elementNodeStyleHandler(eventBinder.placeHolder)({
@@ -37,19 +40,20 @@ var eventBinder = {
                 left: _element.offsetLeft +10 + 'px',
                 top: _element.offsetTop +10 +  'px',
                 position:'absolute',
-                user_select: 'none'
             });
 
             document.body.appendChild(eventBinder.placeHolder);
             console.log('placeHolder appended into body');
             posX = event.x - eventBinder.placeHolder.offsetLeft;
-            posY = event.y - eventBinder.placeHolder.offsetTop;
+            posY = event.y - eventBinder.placeHolder.offsetTop ;
+            console.log(posX, posY);
 
             document.onmousemove = function (e) {
-                // console.log(e.clientX, ' ', e.clientY);
-                if(e.clientX <5 || e.clientY < 5){
+                // console.log('pos:',posX, ' ', posY);
+                // console.log('client',e.clientX, ' ', e.clientY);
+                posY<0 && console.log('posY < 0 ?');
+                posX < 0 && console.log('posX < 0 ?');
 
-                }
                 eventBinder.placeHolder.style.left = (e.clientX - posX) + 'px';
                 eventBinder.placeHolder.style.top = (e.clientY - posY) + 'px';
             }
@@ -67,17 +71,17 @@ var eventBinder = {
 
                 });
 
-                // if (eventBinder.hostHtmlNode.style.position == 'absolute' &&
-                //     eventBinder.hostHtmlNode.offsetTop < 100 &&
-                //     eventBinder.hostHtmlNode.offsetLeft < 100
-                // ) {
-                //     _style({
-                //         position: 'relative',
-                //         top: '0px',
-                //         left: '0px',
-                //         margin: '15px'
-                //     })
-                // }
+                if (eventBinder.hostHtmlNode.style.position == 'absolute' &&
+                    eventBinder.hostHtmlNode.offsetTop < 100 &&
+                    eventBinder.hostHtmlNode.offsetLeft < 100
+                ) {
+                    _style({
+                        position: 'relative',
+                        top: '0px',
+                        left: '0px',
+                        margin: '15px'
+                    })
+                }
                 htmlNode.parentElement.removeChild(eventBinder.placeHolder);
                 document.onmousemove = null;
                 document.onmouseup = null;
