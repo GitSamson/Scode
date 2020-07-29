@@ -30,19 +30,19 @@ var eventBinder = {
         _element.addEventListener('dragstart', event => {
             console.log('dragstart');
             event.cancelBubble = true;
-            eventBinder.hostHtmlNode = _element;
+            eventBinder.hostHtmlNode = element;
             eventBinder.placeHolder = element_build('placeHolder', '');
             eventBinder.placeHolder && console.log('placeHolder created');
 
             elementNodeStyleHandler(eventBinder.placeHolder)({
                 width: getComputedStyle(_element, null).width,
                 height: getComputedStyle(_element, null).height,
-                left: _element.offsetLeft +10 + 'px',
-                top: _element.offsetTop +10 +  'px',
+                left: _element.offsetLeft  + 'px',
+                top: _element.offsetTop  +  'px',
                 position:'absolute',
             });
 
-            document.body.appendChild(eventBinder.placeHolder);
+            element.parentElement.appendChild(eventBinder.placeHolder);
             console.log('placeHolder appended into body');
             posX = event.x - eventBinder.placeHolder.offsetLeft;
             posY = event.y - eventBinder.placeHolder.offsetTop ;
