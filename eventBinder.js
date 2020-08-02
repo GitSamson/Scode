@@ -9,7 +9,7 @@ var eventBinder = {
         let _element = element;
         _element.addEventListener('dblclick', event => {
             event.cancelBubble = true;
-            console.log(main.getSourceText(element.start, element.end));
+            sc.debug && console.log(main.getSourceText(element.start, element.end));
 
         });
         return _element;
@@ -18,7 +18,7 @@ var eventBinder = {
         let _element = element;
         _element.addEventListener('click', event => {
             event.cancelBubble = true;
-            console.log(element);
+            sc.debug&&console.log(element);
         });
         return _element;
     },
@@ -28,11 +28,11 @@ var eventBinder = {
 
 
         _element.addEventListener('dragstart', event => {
-            console.log('dragstart');
+            sc.debug && console.log('dragstart');
             event.cancelBubble = true;
             eventBinder.hostHtmlNode = element;
             eventBinder.placeHolder = element_build('placeHolder', '');
-            eventBinder.placeHolder && console.log('placeHolder created');
+            sc.debug && eventBinder.placeHolder && console.log('placeHolder created');
 
             elementNodeStyleHandler(eventBinder.placeHolder)({
                 width: getComputedStyle(_element, null).width,
@@ -43,10 +43,10 @@ var eventBinder = {
             });
 
             element.parentElement.appendChild(eventBinder.placeHolder);
-            console.log('placeHolder appended into body');
+            sc.debug && console.log('placeHolder appended into body');
             posX = event.x - eventBinder.placeHolder.offsetLeft;
             posY = event.y - eventBinder.placeHolder.offsetTop ;
-            console.log(posX, posY);
+            sc.debug && console.log(posX, posY);
 
             document.onmousemove = function (e) {
                 // console.log('pos:',posX, ' ', posY);
@@ -59,7 +59,7 @@ var eventBinder = {
             }
 
             document.onmouseup = function (event) {
-                console.log('mouse up ');
+                // console.log('mouse up ');
                 let htmlNode = eventBinder.hostHtmlNode;
                 let _style = elementNodeStyleHandler(htmlNode);
                 _style({
@@ -85,7 +85,7 @@ var eventBinder = {
                 htmlNode.parentElement.removeChild(eventBinder.placeHolder);
                 document.onmousemove = null;
                 document.onmouseup = null;
-                console.log('reset mouse move and mouse up');
+                // console.log('reset mouse move and mouse up');
             }
         });
         return _element;

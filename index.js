@@ -18,7 +18,9 @@ class Main {
 // run sc.input / sc.read(input) 
 // here is the property list you can access to :
 // nodeRead | here restore all node processed in sequence
-var Sinfo = function () {};
+var Sinfo = function () {
+    this.debug = false;
+};
 Sinfo.prototype.createList = function (listName, content = null) {
     this[listName] = [];
     content && this[listName].push(content);
@@ -37,7 +39,7 @@ Sinfo.prototype.read = function (listName) {
     });
 };
 var sc = new Sinfo();
-
+sc.debug = 0; // turn on or off to decide whether show log
 // run test
 var main = new Main();
 main.parse(

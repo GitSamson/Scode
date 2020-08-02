@@ -17,7 +17,7 @@ var styleLib = {
     },
     note: {
         type: 'div',
-        css: 'default',
+        css: 'text',
         events: []
     }
 
