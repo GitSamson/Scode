@@ -39,7 +39,7 @@ Sinfo.prototype.read = function (listName) {
     });
 };
 var sc = new Sinfo();
-sc.debug = 0; // turn on or off to decide whether show log
+sc.debug = 1; // turn on or off to decide whether show log, false = dont show log.
 // run test
 var main = new Main();
 main.parse(
@@ -52,5 +52,25 @@ main.parse(
         //here is inside of function
 
     }
+    var Sinfo = function () {
+        this.debug = false;
+    };
+    Sinfo.prototype.createList = function (listName, content = null) {
+        this[listName] = [];
+        content && this[listName].push(content);
+    };
+
+    Sinfo.prototype.push = function (listName, content) {
+        this.hasOwnProperty(listName) ? this[listName].push(content) : this.createList(listName, content);
+        return;
+    };
+    Sinfo.prototype.read = function (listName) {
+        if (!listName) {
+            return;
+        }
+        this[listName].forEach(element => {
+            console.log(element);
+        });
+    };
     `
 );
